@@ -76,12 +76,13 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
   });
 
   let browser;
+  let window;
   try {
     await waitForDevTools(port, electronProcess, () => stderr);
     browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
     const context = browser.contexts()[0];
     const pages = context.pages();
-    const window = pages[0] ?? (await context.waitForEvent('page', { timeout: 60_000 }));
+    window = pages[0] ?? (await context.waitForEvent('page', { timeout: 60_000 }));
     window.setDefaultTimeout(60_000);
 
     test('Electron UI smoke test', (t) => {
@@ -139,18 +140,21 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
       })().catch((error) => {
         t.fail(error instanceof Error ? error.stack || error.message : String(error));
         t.end();
+      }).finally(async () => {
+        await browser?.close().catch(() => {});
+        if (!electronProcess.killed) electronProcess.kill('SIGTERM');
+        if (stdout) process.stdout.write(stdout);
+        if (stderr) process.stderr.write(stderr);
       });
     });
   } catch (error) {
+    if (browser) await browser.close().catch(() => {});
+    if (!electronProcess.killed) electronProcess.kill('SIGTERM');
+    if (stdout) process.stdout.write(stdout);
+    if (stderr) process.stderr.write(stderr);
     test('Electron UI startup', (t) => {
       t.fail(error instanceof Error ? error.stack || error.message : String(error));
       t.end();
     });
   }
-
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  if (browser) await browser.close().catch(() => {});
-  if (!electronProcess.killed) electronProcess.kill('SIGTERM');
-  if (stdout) process.stdout.write(stdout);
-  if (stderr) process.stderr.write(stderr);
 })();
