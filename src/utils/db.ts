@@ -100,7 +100,7 @@ async function showDbErrorDialog(detail: string): Promise<DbErrorAction> {
   });
 
   if (typeof result === 'symbol') {
-    return result as DbErrorAction;
+    return result;
   }
 
   throw new Error('Unexpected database dialog action');
