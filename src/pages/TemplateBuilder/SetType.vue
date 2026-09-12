@@ -23,7 +23,8 @@
 </template>
 <script lang="ts">
 import { PrintTemplate } from 'models/baseModels/PrintTemplate';
-import { OptionField } from 'schemas/types';
+import { OptionField, SelectOption } from 'schemas/types';
+import { fyo } from 'src/initFyo';
 import Button from 'src/components/Button.vue';
 import Select from 'src/components/Controls/Select.vue';
 import FormHeader from 'src/components/FormHeader.vue';
@@ -38,12 +39,13 @@ export default defineComponent({
   },
   computed: {
     df(): OptionField {
-      const options = PrintTemplate.lists.type(this.doc);
+      const options = PrintTemplate.lists.type(this.doc) as SelectOption[];
+      const firstOption = options[0];
       return {
         ...fyo.getField('PrintTemplate', 'type'),
         options,
         fieldtype: 'Select',
-        default: options[0].value,
+        default: firstOption?.value ?? 'SalesInvoice',
       } as OptionField;
     },
   },
