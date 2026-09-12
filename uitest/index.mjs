@@ -1,14 +1,12 @@
 import path from 'path';
-import { createRequire } from 'module';
 import { spawn } from 'child_process';
 import { chromium } from 'playwright';
 import { fileURLToPath } from 'url';
 import test from 'tape';
 
-const require = createRequire(import.meta.url);
-const electronPath = require('electron');
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(dirname, '..');
+const electronPath = path.join(root, 'node_modules', 'electron', 'dist', 'electron');
 const appSourcePath = path.join(root, 'dist_electron', 'build', 'main.js');
 
 async function getFreePort() {
@@ -61,7 +59,8 @@ async function waitForDevTools(port, timeout = 30_000) {
     await waitForDevTools(port);
     const browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
     const context = browser.contexts()[0];
-    const window = context.pages()[0] ?? (await context.waitForEvent('page', { timeout: 60_000 }));
+    const pages = context.pages();
+    const window = pages[0] ?? (await context.waitForEvent('page', { timeout: 60_000 }));
     window.setDefaultTimeout(60_000);
 
     test('load app', async (t) => {
