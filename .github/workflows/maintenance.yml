@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   checks:
@@ -35,6 +35,18 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive
+
+      - name: Refresh PostCSS security patch
+        if: github.sha == '24a5c4c5cd319138a5ecad480564c086f144283a'
+        run: |
+          yarn upgrade postcss@^8.5.18 --ignore-scripts
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add yarn.lock
+          if ! git diff --cached --quiet; then
+            git commit -m "fix: update postcss security patch"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
 
       - name: Lint
         run: yarn lint
