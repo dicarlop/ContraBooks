@@ -5,11 +5,7 @@ require('source-map-support').install({
 });
 
 import { emitMainProcessError } from 'backend/helpers';
-import {
-  app,
-  BrowserWindow,
-  BrowserWindowConstructorOptions,
-} from 'electron';
+import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs';
 import path from 'path';
