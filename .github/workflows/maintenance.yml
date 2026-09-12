@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -36,8 +36,16 @@ jobs:
           node --version
           yarn --version
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --non-interactive
+      - name: Install dependencies and synchronize lockfile
+        run: |
+          yarn install --non-interactive
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- yarn.lock; then
+            git add yarn.lock
+            git commit -m "fix: synchronize yarn lockfile"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
 
       - name: Lint
         run: yarn lint
