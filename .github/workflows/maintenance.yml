@@ -11,12 +11,17 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NODE_OPTIONS: --no-deprecation
+  BROWSERSLIST_IGNORE_OLD_DATA: 'true'
 
 jobs:
   checks:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
+      - name: Configure Git defaults
+        run: git config --global init.defaultBranch main
+
       - name: Checkout
         uses: actions/checkout@v6
 
@@ -27,7 +32,7 @@ jobs:
           cache: yarn
 
       - name: Install test shell and display server
-        run: sudo apt-get update && sudo apt-get install -y zsh xvfb
+        run: sudo apt-get update && sudo apt-get install -y zsh xvfb dbus-x11
 
       - name: Enable Corepack and pin Yarn
         run: |
@@ -37,7 +42,7 @@ jobs:
           yarn --version
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --non-interactive
+        run: yarn install --frozen-lockfile --non-interactive --silent
 
       - name: Ensure Electron runtime
         run: |
@@ -57,7 +62,7 @@ jobs:
         run: yarn build --nopackage
 
       - name: Electron UI smoke tests
-        run: xvfb-run -a yarn uitest
+        run: dbus-run-session -- xvfb-run -a yarn uitest
 
       - name: Dependency audit
         run: |
@@ -104,6 +109,10 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 45
     steps:
+      - name: Configure Git defaults
+        shell: pwsh
+        run: git config --global init.defaultBranch main
+
       - name: Checkout
         uses: actions/checkout@v6
 
@@ -123,7 +132,7 @@ jobs:
 
       - name: Install dependencies
         shell: pwsh
-        run: yarn install --frozen-lockfile --non-interactive
+        run: yarn install --frozen-lockfile --non-interactive --silent
 
       - name: Full Windows package build
         shell: pwsh
