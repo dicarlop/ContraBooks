@@ -116,13 +116,13 @@ jobs:
 
       - name: Full Windows package build
         shell: pwsh
-        run: yarn build --win --x64 --nosign
+        run: yarn build --win --x64 --nosign --publish never
 
       - name: Verify Windows artifacts
         shell: pwsh
         run: |
-          $artifacts = Get-ChildItem -Path dist_electron/bundled -File
+          $artifacts = Get-ChildItem -Path dist_electron -File -Filter *.exe
           if ($artifacts.Count -eq 0) {
-            throw 'Electron Builder produced no Windows artifacts.'
+            throw 'Electron Builder produced no Windows .exe artifacts.'
           }
           $artifacts | Select-Object Name, Length
