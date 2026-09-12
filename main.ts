@@ -10,8 +10,6 @@ import {
   BrowserWindow,
   BrowserWindowConstructorOptions,
   protocol,
-  ProtocolRequest,
-  ProtocolResponse,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs';
@@ -147,7 +145,38 @@ export class Main {
   }
 
   registerAppProtocol() {
-    protocol.registerBufferProtocol('app', bufferProtocolCallback);
+    protocol.handle('app', async (request) => {
+      const root = path.join(__dirname, 'src');
+      const url = new URL(request.url);
+      const relativePath = path.normalize(
+        path.join(decodeURIComponent(url.host), decodeURIComponent(url.pathname))
+      );
+      const filePath = path.resolve(root, relativePath);
+      const relativeToRoot = path.relative(root, filePath);
+
+      if (relativeToRoot.startsWith('..') || path.isAbsolute(relativeToRoot)) {
+        return new Response('Not Found', { status: 404 });
+      }
+
+      try {
+        const data = await fs.promises.readFile(filePath);
+        const extension = path.extname(filePath).toLowerCase();
+        const mimeType =
+          {
+            '.js': 'text/javascript',
+            '.css': 'text/css',
+            '.html': 'text/html',
+            '.svg': 'image/svg+xml',
+            '.json': 'application/json',
+          }[extension] ?? 'application/octet-stream';
+
+        return new Response(data, {
+          headers: { 'Content-Type': mimeType },
+        });
+      } catch (_) {
+        return new Response('Not Found', { status: 404 });
+      }
+    });
 
     // Use the registered protocol url to load the files.
     this.winURL = 'app://./index.html';
@@ -168,38 +197,6 @@ export class Main {
       );
     });
   }
-}
-
-/**
- * Callback used to register the custom app protocol,
- * during prod, files are read and served by using this
- * protocol.
- */
-function bufferProtocolCallback(
-  request: ProtocolRequest,
-  callback: (response: ProtocolResponse) => void
-) {
-  const { pathname, host } = new URL(request.url);
-  const filePath = path.join(
-    __dirname,
-    'src',
-    decodeURI(host),
-    decodeURI(pathname)
-  );
-
-  fs.readFile(filePath, (_, data) => {
-    const extension = path.extname(filePath).toLowerCase();
-    const mimeType =
-      {
-        '.js': 'text/javascript',
-        '.css': 'text/css',
-        '.html': 'text/html',
-        '.svg': 'image/svg+xml',
-        '.json': 'application/json',
-      }[extension] ?? '';
-
-    callback({ mimeType, data });
-  });
 }
 
 export default new Main();
