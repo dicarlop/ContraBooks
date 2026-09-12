@@ -91,20 +91,8 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
         await window.waitForLoadState('domcontentloaded');
         t.ok(true, 'window has loaded');
 
-        const changeDb = window.getByTestId('change-db');
         const createNew = window.getByTestId('create-new-file');
-        const changeDbPromise = changeDb
-          .waitFor({ state: 'visible' })
-          .then(() => 'change-db');
-        const createNewPromise = createNew
-          .waitFor({ state: 'visible' })
-          .then(() => 'create-new-file');
-
-        const el = await Promise.race([changeDbPromise, createNewPromise]);
-        if (el === 'change-db') {
-          await changeDb.click();
-          await createNewPromise;
-        }
+        await createNew.waitFor({ state: 'visible' });
         t.ok(await createNew.isVisible(), 'create new is visible');
 
         await createNew.click();
