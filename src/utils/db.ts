@@ -1,9 +1,12 @@
 import { Fyo, t } from 'fyo';
 
+type DbErrorAction =
+  typeof dbErrorActionSymbols[keyof typeof dbErrorActionSymbols];
+
 type Conn = {
   countryCode: string;
   error?: Error;
-  actionSymbol?: typeof dbErrorActionSymbols[keyof typeof dbErrorActionSymbols];
+  actionSymbol?: DbErrorAction;
 };
 
 export const dbErrorActionSymbols = {
@@ -39,7 +42,7 @@ export async function connectToDatabase(
 export async function handleDatabaseConnectionError(
   error: Error,
   dbPath: string
-): Promise<typeof dbErrorActionSymbols[keyof typeof dbErrorActionSymbols]> {
+): Promise<DbErrorAction> {
   const message = error.message;
   if (typeof message !== 'string') {
     throw error;
@@ -56,33 +59,49 @@ export async function handleDatabaseConnectionError(
   throw error;
 }
 
-async function handleUnableToAcquireConnection(dbPath: string) {
+async function handleUnableToAcquireConnection(
+  dbPath: string
+): Promise<DbErrorAction> {
   return await showDbErrorDialog(
     t`Could not connect to database file ${dbPath}, please select the file manually`
   );
 }
 
-async function handleDirectoryDoesNotExist(dbPath: string) {
+async function handleDirectoryDoesNotExist(
+  dbPath: string
+): Promise<DbErrorAction> {
   return await showDbErrorDialog(
     t`Directory for database file ${dbPath} does not exist, please select the file manually`
   );
 }
 
-async function showDbErrorDialog(detail: string) {
+async function showDbErrorDialog(detail: string): Promise<DbErrorAction> {
   const { showDialog } = await import('src/utils/interactive');
-  return showDialog({
+  const result = await showDialog({
     type: 'error',
     title: t`Cannot Open File`,
     detail,
     buttons: [
       {
         label: t`Select File`,
-        action: dbErrorActionSymbols.SelectFile,
+        action() {
+          return dbErrorActionSymbols.SelectFile;
+        },
+        isPrimary: true,
       },
       {
         label: t`Cancel`,
-        action: dbErrorActionSymbols.CancelSelection,
+        action() {
+          return dbErrorActionSymbols.CancelSelection;
+        },
+        isEscape: true,
       },
     ],
   });
+
+  if (typeof result === 'symbol') {
+    return result as DbErrorAction;
+  }
+
+  throw new Error('Unexpected database dialog action');
 }
