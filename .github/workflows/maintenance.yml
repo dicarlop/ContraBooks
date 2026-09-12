@@ -26,8 +26,8 @@ jobs:
           node-version: 24.8.0
           cache: yarn
 
-      - name: Install test shell
-        run: sudo apt-get update && sudo apt-get install -y zsh
+      - name: Install test shell and display server
+        run: sudo apt-get update && sudo apt-get install -y zsh xvfb
 
       - name: Enable Corepack and pin Yarn
         run: |
@@ -47,6 +47,9 @@ jobs:
 
       - name: Production source build
         run: yarn build --nopackage
+
+      - name: Electron UI smoke tests
+        run: xvfb-run -a yarn uitest
 
       - name: Dependency audit
         run: |
