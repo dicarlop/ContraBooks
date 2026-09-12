@@ -39,6 +39,12 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive
 
+      - name: Ensure Electron runtime
+        run: |
+          node node_modules/electron/install.js
+          test -x node_modules/electron/dist/electron
+          node node_modules/electron/cli.js --version
+
       - name: Lint
         run: yarn lint
 
