@@ -49,13 +49,13 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
 }
 
 async function removeUserDataDir(userDataDir) {
-  for (let attempt = 0; attempt < 5; attempt++) {
+  for (let attempt = 0; attempt < 8; attempt++) {
     try {
       await fs.rm(userDataDir, { recursive: true, force: true });
       return;
     } catch (error) {
-      if (error?.code !== 'ENOTEMPTY' || attempt === 4) throw error;
-      await new Promise((resolve) => setTimeout(resolve, 250));
+      if (error?.code !== 'ENOTEMPTY' || attempt === 7) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }
 }
@@ -101,20 +101,34 @@ async function removeUserDataDir(userDataDir) {
     window = pages[0] ?? (await context.waitForEvent('page', { timeout: 60_000 }));
     window.setDefaultTimeout(60_000);
 
+    const consoleMessages = [];
+    const pageErrors = [];
+    window.on('console', (message) => {
+      consoleMessages.push(`${message.type()}: ${message.text()}`);
+    });
+    window.on('pageerror', (error) => {
+      pageErrors.push(error.stack || error.message);
+    });
+
     test('Electron UI smoke test', (t) => {
       (async () => {
         t.equal(await window.title(), 'Frappe Books', 'title matches');
         await window.waitForLoadState('domcontentloaded');
         t.ok(true, 'window has loaded');
 
-        // Reset the app's persisted selection and reload so this test always starts
-        // at the database selector, independent of any config left by the runner.
-        await window.evaluate(() => window.ipc.store.set('lastSelectedFilePath', null));
-        await window.reload();
-        await window.waitForLoadState('domcontentloaded');
-
         const createNew = window.getByTestId('create-new-file');
-        await createNew.waitFor({ state: 'visible' });
+        try {
+          await createNew.waitFor({ state: 'visible' });
+        } catch (error) {
+          const bodyText = await window.locator('body').innerText().catch(() => '');
+          const testIds = await window
+            .locator('[data-testid]')
+            .evaluateAll((elements) => elements.map((element) => element.getAttribute('data-testid')))
+            .catch(() => []);
+          throw new Error(
+            `${error.message}\nBody text:\n${bodyText}\nTest IDs: ${testIds.join(', ')}\nPage errors:\n${pageErrors.join('\n')}\nConsole:\n${consoleMessages.join('\n')}`
+          );
+        }
         t.ok(await createNew.isVisible(), 'create new is visible');
 
         await createNew.click();
