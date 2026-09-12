@@ -55,6 +55,7 @@
     "@typescript-eslint/eslint-plugin": "5.60.0",
     "@typescript-eslint/parser": "5.60.0",
     "@vitejs/plugin-vue": "^4.2.3",
+    "@lezer/common": "^1.0.0",
     "autoprefixer": "^9",
     "chokidar": "^3.5.3",
     "dotenv": "^16.0.0",
@@ -85,6 +86,9 @@
   },
   "resolutions": {
     "node-abi": "^3.54.0"
+  },
+  "engines": {
+    "node": ">=24.0.0 <25.0.0"
   },
   "prettier": {
     "semi": true,
