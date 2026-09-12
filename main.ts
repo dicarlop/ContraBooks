@@ -9,8 +9,6 @@ import {
   app,
   BrowserWindow,
   BrowserWindowConstructorOptions,
-  net,
-  protocol,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs';
@@ -37,17 +35,6 @@ export class Main {
     this.icon = this.isDevelopment
       ? path.resolve('./build/icon.png')
       : path.join(__dirname, 'icons', '512x512.png');
-
-    protocol.registerSchemesAsPrivileged([
-      {
-        scheme: 'app',
-        privileges: {
-          secure: true,
-          standard: true,
-          supportFetchAPI: true,
-        },
-      },
-    ]);
 
     if (this.isDevelopment) {
       autoUpdater.logger = console;
@@ -123,16 +110,14 @@ export class Main {
   }
 
   async createWindow() {
-    if (!this.isDevelopment && !protocol.isProtocolHandled('app')) {
-      this.registerAppProtocol();
-    }
-
     const options = this.getOptions();
     this.mainWindow = new BrowserWindow(options);
     this.setMainWindowListeners();
 
     if (this.isDevelopment) {
       this.setViteServerURL();
+    } else {
+      this.setPackagedFileURL();
     }
 
     try {
@@ -156,37 +141,21 @@ export class Main {
       host = process.env.VITE_HOST;
     }
 
-    // Load the url of the dev server if in development mode
     this.winURL = `http://${host}:${port}/`;
   }
 
-  registerAppProtocol() {
-    protocol.handle('app', async (request) => {
-      const root = path.join(__dirname, 'src');
-      const url = new URL(request.url);
+  setPackagedFileURL() {
+    const indexPath = path.join(__dirname, 'src', 'index.html');
+    this.winURL = pathToFileURL(indexPath).toString();
 
-      if (url.host !== 'bundle') {
-        return new Response('Not Found', { status: 404 });
-      }
-
-      const relativePath = path.normalize(decodeURIComponent(url.pathname));
-      const filePath = path.resolve(root, `.${relativePath}`);
-      const relativeToRoot = path.relative(root, filePath);
-
-      if (!relativeToRoot || relativeToRoot.startsWith('..') || path.isAbsolute(relativeToRoot)) {
-        return new Response('Not Found', { status: 404 });
-      }
-
+    if (this.isTest) {
       try {
-        await fs.promises.access(filePath, fs.constants.R_OK);
-        return net.fetch(pathToFileURL(filePath).toString());
-      } catch (_) {
-        return new Response('Not Found', { status: 404 });
+        fs.accessSync(indexPath, fs.constants.R_OK);
+      } catch (err) {
+        emitMainProcessError(err);
+        throw err;
       }
-    });
-
-    // Use the registered protocol url to load the files.
-    this.winURL = 'app://bundle/index.html';
+    }
   }
 
   setMainWindowListeners() {
