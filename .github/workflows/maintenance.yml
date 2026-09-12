@@ -87,3 +87,42 @@ jobs:
           if [ "$audit_status" -eq 4 ]; then
             echo "Yarn reported vulnerabilities, but none are high or critical; continuing."
           fi
+
+  windows-build:
+    name: Windows Electron build
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.8.0
+          cache: yarn
+
+      - name: Enable Corepack and pin Yarn
+        shell: pwsh
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+          node --version
+          yarn --version
+
+      - name: Install dependencies
+        shell: pwsh
+        run: yarn install --frozen-lockfile --non-interactive
+
+      - name: Full Windows package build
+        shell: pwsh
+        run: yarn build --win --x64 --nosign
+
+      - name: Verify Windows artifacts
+        shell: pwsh
+        run: |
+          $artifacts = Get-ChildItem -Path dist_electron/bundled -File
+          if ($artifacts.Count -eq 0) {
+            throw 'Electron Builder produced no Windows artifacts.'
+          }
+          $artifacts | Select-Object Name, Length
