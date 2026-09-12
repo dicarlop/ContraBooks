@@ -9,6 +9,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import icons12 from './Icons/12';
 import icons18 from './Icons/18';
 import icons24 from './Icons/24';
@@ -22,7 +23,7 @@ const components = {
 } as const;
 
 type IconSize = '8' | '12' | '18' | '24';
-export default {
+export default defineComponent({
   name: 'Icon',
   props: {
     name: { type: String, required: true },
@@ -55,5 +56,5 @@ export default {
       return [sizeClass, 'fill-current'];
     },
   },
-};
+});
 </script>
