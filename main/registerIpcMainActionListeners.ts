@@ -29,6 +29,7 @@ import {
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 import { sendAPIRequest } from './api';
 import { initScheduler } from './initSheduler';
+import type { RequestInit as NodeFetchRequestInit } from 'node-fetch';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
@@ -122,13 +123,7 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(
     IPC_ACTIONS.SAVE_HTML_AS_PDF,
-    async (
-      _,
-      html: string,
-      savePath: string,
-      width: number,
-      height: number
-    ) => {
+    async (_, html: string, savePath: string, width: number, height: number) => {
       return await saveHtmlAsPdf(html, savePath, app, width, height);
     }
   );
@@ -213,9 +208,7 @@ export default function registerIpcMainActionListeners(main: Main) {
     }
   );
 
-  ipcMain.handle(IPC_ACTIONS.GET_CREDS, () => {
-    return getUrlAndTokenString();
-  });
+  ipcMain.handle(IPC_ACTIONS.GET_CREDS, () => getUrlAndTokenString());
 
   ipcMain.handle(IPC_ACTIONS.DELETE_FILE, async (_, filePath: string) => {
     return getErrorHandledReponse(async () => await fs.unlink(filePath));
@@ -242,9 +235,7 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(
     IPC_ACTIONS.GET_TEMPLATES,
-    async (_, posPrintWidth?: number) => {
-      return getTemplates(posPrintWidth);
-    }
+    async (_, posPrintWidth?: number) => getTemplates(posPrintWidth)
   );
 
   ipcMain.handle(IPC_ACTIONS.INIT_SHEDULER, async (_, interval: string) => {
@@ -253,14 +244,13 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(
     IPC_ACTIONS.SEND_API_REQUEST,
-    async (e, endpoint: string, options: RequestInit | undefined) => {
-      return sendAPIRequest(endpoint, options);
+    async (_, endpoint: string, options: RequestInit | undefined) => {
+      return sendAPIRequest(
+        endpoint,
+        options as NodeFetchRequestInit | undefined
+      );
     }
   );
-
-  /**
-   * Database Related Actions
-   */
 
   ipcMain.handle(
     IPC_ACTIONS.DB_CREATE,
@@ -299,8 +289,6 @@ export default function registerIpcMainActionListeners(main: Main) {
   );
 
   ipcMain.handle(IPC_ACTIONS.DB_SCHEMA, async () => {
-    return await getErrorHandledReponse(() => {
-      return databaseManager.getSchemaMap();
-    });
+    return await getErrorHandledReponse(() => databaseManager.getSchemaMap());
   });
 }
