@@ -2,10 +2,7 @@
   "name": "frappe-books",
   "version": "0.37.0",
   "description": "Simple book-keeping app for everyone",
-  "author": {
-    "name": "Frappe Technologies Pvt. Ltd.",
-    "email": "hello@frappe.io"
-  },
+  "author": {"name": "Frappe Technologies Pvt. Ltd.", "email": "hello@frappe.io"},
   "scripts": {
     "dev": "node build/scripts/dev.mjs",
     "build": "node build/scripts/build.mjs",
@@ -16,7 +13,7 @@
     "script:profile": "scripts/profile.sh",
     "test": "scripts/test.sh",
     "uitest": "node uitest/index.mjs | tap-spec",
-    "typecheck": "vue-tsc --noEmit",
+    "typecheck": "tsc --noEmit --pretty false --project tsconfig.typecheck.json",
     "lint": "eslint . --ext ts,vue",
     "format": "prettier --write ."
   },
@@ -84,17 +81,9 @@
     "vue-tsc": "^1.6.5",
     "yargs": "^17.7.2"
   },
-  "engines": {
-    "node": ">=24.0.0 <25.0.0"
-  },
-  "prettier": {
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5"
-  },
+  "engines": {"node": ">=24.0.0 <25.0.0"},
+  "prettier": {"semi": true, "singleQuote": true, "trailingComma": "es5"},
   "homepage": "https://frappe.io/books",
-  "repository": {
-    "url": "https://github.com/frappe/books"
-  },
+  "repository": {"url": "https://github.com/frappe/books"},
   "license": "AGPL-3.0-only"
 }
