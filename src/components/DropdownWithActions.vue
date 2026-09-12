@@ -55,7 +55,9 @@ export default defineComponent({
       return this.actions.map(({ label, group, component, action }) => ({
         label,
         group,
-        action,
+        action: action
+          ? (doc, router) => action(doc as Doc, router)
+          : undefined,
         component,
       }));
     },
