@@ -39,7 +39,7 @@ export async function connectToDatabase(
 export async function handleDatabaseConnectionError(
   error: Error,
   dbPath: string
-) {
+): Promise<typeof dbErrorActionSymbols[keyof typeof dbErrorActionSymbols]> {
   const message = error.message;
   if (typeof message !== 'string') {
     throw error;
@@ -77,17 +77,11 @@ async function showDbErrorDialog(detail: string) {
     buttons: [
       {
         label: t`Select File`,
-        action() {
-          return dbErrorActionSymbols.SelectFile;
-        },
-        isPrimary: true,
+        action: dbErrorActionSymbols.SelectFile,
       },
       {
         label: t`Cancel`,
-        action() {
-          return dbErrorActionSymbols.CancelSelection;
-        },
-        isEscape: true,
+        action: dbErrorActionSymbols.CancelSelection,
       },
     ],
   });
