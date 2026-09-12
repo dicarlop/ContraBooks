@@ -55,6 +55,9 @@ jobs:
       - name: Lint
         run: yarn lint
 
+      - name: TypeScript and Vue typecheck
+        run: yarn typecheck
+
       - name: Unit tests
         run: yarn test
 
