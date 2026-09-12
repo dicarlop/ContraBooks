@@ -36,6 +36,7 @@ updatePaths();
 await buildMainProcessSource();
 await buildRendererProcessSource();
 copyPackageJson();
+copyExternalDependencies();
 
 if (!argv.nopackage) {
   await packageApp();
@@ -130,6 +131,18 @@ function copyPackageJson() {
       encoding: 'utf-8',
     }
   );
+}
+
+function copyExternalDependencies() {
+  for (const dep of commonConfig.external) {
+    if (dep === 'electron') {
+      continue;
+    }
+
+    const source = path.join(root, 'node_modules', dep);
+    const destination = path.join(buildDirPath, 'node_modules', dep);
+    fs.copySync(source, destination);
+  }
 }
 
 /**
