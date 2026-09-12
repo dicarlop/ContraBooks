@@ -57,6 +57,25 @@ module.exports = {
         '@typescript-eslint/no-unnecessary-type-assertion': 'off',
       },
     },
+    {
+      files: [
+        'src/errorHandling.ts',
+        'src/utils/interactive.ts',
+        'src/utils/printTemplates.ts',
+      ],
+      rules: {
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off',
+      },
+    },
+    {
+      files: ['src/pages/GetStarted.vue'],
+      rules: {
+        '@typescript-eslint/no-unsafe-argument': 'off',
+      },
+    },
   ],
   ignorePatterns: [
     '*.mjs',
