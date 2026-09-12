@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, type Component } from 'vue';
 import icons12 from './Icons/12';
 import icons18 from './Icons/18';
 import icons24 from './Icons/24';
@@ -36,11 +36,11 @@ export default defineComponent({
     height: Number,
   },
   computed: {
-    iconComponent() {
+    iconComponent(): Component | null {
       const map = components[this.size as IconSize];
-      return map[this.name as keyof typeof map] ?? null;
+      return (map[this.name as keyof typeof map] as Component | undefined) ?? null;
     },
-    iconClasses() {
+    iconClasses(): string[] {
       let sizeClass = {
         8: 'w-2 h-2',
         12: 'w-3 h-3',
