@@ -85,16 +85,11 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 30_00
 
     test('load app', async (t) => {
       t.equal(await window.title(), 'Frappe Books', 'title matches');
-
       await window.waitForLoadState('domcontentloaded');
       t.ok(true, 'window has loaded');
     });
 
     test('navigate to database selector', async (t) => {
-      /**
-       * When running on local, Frappe Books will open
-       * the last selected database.
-       */
       const changeDb = window.getByTestId('change-db');
       const createNew = window.getByTestId('create-new-file');
 
@@ -152,6 +147,8 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 30_00
       await browser.close();
       t.ok(true, 'app closed without errors');
     });
+
+    await new Promise((resolve) => test.on('complete', resolve));
   } finally {
     if (!electronProcess.killed) electronProcess.kill('SIGTERM');
     if (stdout) process.stdout.write(stdout);
