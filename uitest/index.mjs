@@ -61,7 +61,7 @@ async function waitForDevTools(port, timeout = 30_000) {
     await waitForDevTools(port);
     const browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
     const context = browser.contexts()[0];
-    const window = await context.waitForEvent('page', { timeout: 60_000 });
+    const window = context.pages()[0] ?? (await context.waitForEvent('page', { timeout: 60_000 }));
     window.setDefaultTimeout(60_000);
 
     test('load app', async (t) => {
