@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   checks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -22,6 +22,9 @@ jobs:
         with:
           node-version: 20.19.5
           cache: yarn
+
+      - name: Install test shell
+        run: sudo apt-get update && sudo apt-get install -y zsh
 
       - name: Enable Corepack and pin Yarn
         run: |
