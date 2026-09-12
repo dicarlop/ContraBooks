@@ -1,6 +1,7 @@
 import path from 'path';
 import { createRequire } from 'module';
-import { _electron } from 'playwright';
+import { spawn } from 'child_process';
+import { chromium } from 'playwright';
 import { fileURLToPath } from 'url';
 import test from 'tape';
 
@@ -10,81 +11,132 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(dirname, '..');
 const appSourcePath = path.join(root, 'dist_electron', 'build', 'main.js');
 
-(async function run() {
-  const electronApp = await _electron.launch({
-    executablePath: electronPath,
-    args: [appSourcePath],
+async function getFreePort() {
+  const { createServer } = await import('net');
+  return await new Promise((resolve, reject) => {
+    const server = createServer();
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => {
+      const { port } = server.address();
+      server.close(() => resolve(port));
+    });
   });
-  const window = await electronApp.firstWindow();
-  window.setDefaultTimeout(60_000);
+}
 
-  test('load app', async (t) => {
-    t.equal(await window.title(), 'Frappe Books', 'title matches');
+async function waitForDevTools(port, timeout = 30_000) {
+  const deadline = Date.now() + timeout;
+  const url = `http://127.0.0.1:${port}/json/version`;
 
-    await new Promise((r) => window.once('load', () => r()));
-    t.ok(true, 'window has loaded');
-  });
-
-  test('navigate to database selector', async (t) => {
-    /**
-     * When running on local, Frappe Books will open
-     * the last selected database.
-     */
-    const changeDb = window.getByTestId('change-db');
-    const createNew = window.getByTestId('create-new-file');
-
-    const changeDbPromise = changeDb
-      .waitFor({ state: 'visible' })
-      .then(() => 'change-db');
-    const createNewPromise = createNew
-      .waitFor({ state: 'visible' })
-      .then(() => 'create-new-file');
-
-    const el = await Promise.race([changeDbPromise, createNewPromise]);
-    if (el === 'change-db') {
-      await changeDb.click();
-      await createNewPromise;
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) return;
+    } catch (_) {
+      // Electron has not opened its DevTools endpoint yet.
     }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
 
-    t.ok(await createNew.isVisible(), 'create new is visible');
+  throw new Error(`Timed out waiting for Electron DevTools on port ${port}`);
+}
+
+(async function run() {
+  const port = await getFreePort();
+  const electronProcess = spawn(
+    electronPath,
+    [`--remote-debugging-port=${port}`, '--disable-gpu', appSourcePath],
+    {
+      cwd: root,
+      env: { ...process.env, IS_TEST: 'true' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }
+  );
+
+  let stderr = '';
+  electronProcess.stderr.on('data', (chunk) => {
+    stderr += chunk.toString();
   });
 
-  test('fill setup form', async (t) => {
-    await window.getByTestId('create-new-file').click();
-    await window.getByTestId('submit-button').waitFor();
+  try {
+    await waitForDevTools(port);
+    const browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
+    const context = browser.contexts()[0];
+    const window = await context.waitForEvent('page', { timeout: 60_000 });
+    window.setDefaultTimeout(60_000);
 
-    t.equal(
-      await window.getByTestId('submit-button').isDisabled(),
-      true,
-      'submit button is disabled before form fill'
-    );
+    test('load app', async (t) => {
+      t.equal(await window.title(), 'Frappe Books', 'title matches');
 
-    await window.getByPlaceholder('Company Name').fill('Test Company');
-    await window.getByPlaceholder('John Doe').fill('Test Owner');
-    await window.getByPlaceholder('john@doe.com').fill('test@example.com');
-    await window.getByPlaceholder('Select Country').fill('India');
-    await window.getByPlaceholder('Select Country').blur();
-    await window.getByPlaceholder('Prime Bank').fill('Test Bank');
-    await window.getByPlaceholder('Prime Bank').blur();
+      await new Promise((r) => window.once('load', () => r()));
+      t.ok(true, 'window has loaded');
+    });
 
-    t.equal(
-      await window.getByTestId('submit-button').isDisabled(),
-      false,
-      'submit button enabled after form fill'
-    );
-  });
+    test('navigate to database selector', async (t) => {
+      /**
+       * When running on local, Frappe Books will open
+       * the last selected database.
+       */
+      const changeDb = window.getByTestId('change-db');
+      const createNew = window.getByTestId('create-new-file');
 
-  test('create new instance', async (t) => {
-    await window.getByTestId('submit-button').click();
-    t.equal(
-      await window.getByTestId('company-name').innerText(),
-      'Test Company',
-      'new instance created, company name found in sidebar'
-    );
-  });
+      const changeDbPromise = changeDb
+        .waitFor({ state: 'visible' })
+        .then(() => 'change-db');
+      const createNewPromise = createNew
+        .waitFor({ state: 'visible' })
+        .then(() => 'create-new-file');
 
-  test('close app', async (t) => {
-    await electronApp.close();
-    t.ok(true, 'app closed without errors');
-  });
+      const el = await Promise.race([changeDbPromise, createNewPromise]);
+      if (el === 'change-db') {
+        await changeDb.click();
+        await createNewPromise;
+      }
+
+      t.ok(await createNew.isVisible(), 'create new is visible');
+    });
+
+    test('fill setup form', async (t) => {
+      await window.getByTestId('create-new-file').click();
+      await window.getByTestId('submit-button').waitFor();
+
+      t.equal(
+        await window.getByTestId('submit-button').isDisabled(),
+        true,
+        'submit button is disabled before form fill'
+      );
+
+      await window.getByPlaceholder('Company Name').fill('Test Company');
+      await window.getByPlaceholder('John Doe').fill('Test Owner');
+      await window.getByPlaceholder('john@doe.com').fill('test@example.com');
+      await window.getByPlaceholder('Select Country').fill('India');
+      await window.getByPlaceholder('Select Country').blur();
+      await window.getByPlaceholder('Prime Bank').fill('Test Bank');
+      await window.getByPlaceholder('Prime Bank').blur();
+
+      t.equal(
+        await window.getByTestId('submit-button').isDisabled(),
+        false,
+        'submit button enabled after form fill'
+      );
+    });
+
+    test('create new instance', async (t) => {
+      await window.getByTestId('submit-button').click();
+      t.equal(
+        await window.getByTestId('company-name').innerText(),
+        'Test Company',
+        'new instance created, company name found in sidebar'
+      );
+    });
+
+    test('close app', async (t) => {
+      await browser.close();
+      t.ok(true, 'app closed without errors');
+    });
+  } finally {
+    if (!electronProcess.killed) electronProcess.kill('SIGTERM');
+    if (electronProcess.exitCode && stderr) {
+      process.stderr.write(stderr);
+    }
+  }
 })();
