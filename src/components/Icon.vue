@@ -41,13 +41,14 @@ export default defineComponent({
       return (map[this.name as keyof typeof map] as Component | undefined) ?? null;
     },
     iconClasses(): string[] {
-      let sizeClass = {
-        8: 'w-2 h-2',
-        12: 'w-3 h-3',
-        16: 'w-4 h-4',
-        18: 'w-5 h-5',
-        24: 'w-6 h-6',
-      }[this.size];
+      let sizeClass =
+        {
+          8: 'w-2 h-2',
+          12: 'w-3 h-3',
+          16: 'w-4 h-4',
+          18: 'w-5 h-5',
+          24: 'w-6 h-6',
+        }[this.size] ?? '';
 
       if (this.height) {
         sizeClass = `w-${this.height} h-${this.height}`;
