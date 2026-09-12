@@ -1,0 +1,40 @@
+name: Refresh toolchain lock
+
+on:
+  push:
+    branches: ['maintenance/**']
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: "!contains(github.event.head_commit.message, '[toolchain lock refresh]')"
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.8.0
+          cache: yarn
+
+      - name: Refresh lockfile
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+          yarn install --non-interactive --silent
+
+      - name: Commit refreshed lockfile
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json yarn.lock
+          if git diff --cached --quiet; then
+            echo 'No lockfile changes required.'
+            exit 0
+          fi
+          git commit -m 'ci: refresh toolchain lock [toolchain lock refresh]'
+          git push
