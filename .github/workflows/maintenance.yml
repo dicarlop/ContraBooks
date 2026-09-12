@@ -37,7 +37,7 @@ jobs:
         run: yarn install --frozen-lockfile --non-interactive
 
       - name: Refresh PostCSS security patch
-        if: github.sha == '24a5c4c5cd319138a5ecad480564c086f144283a'
+        if: github.ref == 'refs/heads/maintenance/2026-09'
         run: |
           yarn upgrade postcss@^8.5.18 --ignore-scripts
           git config user.name "github-actions[bot]"
