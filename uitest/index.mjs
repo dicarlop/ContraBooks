@@ -48,6 +48,18 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
   );
 }
 
+async function removeUserDataDir(userDataDir) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      await fs.rm(userDataDir, { recursive: true, force: true });
+      return;
+    } catch (error) {
+      if (error?.code !== 'ENOTEMPTY' || attempt === 4) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+  }
+}
+
 (async function run() {
   const port = await getFreePort();
   const userDataDir = await fs.mkdtemp(path.join(os.tmpdir(), 'contrabooks-ui-'));
@@ -95,6 +107,12 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
         await window.waitForLoadState('domcontentloaded');
         t.ok(true, 'window has loaded');
 
+        // Reset the app's persisted selection and reload so this test always starts
+        // at the database selector, independent of any config left by the runner.
+        await window.evaluate(() => window.ipc.store.set('lastSelectedFilePath', null));
+        await window.reload();
+        await window.waitForLoadState('domcontentloaded');
+
         const createNew = window.getByTestId('create-new-file');
         await createNew.waitFor({ state: 'visible' });
         t.ok(await createNew.isVisible(), 'create new is visible');
@@ -139,7 +157,7 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
           if (!electronProcess.killed) electronProcess.kill('SIGTERM');
           if (stdout) process.stdout.write(stdout);
           if (stderr) process.stderr.write(stderr);
-          await fs.rm(userDataDir, { recursive: true, force: true });
+          await removeUserDataDir(userDataDir);
         });
     });
   } catch (error) {
@@ -147,7 +165,7 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
     if (!electronProcess.killed) electronProcess.kill('SIGTERM');
     if (stdout) process.stdout.write(stdout);
     if (stderr) process.stderr.write(stderr);
-    await fs.rm(userDataDir, { recursive: true, force: true });
+    await removeUserDataDir(userDataDir).catch(() => {});
     test('Electron UI startup', (t) => {
       t.fail(error instanceof Error ? error.stack || error.message : String(error));
       t.end();
