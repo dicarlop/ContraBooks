@@ -23,11 +23,6 @@ export interface MessageDialogOptions {
   buttons?: MessageDialogButton[];
 }
 
-export type DropdownAction = (
-  doc?: Doc,
-  router?: Router
-) => Promise<unknown> | unknown;
-
 export interface ToastOptions {
   message: string;
   type?: ToastType;
@@ -93,6 +88,11 @@ export type ActionGroup = {
   actions: Action[];
 };
 
+export type DropdownAction = (
+  doc?: Doc,
+  router?: Router
+) => Promise<unknown> | unknown;
+
 export type DropdownItem = {
   label: string;
   value?: string;
@@ -104,3 +104,36 @@ export type DropdownItem = {
 
 export type UIGroupedFields = Map<string, Map<string, Field[]>>;
 export type ExportFormat = 'csv' | 'json';
+export type PeriodKey = 'This Year' | 'This Quarter' | 'This Month' | 'YTD';
+
+export type PrintValues = {
+  print: Record<string, unknown>;
+  doc: Record<string, unknown>;
+};
+
+export interface DialogOptions {
+  title: string;
+  type?: ToastType;
+  detail?: string | string[];
+  buttons?: DialogButton[];
+}
+
+export type DialogButton = {
+  label: string;
+  action: () => unknown;
+  isPrimary?: boolean;
+  isEscape?: boolean;
+};
+
+export type GetStartedConfigItem = {
+  label: string;
+  items: {
+    key: string;
+    label: string;
+    icon: string;
+    description: string;
+    fieldname: string;
+    documentation?: string;
+    action?: () => void;
+  }[];
+};
