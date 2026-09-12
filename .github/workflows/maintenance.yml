@@ -7,14 +7,13 @@ on:
     branches: [master]
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   NODE_OPTIONS: --no-deprecation
   BROWSERSLIST_IGNORE_OLD_DATA: 'true'
 
-# Keep the maintenance workflow itself stable while toolchain lockfiles are refreshed.
 jobs:
   checks:
     runs-on: ubuntu-24.04
@@ -37,6 +36,20 @@ jobs:
           corepack prepare yarn@1.22.22 --activate
           node --version
           yarn --version
+      - name: Refresh lockfile if needed
+        run: |
+          yarn install --non-interactive --silent
+          if git diff --quiet -- yarn.lock package.json; then
+            echo 'Lockfile already synchronized.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json yarn.lock
+          git commit -m 'ci: refresh Yarn lock [types lock refresh]'
+          git push
+          echo 'Lockfile refreshed; stopping this run so the next run tests the committed lockfile.'
+          exit 0
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive --silent
       - name: Ensure Electron runtime
