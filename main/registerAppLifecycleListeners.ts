@@ -28,7 +28,9 @@ export default function registerAppLifecycleListeners(main: Main) {
 
 async function installDevTools(main: Main) {
   try {
-    await installExtension(VUEJS3_DEVTOOLS);
+    await installExtension(
+      VUEJS3_DEVTOOLS as Parameters<typeof installExtension>[0]
+    );
   } catch (e) {
     rendererLog(main, 'Vue Devtools failed to install', e);
   }
