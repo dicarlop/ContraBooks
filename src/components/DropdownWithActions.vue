@@ -56,7 +56,12 @@ export default defineComponent({
         label,
         group,
         action: action
-          ? (doc, router) => action(doc as Doc, router)
+          ? (doc, router) => {
+              if (!doc || !router) {
+                return;
+              }
+              return action(doc as Doc, router);
+            }
           : undefined,
         component,
       }));
