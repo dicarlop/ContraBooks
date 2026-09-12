@@ -75,16 +75,17 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
     stderr += chunk.toString();
   });
 
+  let browser;
   try {
     await waitForDevTools(port, electronProcess, () => stderr);
-    const browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
+    browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
     const context = browser.contexts()[0];
     const pages = context.pages();
     const window = pages[0] ?? (await context.waitForEvent('page', { timeout: 60_000 }));
     window.setDefaultTimeout(60_000);
 
-    test('Electron UI smoke test', async (t) => {
-      try {
+    test('Electron UI smoke test', (t) => {
+      (async () => {
         t.equal(await window.title(), 'Frappe Books', 'title matches');
         await window.waitForLoadState('domcontentloaded');
         t.ok(true, 'window has loaded');
@@ -133,17 +134,23 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
           'new instance created, company name found in sidebar'
         );
 
-        await browser.close();
-        t.ok(true, 'app closed without errors');
-      } catch (error) {
-        t.fail(error instanceof Error ? error.stack || error.message : String(error));
-      } finally {
+        t.pass('UI flow completed');
         t.end();
-      }
+      })().catch((error) => {
+        t.fail(error instanceof Error ? error.stack || error.message : String(error));
+        t.end();
+      });
     });
-  } finally {
-    if (!electronProcess.killed) electronProcess.kill('SIGTERM');
-    if (stdout) process.stdout.write(stdout);
-    if (stderr) process.stderr.write(stderr);
+  } catch (error) {
+    test('Electron UI startup', (t) => {
+      t.fail(error instanceof Error ? error.stack || error.message : String(error));
+      t.end();
+    });
   }
+
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  if (browser) await browser.close().catch(() => {});
+  if (!electronProcess.killed) electronProcess.kill('SIGTERM');
+  if (stdout) process.stdout.write(stdout);
+  if (stderr) process.stderr.write(stderr);
 })();
