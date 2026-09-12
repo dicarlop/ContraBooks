@@ -15,6 +15,7 @@ import {
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import registerAppLifecycleListeners from './main/registerAppLifecycleListeners';
 import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
@@ -38,7 +39,14 @@ export class Main {
       : path.join(__dirname, 'icons', '512x512.png');
 
     protocol.registerSchemesAsPrivileged([
-      { scheme: 'app', privileges: { secure: true, standard: true } },
+      {
+        scheme: 'app',
+        privileges: {
+          secure: true,
+          standard: true,
+          supportFetchAPI: true,
+        },
+      },
     ]);
 
     if (this.isDevelopment) {
@@ -115,15 +123,16 @@ export class Main {
   }
 
   async createWindow() {
+    if (!this.isDevelopment && !protocol.isProtocolHandled('app')) {
+      this.registerAppProtocol();
+    }
+
     const options = this.getOptions();
     this.mainWindow = new BrowserWindow(options);
-
     this.setMainWindowListeners();
 
     if (this.isDevelopment) {
       this.setViteServerURL();
-    } else {
-      this.registerAppProtocol();
     }
 
     try {
@@ -155,26 +164,29 @@ export class Main {
     protocol.handle('app', async (request) => {
       const root = path.join(__dirname, 'src');
       const url = new URL(request.url);
-      const relativePath = path.normalize(
-        path.join(decodeURIComponent(url.host), decodeURIComponent(url.pathname))
-      );
-      const filePath = path.resolve(root, relativePath);
+
+      if (url.host !== 'bundle') {
+        return new Response('Not Found', { status: 404 });
+      }
+
+      const relativePath = path.normalize(decodeURIComponent(url.pathname));
+      const filePath = path.resolve(root, `.${relativePath}`);
       const relativeToRoot = path.relative(root, filePath);
 
-      if (relativeToRoot.startsWith('..') || path.isAbsolute(relativeToRoot)) {
+      if (!relativeToRoot || relativeToRoot.startsWith('..') || path.isAbsolute(relativeToRoot)) {
         return new Response('Not Found', { status: 404 });
       }
 
       try {
         await fs.promises.access(filePath, fs.constants.R_OK);
-        return net.fetch(new URL(`file://${filePath}`));
+        return net.fetch(pathToFileURL(filePath).toString());
       } catch (_) {
         return new Response('Not Found', { status: 404 });
       }
     });
 
     // Use the registered protocol url to load the files.
-    this.winURL = 'app://./index.html';
+    this.winURL = 'app://bundle/index.html';
   }
 
   setMainWindowListeners() {
@@ -186,16 +198,19 @@ export class Main {
       this.mainWindow = null;
     });
 
-    this.mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
-      if (this.isTest) {
-        console.error(
-          `Electron did-fail-load: ${errorCode} ${errorDescription} ${validatedURL}`
+    this.mainWindow.webContents.on(
+      'did-fail-load',
+      (_event, errorCode, errorDescription, validatedURL) => {
+        if (this.isTest) {
+          console.error(
+            `Electron did-fail-load: ${errorCode} ${errorDescription} ${validatedURL}`
+          );
+        }
+        this.mainWindow?.loadURL(this.winURL).catch((err) =>
+          emitMainProcessError(err)
         );
       }
-      this.mainWindow!.loadURL(this.winURL).catch((err) =>
-        emitMainProcessError(err)
-      );
-    });
+    );
   }
 }
 
