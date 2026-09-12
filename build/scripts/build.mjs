@@ -168,7 +168,7 @@ function copyExternalDependencies() {
  * are passed on as builderArgs.
  */
 async function packageApp() {
-  const { configureBuildCommand } = await await import(
+  const { configureBuildCommand } = await import(
     'electron-builder/out/builder.js'
   );
 
@@ -180,7 +180,7 @@ async function packageApp() {
     delete builderArgs[opt];
   }
 
-  let buildOptions = {
+  const buildOptions = {
     config: frappeBooksConfig,
     ...builderArgs,
   };
