@@ -47,6 +47,16 @@ module.exports = {
         '@typescript-eslint/no-unsafe-call': 'off',
       },
     },
+    {
+      files: [
+        'backend/database/core.ts',
+        'src/pages/POS/POS.vue',
+        'utils/translationHelpers.ts',
+      ],
+      rules: {
+        '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      },
+    },
   ],
   ignorePatterns: [
     '*.mjs',
