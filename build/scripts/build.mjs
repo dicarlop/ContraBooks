@@ -68,7 +68,22 @@ async function buildRendererProcessSource() {
   await vite.build({
     base: './',
     root: path.join(root, 'src'),
-    build: { outDir, sourcemap: true },
+    build: {
+      outDir,
+      sourcemap: true,
+      chunkSizeWarningLimit: 9000,
+      rollupOptions: {
+        onwarn(warning, defaultHandler) {
+          if (
+            warning.message.includes('dynamically imported by') &&
+            warning.message.includes('but also statically imported')
+          ) {
+            return;
+          }
+          defaultHandler(warning);
+        },
+      },
+    },
     plugins: [vue()],
     resolve: {
       alias: {
