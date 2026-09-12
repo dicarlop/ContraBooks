@@ -164,38 +164,8 @@ export class Main {
     }
 
     this.mainWindow.on('closed', () => {
-      if (this.isTest) console.error('Electron window closed');
       this.mainWindow = null;
     });
-
-    this.mainWindow.webContents.on('render-process-gone', (_event, details) => {
-      if (this.isTest) {
-        console.error(
-          `Electron render-process-gone: ${details.reason} ${details.exitCode}`
-        );
-      }
-    });
-
-    this.mainWindow.webContents.on('console-message', (_event, level, message) => {
-      if (this.isTest) {
-        console.error(`Electron renderer console [${level}]: ${message}`);
-      }
-    });
-
-    this.mainWindow.webContents.on('did-finish-load', () => {
-      if (this.isTest) console.error(`Electron did-finish-load: ${this.winURL}`);
-    });
-
-    this.mainWindow.webContents.on(
-      'did-fail-load',
-      (_event, errorCode, errorDescription, validatedURL) => {
-        if (this.isTest) {
-          console.error(
-            `Electron did-fail-load: ${errorCode} ${errorDescription} ${validatedURL}`
-          );
-        }
-      }
-    );
   }
 }
 
