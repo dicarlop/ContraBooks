@@ -45,7 +45,7 @@ export class Main {
 
     this.registerListeners();
     if (this.isMac && this.isDevelopment) {
-      app.dock.setIcon(this.icon);
+      app.dock?.setIcon(this.icon);
     }
   }
 
