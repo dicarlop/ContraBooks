@@ -1,14 +1,20 @@
 import path from 'path';
+import { createRequire } from 'module';
 import { _electron } from 'playwright';
 import { fileURLToPath } from 'url';
 import test from 'tape';
 
+const require = createRequire(import.meta.url);
+const electronPath = require('electron');
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(dirname, '..');
 const appSourcePath = path.join(root, 'dist_electron', 'build', 'main.js');
 
 (async function run() {
-  const electronApp = await _electron.launch({ args: [appSourcePath] });
+  const electronApp = await _electron.launch({
+    executablePath: electronPath,
+    args: [appSourcePath],
+  });
   const window = await electronApp.firstWindow();
   window.setDefaultTimeout(60_000);
 
