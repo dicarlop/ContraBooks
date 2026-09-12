@@ -21,11 +21,17 @@ async function getFreePort() {
   });
 }
 
-async function waitForDevTools(port, timeout = 30_000) {
+async function waitForDevTools(port, electronProcess, getStderr, timeout = 30_000) {
   const deadline = Date.now() + timeout;
   const url = `http://127.0.0.1:${port}/json/version`;
 
   while (Date.now() < deadline) {
+    if (electronProcess.exitCode !== null) {
+      throw new Error(
+        `Electron exited with code ${electronProcess.exitCode}\n${getStderr()}`
+      );
+    }
+
     try {
       const response = await fetch(url);
       if (response.ok) return;
@@ -35,14 +41,24 @@ async function waitForDevTools(port, timeout = 30_000) {
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
 
-  throw new Error(`Timed out waiting for Electron DevTools on port ${port}`);
+  throw new Error(
+    `Timed out waiting for Electron DevTools on port ${port}\n${getStderr()}`
+  );
 }
 
 (async function run() {
   const port = await getFreePort();
   const electronProcess = spawn(
     electronPath,
-    [`--remote-debugging-port=${port}`, '--disable-gpu', appSourcePath],
+    [
+      `--remote-debugging-port=${port}`,
+      '--remote-debugging-address=127.0.0.1',
+      '--disable-gpu',
+      '--disable-dev-shm-usage',
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      appSourcePath,
+    ],
     {
       cwd: root,
       env: { ...process.env, IS_TEST: 'true' },
@@ -51,12 +67,16 @@ async function waitForDevTools(port, timeout = 30_000) {
   );
 
   let stderr = '';
+  let stdout = '';
+  electronProcess.stdout.on('data', (chunk) => {
+    stdout += chunk.toString();
+  });
   electronProcess.stderr.on('data', (chunk) => {
     stderr += chunk.toString();
   });
 
   try {
-    await waitForDevTools(port);
+    await waitForDevTools(port, electronProcess, () => stderr, 60_000);
     const browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
     const context = browser.contexts()[0];
     const pages = context.pages();
@@ -66,7 +86,7 @@ async function waitForDevTools(port, timeout = 30_000) {
     test('load app', async (t) => {
       t.equal(await window.title(), 'Frappe Books', 'title matches');
 
-      await new Promise((r) => window.once('load', () => r()));
+      await window.waitForLoadState('domcontentloaded');
       t.ok(true, 'window has loaded');
     });
 
@@ -134,8 +154,7 @@ async function waitForDevTools(port, timeout = 30_000) {
     });
   } finally {
     if (!electronProcess.killed) electronProcess.kill('SIGTERM');
-    if (electronProcess.exitCode && stderr) {
-      process.stderr.write(stderr);
-    }
+    if (stdout) process.stdout.write(stdout);
+    if (stderr) process.stderr.write(stderr);
   }
 })();
