@@ -17,7 +17,7 @@ env:
 jobs:
   checks:
     runs-on: ubuntu-24.04
-    timeout-minutes: 31
+    timeout-minutes: 30
     steps:
       - name: Configure Git defaults
         run: git config --global init.defaultBranch main
@@ -81,21 +81,14 @@ jobs:
           for (const line of lines) {
             try {
               const item = JSON.parse(line);
-              if (item.type === 'auditAdvisory' && item.data?.advisory) {
-                advisories.push(item.data.advisory);
-              }
+              if (item.type === 'auditAdvisory' && item.data?.advisory) advisories.push(item.data.advisory);
             } catch (_) {}
           }
-
           const rank = { low: 0, moderate: 1, high: 2, critical: 3 };
           const severe = advisories.filter((a) => (rank[a.severity] ?? 99) >= rank.high);
           const moderate = advisories.filter((a) => a.severity === 'moderate');
-
           console.log(`Advisories: ${advisories.length}; moderate: ${moderate.length}; high/critical: ${severe.length}`);
-          for (const advisory of severe) {
-            console.log(`HIGH/CRITICAL: ${advisory.module_name} ${advisory.severity} ${advisory.title}`);
-          }
-
+          for (const advisory of severe) console.log(`HIGH/CRITICAL: ${advisory.module_name} ${advisory.severity} ${advisory.title}`);
           if (severe.length > 0) process.exit(1);
           NODE
 
@@ -145,7 +138,5 @@ jobs:
         shell: pwsh
         run: |
           $artifacts = Get-ChildItem -Path dist_electron -File -Filter *.exe
-          if ($artifacts.Count -eq 0) {
-            throw 'Electron Builder produced no Windows .exe artifacts.'
-          }
+          if ($artifacts.Count -eq 0) { throw 'Electron Builder produced no Windows .exe artifacts.' }
           $artifacts | Select-Object Name, Length
