@@ -1,3 +1,5 @@
+import fs from 'fs/promises';
+import os from 'os';
 import path from 'path';
 import { spawn } from 'child_process';
 import { chromium } from 'playwright';
@@ -48,9 +50,11 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
 
 (async function run() {
   const port = await getFreePort();
+  const userDataDir = await fs.mkdtemp(path.join(os.tmpdir(), 'contrabooks-ui-'));
   const electronProcess = spawn(
     electronPath,
     [
+      `--user-data-dir=${userDataDir}`,
       `--remote-debugging-port=${port}`,
       '--remote-debugging-address=127.0.0.1',
       '--disable-gpu',
@@ -125,21 +129,25 @@ async function waitForDevTools(port, electronProcess, getStderr, timeout = 60_00
 
         t.pass('UI flow completed');
         t.end();
-      })().catch((error) => {
-        t.fail(error instanceof Error ? error.stack || error.message : String(error));
-        t.end();
-      }).finally(async () => {
-        await browser?.close().catch(() => {});
-        if (!electronProcess.killed) electronProcess.kill('SIGTERM');
-        if (stdout) process.stdout.write(stdout);
-        if (stderr) process.stderr.write(stderr);
-      });
+      })()
+        .catch((error) => {
+          t.fail(error instanceof Error ? error.stack || error.message : String(error));
+          t.end();
+        })
+        .finally(async () => {
+          await browser?.close().catch(() => {});
+          if (!electronProcess.killed) electronProcess.kill('SIGTERM');
+          if (stdout) process.stdout.write(stdout);
+          if (stderr) process.stderr.write(stderr);
+          await fs.rm(userDataDir, { recursive: true, force: true });
+        });
     });
   } catch (error) {
     if (browser) await browser.close().catch(() => {});
     if (!electronProcess.killed) electronProcess.kill('SIGTERM');
     if (stdout) process.stdout.write(stdout);
     if (stderr) process.stderr.write(stderr);
+    await fs.rm(userDataDir, { recursive: true, force: true });
     test('Electron UI startup', (t) => {
       t.fail(error instanceof Error ? error.stack || error.message : String(error));
       t.end();
