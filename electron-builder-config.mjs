@@ -8,28 +8,15 @@ export default {
   appId: 'com.frappe.books',
   productName: 'ContraBooks',
   directories: {
+    app: 'dist_electron/build',
     output: 'dist_electron',
+    buildResources: 'build',
   },
-  files: [
-    'books/**/*',
-    'fyo/**/*',
-    'main/**/*',
-    'accounting/**/*',
-    'build/**/*',
-    'node_modules/**/*',
-    'package.json',
-  ],
-  extraResources: [
-    {
-      from: 'build/icon.ico',
-      to: 'icon.ico',
-    },
-  ],
   win: {
     publisherName: 'Frappe Technologies Pvt. Ltd.',
     artifactName: '${productName}-v${version}-windows-${arch}.${ext}',
     signDlls: true,
-    icon: 'build/icon.ico',
+    icon: 'icon.ico',
     publish: ['github'],
     target: [
       {
