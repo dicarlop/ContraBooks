@@ -9,6 +9,7 @@ import {
   app,
   BrowserWindow,
   BrowserWindowConstructorOptions,
+  net,
   protocol,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
@@ -117,18 +118,24 @@ export class Main {
     const options = this.getOptions();
     this.mainWindow = new BrowserWindow(options);
 
+    this.setMainWindowListeners();
+
     if (this.isDevelopment) {
       this.setViteServerURL();
     } else {
       this.registerAppProtocol();
     }
 
-    await this.mainWindow.loadURL(this.winURL);
+    try {
+      await this.mainWindow.loadURL(this.winURL);
+    } catch (err) {
+      emitMainProcessError(err);
+      throw err;
+    }
+
     if (this.isDevelopment && !this.isTest) {
       this.mainWindow.webContents.openDevTools();
     }
-
-    this.setMainWindowListeners();
   }
 
   setViteServerURL() {
@@ -159,20 +166,8 @@ export class Main {
       }
 
       try {
-        const data = await fs.promises.readFile(filePath);
-        const extension = path.extname(filePath).toLowerCase();
-        const mimeType =
-          {
-            '.js': 'text/javascript',
-            '.css': 'text/css',
-            '.html': 'text/html',
-            '.svg': 'image/svg+xml',
-            '.json': 'application/json',
-          }[extension] ?? 'application/octet-stream';
-
-        return new Response(data, {
-          headers: { 'Content-Type': mimeType },
-        });
+        await fs.promises.access(filePath, fs.constants.R_OK);
+        return net.fetch(new URL(`file://${filePath}`));
       } catch (_) {
         return new Response('Not Found', { status: 404 });
       }
@@ -191,7 +186,12 @@ export class Main {
       this.mainWindow = null;
     });
 
-    this.mainWindow.webContents.on('did-fail-load', () => {
+    this.mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+      if (this.isTest) {
+        console.error(
+          `Electron did-fail-load: ${errorCode} ${errorDescription} ${validatedURL}`
+        );
+      }
       this.mainWindow!.loadURL(this.winURL).catch((err) =>
         emitMainProcessError(err)
       );
