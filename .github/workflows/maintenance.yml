@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: 20.19.5
+          node-version: 24.8.0
           cache: yarn
 
       - name: Install test shell
@@ -72,7 +72,6 @@ jobs:
           const severe = advisories.filter((a) => (rank[a.severity] ?? 99) >= rank.high);
           const moderate = advisories.filter((a) => a.severity === 'moderate');
 
-          console.log(`Audit exit code: ${process.env.AUDIT_STATUS ?? 'see shell'}`);
           console.log(`Advisories: ${advisories.length}; moderate: ${moderate.length}; high/critical: ${severe.length}`);
           for (const advisory of severe) {
             console.log(`HIGH/CRITICAL: ${advisory.module_name} ${advisory.severity} ${advisory.title}`);
