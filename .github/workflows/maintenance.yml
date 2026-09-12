@@ -37,7 +37,7 @@ jobs:
           yarn --version
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --non-interactive
+        run: yarn install --non-interactive
 
       - name: Refresh PostCSS security patch
         if: github.ref == 'refs/heads/maintenance/2026-09'
