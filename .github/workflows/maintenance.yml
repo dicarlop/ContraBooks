@@ -15,6 +15,29 @@ env:
   BROWSERSLIST_IGNORE_OLD_DATA: 'true'
 
 jobs:
+  refresh-lock-artifact:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/maintenance/2026-09'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.8.0
+          cache: yarn
+      - name: Enable Corepack and pin Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+          yarn install --non-interactive --silent
+      - name: Upload regenerated lockfile
+        uses: actions/upload-artifact@v5
+        with:
+          name: regenerated-yarn-lock
+          path: yarn.lock
+          if-no-files-found: error
+
   checks:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
