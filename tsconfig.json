@@ -24,6 +24,7 @@
       "fixtures/*": ["./fixtures/*"],
       "reports": ["./reports/index"],
       "reports/*": ["./reports/*"],
+      "models": ["./models/index"],
       "models/*": ["./models/*"],
       "utils": ["./utils/index"],
       "utils/*": ["./utils/*"],
