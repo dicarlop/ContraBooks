@@ -1,5 +1,5 @@
 import { Doc } from 'fyo/model/doc';
-import { DynamicLinkField, Field, TargetField } from 'schemas/types';
+import { DynamicLinkField, Field } from 'schemas/types';
 import { GetAllOptions } from 'utils/db/types';
 
 export function evaluateReadOnly(field: Field, doc?: Doc) {
@@ -76,9 +76,7 @@ export async function getLinkedEntries(
     .filter((sch) => !sch?.isSingle)
     .map((sch) => sch?.fields)
     .flat()
-    .filter(
-      (f) => f?.fieldtype === 'Link' && f.target === target
-    ) as TargetField[];
+    .filter((f) => f?.fieldtype === 'Link' && f.target === target);
 
   const dynamicLinkingFields = Object.values(fyo.schemaMap)
     .filter((sch) => !sch?.isSingle)
