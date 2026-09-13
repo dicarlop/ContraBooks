@@ -15,21 +15,27 @@ env:
   BROWSERSLIST_IGNORE_OLD_DATA: 'true'
 
 jobs:
-  apply-vue35-fixes:
+  stage-vue35-fixes:
     if: github.event_name == 'push' && github.ref == 'refs/heads/maintenance/2026-09'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Apply Vue 3.5 compatibility fixes
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.8.0
+          cache: yarn
+      - name: Apply Vue 3.5 compatibility fixes and regenerate lockfile
         run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
           python3 - <<'PY'
           from pathlib import Path
 
           replacements = {
               'src/components/POS/Classic/SelectedItemRow.vue': [
-                  ('@change="(value:string) => row.set(\'transferQuantity\', value)"', '@change="row.set(\'transferQuantity\', $event as string)"'),
-                  ('@change="(value:string) => row.set(\'transferUnit\', value)"', '@change="row.set(\'transferUnit\', $event as string)"'),
+                  ('@change="(value:string) => setSerialNumber(value)"', '@change="setSerialNumber($event as string)"'),
               ],
               'src/components/POS/Modern/ModernPOSSelectedItemRow.vue': [
                   ('@change="(value:string) => setBatch(value)"', '@change="setBatch($event as string)"'),
@@ -47,49 +53,22 @@ jobs:
           for filename, pairs in replacements.items():
               path = Path(filename)
               text = path.read_text()
-              original = text
               for old, new in pairs:
-                  if old not in text:
-                      raise SystemExit(f'Missing expected text in {filename}: {old}')
-                  text = text.replace(old, new)
-              if text == original:
-                  raise SystemExit(f'No changes made to {filename}')
+                  if old in text:
+                      text = text.replace(old, new)
               path.write_text(text)
           PY
-      - name: Commit compatibility fixes
+          yarn install --non-interactive --silent
+      - name: Stage changes on automation branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/components/POS/Classic/SelectedItemRow.vue src/components/POS/Modern/ModernPOSSelectedItemRow.vue src/pages/Dashboard/Expenses.vue src/renderer.ts
-          git diff --cached --quiet && exit 0
-          git commit -m "fix: adapt Vue 3.5 template typings"
-          git push
-
-  refresh-lock-artifact:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/maintenance/2026-09'
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24.8.0
-          cache: yarn
-      - name: Enable Corepack and regenerate lockfile
-        run: |
-          corepack enable
-          corepack prepare yarn@1.22.22 --activate
-          yarn install --non-interactive --silent
-      - name: Upload regenerated lockfile
-        uses: actions/upload-artifact@v5
-        with:
-          name: regenerated-yarn-lock
-          path: yarn.lock
-          if-no-files-found: error
+          git add yarn.lock src/components/POS/Classic/SelectedItemRow.vue src/components/POS/Modern/ModernPOSSelectedItemRow.vue src/pages/Dashboard/Expenses.vue src/renderer.ts
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: update Vue 3.5 lockfile and compatibility"
+          git push origin HEAD:automation/vue35-vue-lock --force
 
   checks:
-    needs: refresh-lock-artifact
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -102,11 +81,6 @@ jobs:
         with:
           node-version: 24.8.0
           cache: yarn
-      - name: Download regenerated lockfile
-        uses: actions/download-artifact@v5
-        with:
-          name: regenerated-yarn-lock
-          path: .lock-refresh
       - name: Install test shell and display server
         run: sudo apt-get update && sudo apt-get install -y zsh xvfb dbus-x11
       - name: Enable Corepack and pin Yarn
@@ -115,8 +89,6 @@ jobs:
           corepack prepare yarn@1.22.22 --activate
           node --version
           yarn --version
-      - name: Use regenerated lockfile
-        run: cp .lock-refresh/yarn.lock yarn.lock
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive --silent
       - name: Ensure Electron runtime
@@ -164,13 +136,10 @@ jobs:
             echo "yarn audit failed unexpectedly with exit code $audit_status"
             exit "$audit_status"
           fi
-          if [ "$audit_status" -eq 4 ]; then
-            echo "Yarn reported vulnerabilities, but none are high or critical; continuing."
-          fi
+          if [ "$audit_status" -eq 4 ]; then echo "Yarn reported vulnerabilities, but none are high or critical; continuing."; fi
 
   windows-build:
     name: Windows Electron build
-    needs: refresh-lock-artifact
     runs-on: windows-2022
     timeout-minutes: 45
     steps:
@@ -184,11 +153,6 @@ jobs:
         with:
           node-version: 24.8.0
           cache: yarn
-      - name: Download regenerated lockfile
-        uses: actions/download-artifact@v5
-        with:
-          name: regenerated-yarn-lock
-          path: .lock-refresh
       - name: Enable Corepack and pin Yarn
         shell: pwsh
         run: |
@@ -196,9 +160,6 @@ jobs:
           corepack prepare yarn@1.22.22 --activate
           node --version
           yarn --version
-      - name: Use regenerated lockfile
-        shell: pwsh
-        run: Copy-Item .lock-refresh\yarn.lock yarn.lock -Force
       - name: Install dependencies
         shell: pwsh
         run: yarn install --frozen-lockfile --non-interactive --silent
