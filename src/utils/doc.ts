@@ -124,25 +124,22 @@ export async function getLinkedEntries(
         continue;
       }
 
+      const linkedName = linkedDoc.name;
       if (schema.isChild) {
-        if (!childEntries[linkedDoc.name]) {
-          childEntries[linkedDoc.name] = [];
-        }
-
-        childEntries[linkedDoc.name].push({
-          name: linkedDoc.name,
+        const childDetails = childEntries[linkedName] ?? [];
+        childDetails.push({
+          name: linkedName,
           parent: linkedDoc.parent,
           parentSchemaName: schema.name,
         });
+        childEntries[linkedName] = childDetails;
       } else {
-        if (!entries[linkedDoc.name]) {
-          entries[linkedDoc.name] = [];
-        }
-
-        entries[linkedDoc.name].push({
-          name: linkedDoc.name,
+        const entryDetails = entries[linkedName] ?? [];
+        entryDetails.push({
+          name: linkedName,
           created: linkedDoc.creation,
         });
+        entries[linkedName] = entryDetails;
       }
     }
   }
