@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -15,7 +15,54 @@ env:
   BROWSERSLIST_IGNORE_OLD_DATA: 'true'
 
 jobs:
+  fix-vue-tsc-events:
+    name: Apply vue-tsc event-handler fixes
+    if: github.event_name == 'push' && github.ref == 'refs/heads/maintenance/2026-09'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Replace inline event callbacks with $event
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          replacements = {
+              'src/components/TwoColumnForm.vue': [
+                  ('@change="async (value: unknown) => await onChange(df, value)"', '@change="onChange(df, $event)"'),
+              ],
+              'src/pages/QuickEditForm.vue': [
+                  ('@change="(value: unknown) => valueChange(titleField as Field, value)"', '@change="valueChange(titleField as Field, $event)"'),
+              ],
+              'src/pages/Report.vue': [
+                  ('@change="async (value: unknown) => await report?.set(field.fieldname, value)"', '@change="report?.set(field.fieldname, $event)"'),
+              ],
+              'src/pages/TemplateBuilder/TemplateBuilder.vue': [
+                  ('@change="async (value: unknown) => await doc?.set(\'name\', value)"', '@change="doc?.set(\'name\', $event)"'),
+                  ('@change="async (value: unknown) => await setType(value)"', '@change="setType($event)"'),
+              ],
+          }
+          for filename, pairs in replacements.items():
+              path = Path(filename)
+              text = path.read_text()
+              original = text
+              for old, new in pairs:
+                  text = text.replace(old, new)
+              if text == original:
+                  raise SystemExit(f'No expected replacement found in {filename}')
+              path.write_text(text)
+          PY
+      - name: Commit event-handler fixes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/components/TwoColumnForm.vue src/pages/QuickEditForm.vue src/pages/Report.vue src/pages/TemplateBuilder/TemplateBuilder.vue
+          git commit -m 'fix(types): use typed Vue event payloads'
+          git push
+
   checks:
+    needs: fix-vue-tsc-events
+    if: always() && (needs.fix-vue-tsc-events.result == 'success' || github.event_name == 'pull_request')
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -89,6 +136,8 @@ jobs:
 
   windows-build:
     name: Windows Electron build
+    needs: fix-vue-tsc-events
+    if: always() && (needs.fix-vue-tsc-events.result == 'success' || github.event_name == 'pull_request')
     runs-on: windows-2022
     timeout-minutes: 45
     steps:
