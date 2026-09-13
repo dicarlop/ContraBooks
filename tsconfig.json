@@ -24,7 +24,8 @@
       "reports/*": ["./reports/*"],
       "models/*": ["./models/*"],
       "utils/*": ["./utils/*"],
-      "dummy/*": ["./dummy/*"]
+      "dummy/*": ["./dummy/*"],
+      "fyo/*": ["./fyo/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
