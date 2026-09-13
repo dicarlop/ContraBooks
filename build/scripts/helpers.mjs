@@ -20,6 +20,10 @@ export function getMainProcessCommonConfig(root) {
     platform: 'node',
     target: 'node20',
     external: ['knex', 'electron', 'better-sqlite3', 'electron-store'],
+    alias: {
+      main: path.join(root, 'main'),
+      utils: path.join(root, 'utils'),
+    },
     plugins: [excludeVendorFromSourceMap],
     write: true,
   };
