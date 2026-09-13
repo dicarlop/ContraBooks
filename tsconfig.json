@@ -15,6 +15,7 @@
     "sourceMap": true,
     "types": ["node"],
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "src/*": ["./src/*"],
       "schemas": ["./schemas/index"],
