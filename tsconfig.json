@@ -26,6 +26,7 @@
       "models/*": ["./models/*"],
       "utils": ["./utils/index"],
       "utils/*": ["./utils/*"],
+      "dummy": ["./dummy/index"],
       "dummy/*": ["./dummy/*"],
       "fyo": ["./fyo/index"],
       "fyo/*": ["./fyo/*"]
