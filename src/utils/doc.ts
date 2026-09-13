@@ -120,24 +120,39 @@ export async function getLinkedEntries(
 
     const docs = await fyo.db.getAll(field.schemaName, options);
     for (const linkedDoc of docs) {
-      if (linkedDoc.name === doc.name) {
+      const linkedRecord = linkedDoc as unknown as {
+        name?: unknown;
+        parent?: unknown;
+        creation?: unknown;
+      };
+      const linkedName = linkedRecord.name;
+      if (typeof linkedName !== 'string' || linkedName === doc.name) {
         continue;
       }
 
-      const linkedName = linkedDoc.name;
       if (schema.isChild) {
+        const parent = linkedRecord.parent;
+        if (typeof parent !== 'string') {
+          continue;
+        }
+
         const childDetails = childEntries[linkedName] ?? [];
         childDetails.push({
           name: linkedName,
-          parent: linkedDoc.parent,
+          parent,
           parentSchemaName: schema.name,
         });
         childEntries[linkedName] = childDetails;
       } else {
+        const creation = linkedRecord.creation;
+        if (typeof creation !== 'string') {
+          continue;
+        }
+
         const entryDetails = entries[linkedName] ?? [];
         entryDetails.push({
           name: linkedName,
-          created: linkedDoc.creation,
+          created: creation,
         });
         entries[linkedName] = entryDetails;
       }
