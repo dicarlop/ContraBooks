@@ -22,6 +22,7 @@
       "backend/*": ["./backend/*"],
       "regional/*": ["./regional/*"],
       "fixtures/*": ["./fixtures/*"],
+      "reports": ["./reports/index"],
       "reports/*": ["./reports/*"],
       "models/*": ["./models/*"],
       "utils": ["./utils/index"],
