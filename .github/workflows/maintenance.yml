@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -15,7 +15,42 @@ env:
   BROWSERSLIST_IGNORE_OLD_DATA: 'true'
 
 jobs:
+  refresh-ajv-lock:
+    name: Refresh AJV lockfile
+    if: github.event_name == 'push' && github.ref == 'refs/heads/maintenance/2026-09'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.8.0
+          cache: yarn
+      - name: Enable Corepack and pin Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+          node --version
+          yarn --version
+      - name: Regenerate lockfile with Yarn
+        run: yarn install --non-interactive --silent
+      - name: Commit refreshed lockfile
+        run: |
+          if git diff --quiet -- yarn.lock; then
+            echo 'AJV lockfile already current.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add yarn.lock
+          git commit -m 'chore(deps): refresh AJV lockfile'
+          git push
+
   checks:
+    needs: refresh-ajv-lock
+    if: always() && (needs.refresh-ajv-lock.result == 'success' || github.event_name == 'pull_request')
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -91,6 +126,8 @@ jobs:
 
   windows-build:
     name: Windows Electron build
+    needs: refresh-ajv-lock
+    if: always() && (needs.refresh-ajv-lock.result == 'success' || github.event_name == 'pull_request')
     runs-on: windows-2022
     timeout-minutes: 45
     steps:
