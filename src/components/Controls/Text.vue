@@ -27,7 +27,10 @@ import Base from './Base.vue';
 export default {
   name: 'Text',
   extends: Base,
-  props: { rows: { type: Number, default: 3 } },
+  props: {
+    rows: { type: Number, default: 3 },
+    value: { type: null },
+  },
   emits: ['focus', 'input'],
 };
 </script>
