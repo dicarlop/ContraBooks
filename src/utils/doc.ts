@@ -99,8 +99,13 @@ export async function getLinkedEntries(
     }
 
     const fieldname = field.fieldname;
+    const docName = doc.name;
+    if (docName === undefined) {
+      continue;
+    }
+
     const options: GetAllOptions = {
-      filters: { [fieldname]: doc.name },
+      filters: { [fieldname]: docName },
       fields: ['name'],
     };
 
@@ -126,7 +131,7 @@ export async function getLinkedEntries(
         creation?: unknown;
       };
       const linkedName = linkedRecord.name;
-      if (typeof linkedName !== 'string' || linkedName === doc.name) {
+      if (typeof linkedName !== 'string' || linkedName === docName) {
         continue;
       }
 
