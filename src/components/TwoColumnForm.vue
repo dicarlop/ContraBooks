@@ -9,7 +9,7 @@
         size="small"
         :df="df"
         :value="(doc[df.fieldname] ?? []) as unknown[]"
-        @change="async (value: unknown) => await onChange(df, value)"
+        @change="onChange(df, $event)"
       />
 
       <!-- Regular Field Form -->
@@ -39,7 +39,7 @@
             :value="doc[df.fieldname]"
             :class="{ 'p-2': df.fieldtype === 'Check' }"
             :text-end="false"
-            @change="async (value: unknown) => await onChange(df, value)"
+            @change="onChange(df, $event)"
           />
           <div
             v-if="errors[df.fieldname]"

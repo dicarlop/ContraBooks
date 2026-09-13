@@ -11,7 +11,7 @@
           :df="fields.name"
           :border="true"
           :value="doc!.name"
-          @change="async (value: unknown) => await doc?.set('name', value)"
+          @change="doc?.set('name', $event)"
         />
       </template>
       <Button v-if="displayDoc && doc?.template" @click="savePDF()">
@@ -92,7 +92,7 @@
             :border="false"
             :value="doc.get('type')"
             :container-styles="{ 'border-radius': '0px' }"
-            @change="async (value: unknown) => await setType(value)"
+            @change="setType($event)"
           />
           <!-- Display Doc -->
           <Link

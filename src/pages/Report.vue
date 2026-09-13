@@ -36,7 +36,7 @@
         :df="field"
         :value="report.get(field.fieldname)"
         :read-only="loading"
-        @change="async (value: unknown) => await report?.set(field.fieldname, value)"
+        @change="report?.set(field.fieldname, $event)"
       />
     </div>
 

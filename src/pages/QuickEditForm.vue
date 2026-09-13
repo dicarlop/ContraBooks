@@ -74,7 +74,7 @@
         :df="titleField"
         :value="doc[titleField.fieldname]"
         :read-only="doc.inserted || doc.schema.naming !== 'manual'"
-        @change="(value: unknown) => valueChange(titleField as Field, value)"
+        @change="valueChange(titleField as Field, $event)"
       />
     </div>
 
