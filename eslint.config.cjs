@@ -6,6 +6,7 @@ const prettierRecommended = require('eslint-plugin-prettier/recommended');
 module.exports = tseslint.config(
   {
     ignores: [
+      'eslint.config.cjs',
       '**/*.mjs',
       '**/uitest/**',
       '**/node_modules/**',
