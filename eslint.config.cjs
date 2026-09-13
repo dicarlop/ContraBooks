@@ -61,6 +61,8 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-unused-expressions': 'warn',
       '@typescript-eslint/prefer-promise-reject-errors': 'warn',
+      '@typescript-eslint/no-duplicate-enum-values': 'warn',
+      '@typescript-eslint/no-unsafe-member-access': 'warn',
     },
   },
   {
