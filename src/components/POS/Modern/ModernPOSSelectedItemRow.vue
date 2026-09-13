@@ -352,7 +352,7 @@ export default defineComponent({
       this.row.set('batch', batch);
       this.availableQtyInBatch = await this.getAvailableQtyInBatch();
     },
-    setSerialNumber(serialNumber: string) {
+    setSerialNumber(serialNumber: unknown) {
       if (!serialNumber) {
         return;
       }
