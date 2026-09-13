@@ -16,6 +16,7 @@
     "types": ["node"],
     "paths": {
       "src/*": ["./src/*"],
+      "schemas": ["./schemas/index"],
       "schemas/*": ["./schemas/*"],
       "main": ["./main.ts"],
       "main/*": ["./main/*"],
