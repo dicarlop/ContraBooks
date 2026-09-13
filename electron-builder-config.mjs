@@ -13,27 +13,25 @@ export default {
     buildResources: 'build',
   },
   win: {
-    publisherName: 'Frappe Technologies Pvt. Ltd.',
     artifactName: '${productName}-v${version}-windows-${arch}.${ext}',
     icon: 'icon.ico',
     publish: ['github'],
+    target: [
+      {
+        target: 'nsis',
+        arch: ['x64'],
+      },
+      {
+        target: 'portable',
+        arch: ['x64'],
+      },
+    ],
   },
   nsis: {
     oneClick: false,
     allowToChangeInstallationDirectory: true,
     createDesktopShortcut: true,
     createStartMenuShortcut: true,
-    target: {
-      target: 'nsis',
-      arch: ['x64'],
-    },
-  },
-  portable: {
-    artifactName: '${productName}-v${version}-windows-${arch}.${ext}',
-    target: {
-      target: 'portable',
-      arch: ['x64'],
-    },
   },
   mac: {
     category: 'public.app-category.finance',
