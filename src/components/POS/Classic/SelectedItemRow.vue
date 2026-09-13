@@ -271,7 +271,7 @@
         :show-label="true"
         :border="true"
         :required="hasSerialNumber"
-        @change="(value:string)=> setSerialNumber(value)"
+        @change="setSerialNumber($event as string)"
       />
     </div>
   </template>
