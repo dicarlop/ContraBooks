@@ -39,7 +39,8 @@ export default defineComponent({
   },
   computed: {
     df(): OptionField {
-      const options = (PrintTemplate.lists.type?.(this.doc) ?? []) as SelectOption[];
+      const options = (PrintTemplate.lists.type?.(this.doc) ?? []) as
+        SelectOption[];
       const firstOption = options[0];
       return {
         ...fyo.getField('PrintTemplate', 'type'),
