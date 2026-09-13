@@ -1,5 +1,5 @@
 import { Doc } from 'fyo/model/doc';
-import { DynamicLinkField, Field } from 'schemas/types';
+import { Field } from 'schemas/types';
 import { GetAllOptions } from 'utils/db/types';
 
 export function evaluateReadOnly(field: Field, doc?: Doc) {
@@ -82,7 +82,7 @@ export async function getLinkedEntries(
     .filter((sch) => !sch?.isSingle)
     .map((sch) => sch?.fields)
     .flat()
-    .filter((f) => f?.fieldtype === 'DynamicLink') as DynamicLinkField[];
+    .filter((f) => f?.fieldtype === 'DynamicLink');
 
   type Detail = { name: string; created: string };
   type ChildEntryDetail = {
