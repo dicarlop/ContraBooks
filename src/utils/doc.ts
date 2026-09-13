@@ -99,12 +99,17 @@ export async function getLinkedEntries(
     }
 
     const options: GetAllOptions = {
-      filters: { [field.fieldname]: doc.name! },
+      filters: { [field.fieldname]: doc.name },
       fields: ['name'],
     };
 
     if (field.fieldtype === 'DynamicLink') {
-      options.filters![field.references] = doc.schemaName!;
+      const dynamicField = field as unknown as Record<string, unknown>;
+      const references = dynamicField.references;
+      if (typeof references !== 'string') {
+        continue;
+      }
+      options.filters![references] = doc.schemaName!;
     }
 
     const schema = fyo.schemaMap[field.schemaName];
