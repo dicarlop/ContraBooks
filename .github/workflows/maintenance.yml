@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -15,7 +15,36 @@ env:
   BROWSERSLIST_IGNORE_OLD_DATA: 'true'
 
 jobs:
+  refresh-lock:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/maintenance/2026-09'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.8.0
+          cache: yarn
+      - name: Enable Corepack and pin Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+          yarn install --non-interactive --silent
+      - name: Commit refreshed lockfile
+        run: |
+          if git diff --quiet -- yarn.lock; then
+            echo 'yarn.lock is already synchronized.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add yarn.lock
+          git commit -m 'chore: refresh Yarn lockfile'
+          git push
+
   checks:
+    needs: refresh-lock
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -86,6 +115,7 @@ jobs:
           if [ "$audit_status" -eq 4 ]; then echo "Yarn reported vulnerabilities, but none are high or critical; continuing."; fi
 
   windows-build:
+    needs: refresh-lock
     name: Windows Electron build
     runs-on: windows-2022
     timeout-minutes: 45
