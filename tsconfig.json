@@ -23,6 +23,7 @@
       "fixtures/*": ["./fixtures/*"],
       "reports/*": ["./reports/*"],
       "models/*": ["./models/*"],
+      "utils": ["./utils/index"],
       "utils/*": ["./utils/*"],
       "dummy/*": ["./dummy/*"],
       "fyo": ["./fyo/index"],
