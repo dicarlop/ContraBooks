@@ -61,7 +61,6 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-unused-expressions': 'warn',
       '@typescript-eslint/prefer-promise-reject-errors': 'warn',
-      'prettier/prettier': 'warn',
     },
   },
   {
@@ -103,4 +102,10 @@ module.exports = tseslint.config(
     },
   },
   prettierRecommended,
+  {
+    files: ['**/*.{ts,vue}'],
+    rules: {
+      'prettier/prettier': 'warn',
+    },
+  },
 );
