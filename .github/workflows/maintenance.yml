@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: 24.8.0
           cache: yarn
-      - name: Enable Corepack and pin Yarn
+      - name: Enable Corepack and regenerate lockfile
         run: |
           corepack enable
           corepack prepare yarn@1.22.22 --activate
@@ -39,6 +39,7 @@ jobs:
           if-no-files-found: error
 
   checks:
+    needs: refresh-lock-artifact
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -51,6 +52,11 @@ jobs:
         with:
           node-version: 24.8.0
           cache: yarn
+      - name: Download regenerated lockfile
+        uses: actions/download-artifact@v5
+        with:
+          name: regenerated-yarn-lock
+          path: .lock-refresh
       - name: Install test shell and display server
         run: sudo apt-get update && sudo apt-get install -y zsh xvfb dbus-x11
       - name: Enable Corepack and pin Yarn
@@ -59,6 +65,8 @@ jobs:
           corepack prepare yarn@1.22.22 --activate
           node --version
           yarn --version
+      - name: Use regenerated lockfile
+        run: cp .lock-refresh/yarn.lock yarn.lock
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive --silent
       - name: Ensure Electron runtime
@@ -112,6 +120,7 @@ jobs:
 
   windows-build:
     name: Windows Electron build
+    needs: refresh-lock-artifact
     runs-on: windows-2022
     timeout-minutes: 45
     steps:
@@ -125,6 +134,11 @@ jobs:
         with:
           node-version: 24.8.0
           cache: yarn
+      - name: Download regenerated lockfile
+        uses: actions/download-artifact@v5
+        with:
+          name: regenerated-yarn-lock
+          path: .lock-refresh
       - name: Enable Corepack and pin Yarn
         shell: pwsh
         run: |
@@ -132,6 +146,9 @@ jobs:
           corepack prepare yarn@1.22.22 --activate
           node --version
           yarn --version
+      - name: Use regenerated lockfile
+        shell: pwsh
+        run: Copy-Item .lock-refresh\yarn.lock yarn.lock -Force
       - name: Install dependencies
         shell: pwsh
         run: yarn install --frozen-lockfile --non-interactive --silent
