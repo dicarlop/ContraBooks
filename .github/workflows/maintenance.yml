@@ -37,7 +37,19 @@ jobs:
           node --version
           yarn --version
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --non-interactive --silent
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == toolchain:\ stage-a* ]]; then
+            yarn install --non-interactive --silent
+          else
+            yarn install --frozen-lockfile --non-interactive --silent
+          fi
+      - name: Upload regenerated lockfile
+        if: startsWith(github.event.head_commit.message, 'toolchain: stage-a')
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-a-yarn-lock
+          path: yarn.lock
+          if-no-files-found: error
       - name: Ensure Electron runtime
         run: |
           node node_modules/electron/install.js
@@ -109,7 +121,12 @@ jobs:
           yarn --version
       - name: Install dependencies
         shell: pwsh
-        run: yarn install --frozen-lockfile --non-interactive --silent
+        run: |
+          if ('${{ github.event.head_commit.message }}' -like 'toolchain: stage-a*') {
+            yarn install --non-interactive --silent
+          } else {
+            yarn install --frozen-lockfile --non-interactive --silent
+          }
       - name: Full Windows package build
         shell: pwsh
         run: yarn build --win --x64 --nosign --publish never
