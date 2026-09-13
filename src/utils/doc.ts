@@ -76,13 +76,13 @@ export async function getLinkedEntries(
     .filter((sch) => !sch?.isSingle)
     .map((sch) => sch?.fields)
     .flat()
-    .filter((f) => f?.fieldtype === 'Link' && f.target === target);
+    .filter((f): f is Field => f?.fieldtype === 'Link' && f.target === target);
 
   const dynamicLinkingFields = Object.values(fyo.schemaMap)
     .filter((sch) => !sch?.isSingle)
     .map((sch) => sch?.fields)
     .flat()
-    .filter((f) => f?.fieldtype === 'DynamicLink');
+    .filter((f): f is Field => f?.fieldtype === 'DynamicLink');
 
   type Detail = { name: string; created: string };
   type ChildEntryDetail = {
