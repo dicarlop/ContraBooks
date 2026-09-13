@@ -75,6 +75,9 @@ jobs:
           const severe = advisories.filter((a) => (rank[a.severity] ?? 99) >= rank.high);
           const moderate = advisories.filter((a) => a.severity === 'moderate');
           console.log(`Advisories: ${advisories.length}; moderate: ${moderate.length}; high/critical: ${severe.length}`);
+          for (const advisory of moderate) {
+            console.log(`MODERATE: ${advisory.module_name} ${advisory.title} (patched: ${advisory.patched_versions})`);
+          }
           for (const advisory of severe) console.log(`HIGH/CRITICAL: ${advisory.module_name} ${advisory.severity} ${advisory.title}`);
           if (severe.length > 0) process.exit(1);
           NODE
