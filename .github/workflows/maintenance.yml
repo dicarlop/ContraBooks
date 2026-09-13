@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -15,59 +15,6 @@ env:
   BROWSERSLIST_IGNORE_OLD_DATA: 'true'
 
 jobs:
-  stage-vue35-fixes:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/maintenance/2026-09'
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24.8.0
-          cache: yarn
-      - name: Apply Vue 3.5 compatibility fixes and regenerate lockfile
-        run: |
-          corepack enable
-          corepack prepare yarn@1.22.22 --activate
-          python3 - <<'PY'
-          from pathlib import Path
-
-          replacements = {
-              'src/components/POS/Classic/SelectedItemRow.vue': [
-                  ('@change="(value:string) => setSerialNumber(value)"', '@change="setSerialNumber($event as string)"'),
-              ],
-              'src/components/POS/Modern/ModernPOSSelectedItemRow.vue': [
-                  ('@change="(value:string) => setBatch(value)"', '@change="setBatch($event as string)"'),
-                  ('@change="(value:string)=> setSerialNumber(value)"', '@change="setSerialNumber($event as string)"'),
-              ],
-              'src/pages/Dashboard/Expenses.vue': [
-                  ('active: null as null | number,', 'active: undefined as number | undefined,'),
-                  ('@mouseleave="active = null"', '@mouseleave="active = undefined"'),
-              ],
-              'src/renderer.ts': [
-                  ('  app.config.unwrapInjectedRef = true;\n', ''),
-              ],
-          }
-
-          for filename, pairs in replacements.items():
-              path = Path(filename)
-              text = path.read_text()
-              for old, new in pairs:
-                  if old in text:
-                      text = text.replace(old, new)
-              path.write_text(text)
-          PY
-          yarn install --non-interactive --silent
-      - name: Stage changes on automation branch
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add yarn.lock src/components/POS/Classic/SelectedItemRow.vue src/components/POS/Modern/ModernPOSSelectedItemRow.vue src/pages/Dashboard/Expenses.vue src/renderer.ts
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m "chore: update Vue 3.5 lockfile and compatibility"
-          git push origin HEAD:automation/vue35-vue-lock --force
-
   checks:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
