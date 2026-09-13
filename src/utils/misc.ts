@@ -140,7 +140,9 @@ export const docsPathMap: Record<string, string | undefined> = {
 };
 
 export async function getDataURL(type: string, data: Uint8Array) {
-  const blob = new Blob([data], { type });
+  const arrayBuffer = new ArrayBuffer(data.byteLength);
+  new Uint8Array(arrayBuffer).set(data);
+  const blob = new Blob([arrayBuffer], { type });
 
   return new Promise<string>((resolve) => {
     const fr = new FileReader();
