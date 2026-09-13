@@ -15,6 +15,56 @@ env:
   BROWSERSLIST_IGNORE_OLD_DATA: 'true'
 
 jobs:
+  apply-vue35-fixes:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/maintenance/2026-09'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Apply Vue 3.5 compatibility fixes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              'src/components/POS/Classic/SelectedItemRow.vue': [
+                  ('@change="(value:string) => row.set(\'transferQuantity\', value)"', '@change="row.set(\'transferQuantity\', $event as string)"'),
+                  ('@change="(value:string) => row.set(\'transferUnit\', value)"', '@change="row.set(\'transferUnit\', $event as string)"'),
+              ],
+              'src/components/POS/Modern/ModernPOSSelectedItemRow.vue': [
+                  ('@change="(value:string) => setBatch(value)"', '@change="setBatch($event as string)"'),
+                  ('@change="(value:string)=> setSerialNumber(value)"', '@change="setSerialNumber($event as string)"'),
+              ],
+              'src/pages/Dashboard/Expenses.vue': [
+                  ('active: null as null | number,', 'active: undefined as number | undefined,'),
+                  ('@mouseleave="active = null"', '@mouseleave="active = undefined"'),
+              ],
+              'src/renderer.ts': [
+                  ('  app.config.unwrapInjectedRef = true;\n', ''),
+              ],
+          }
+
+          for filename, pairs in replacements.items():
+              path = Path(filename)
+              text = path.read_text()
+              original = text
+              for old, new in pairs:
+                  if old not in text:
+                      raise SystemExit(f'Missing expected text in {filename}: {old}')
+                  text = text.replace(old, new)
+              if text == original:
+                  raise SystemExit(f'No changes made to {filename}')
+              path.write_text(text)
+          PY
+      - name: Commit compatibility fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/components/POS/Classic/SelectedItemRow.vue src/components/POS/Modern/ModernPOSSelectedItemRow.vue src/pages/Dashboard/Expenses.vue src/renderer.ts
+          git diff --cached --quiet && exit 0
+          git commit -m "fix: adapt Vue 3.5 template typings"
+          git push
+
   refresh-lock-artifact:
     if: github.event_name == 'push' && github.ref == 'refs/heads/maintenance/2026-09'
     runs-on: ubuntu-24.04
