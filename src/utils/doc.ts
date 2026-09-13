@@ -94,7 +94,7 @@ export async function getLinkedEntries(
   const childEntries: Record<string, ChildEntryDetail[]> = {};
 
   for (const field of [linkingFields, dynamicLinkingFields].flat()) {
-    if (!field.schemaName) {
+    if (!field.schemaName || !field.fieldname) {
       continue;
     }
 
