@@ -29,7 +29,8 @@
       "dummy": ["./dummy/index"],
       "dummy/*": ["./dummy/*"],
       "fyo": ["./fyo/index"],
-      "fyo/*": ["./fyo/*"]
+      "fyo/*": ["./fyo/*"],
+      "tests/*": ["./tests/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
