@@ -127,7 +127,7 @@
         :border="true"
         :show-label="true"
         :value="getDisplayTransferQuantity()"
-        @change="(value:string) => row.set('transferQuantity', value)"
+        @change="row.set('transferQuantity', $event as string)"
         :read-only="isReadOnly"
       />
     </div>
@@ -146,7 +146,7 @@
         :show-label="true"
         :border="true"
         :value="row.transferUnit ?? ''"
-        @change="(value:string) => row.set('transferUnit', value)"
+        @change="row.set('transferUnit', $event as string)"
         :read-only="isReadOnly"
       />
     </div>

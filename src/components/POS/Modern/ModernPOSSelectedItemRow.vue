@@ -194,7 +194,7 @@
           :border="true"
           :show-label="true"
           :read-only="false"
-          @change="(value:string) => setBatch(value)"
+          @change="setBatch($event as string)"
         />
       </div>
 
@@ -229,7 +229,7 @@
           :show-label="true"
           :border="true"
           :required="hasSerialNumber"
-          @change="(value:string)=> setSerialNumber(value)"
+          @change="setSerialNumber($event as string)"
         />
       </div>
     </div>

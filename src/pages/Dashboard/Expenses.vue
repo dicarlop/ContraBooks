@@ -16,7 +16,7 @@
           :key="d.account"
           class="flex items-center text-sm"
           @mouseover="active = i"
-          @mouseleave="active = null"
+          @mouseleave="active = undefined"
         >
           <div class="w-3 h-3 rounded-sm flex-shrink-0" :class="d.class" />
           <p class="ms-2 overflow-x-auto whitespace-nowrap no-scrollbar w-28">
@@ -82,7 +82,7 @@ export default defineComponent({
     darkMode: { type: Boolean, default: false },
   },
   data: () => ({
-    active: null as null | number,
+    active: undefined as number | undefined,
     expenses: [] as {
       account: string;
       total: number;
