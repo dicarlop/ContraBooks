@@ -25,6 +25,7 @@
       "models/*": ["./models/*"],
       "utils/*": ["./utils/*"],
       "dummy/*": ["./dummy/*"],
+      "fyo": ["./fyo/index"],
       "fyo/*": ["./fyo/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
