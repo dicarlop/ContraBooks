@@ -14,16 +14,16 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "paths": {
-      "src/*": ["src/*"],
-      "schemas/*": ["schemas/*"],
-      "main/*": ["main/*"],
-      "backend/*": ["backend/*"],
-      "regional/*": ["regional/*"],
-      "fixtures/*": ["fixtures/*"],
-      "reports/*": ["reports/*"],
-      "models/*": ["models/*"],
-      "utils/*": ["utils/*"],
-      "dummy/*": ["dummy/*"]
+      "src/*": ["./src/*"],
+      "schemas/*": ["./schemas/*"],
+      "main/*": ["./main/*"],
+      "backend/*": ["./backend/*"],
+      "regional/*": ["./regional/*"],
+      "fixtures/*": ["./fixtures/*"],
+      "reports/*": ["./reports/*"],
+      "models/*": ["./models/*"],
+      "utils/*": ["./utils/*"],
+      "dummy/*": ["./dummy/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
