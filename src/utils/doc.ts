@@ -98,8 +98,9 @@ export async function getLinkedEntries(
       continue;
     }
 
+    const fieldname = field.fieldname;
     const options: GetAllOptions = {
-      filters: { [field.fieldname]: doc.name },
+      filters: { [fieldname]: doc.name },
       fields: ['name'],
     };
 
@@ -113,60 +114,43 @@ export async function getLinkedEntries(
     }
 
     const schema = fyo.schemaMap[field.schemaName];
-    if (schema?.isChild) {
-      options.fields!.push('parent', 'parentSchemaName');
-    } else {
-      options.fields?.push('created');
-    }
-
-    if (schema?.isSubmittable) {
-      options.filters!.cancelled = false;
-    }
-
-    const details = (await fyo.db.getAllRaw(field.schemaName, options)) as
-      | Detail[]
-      | ChildEntryDetail[];
-
-    if (!details.length) {
+    if (!schema) {
       continue;
     }
 
-    for (const d of details) {
-      if ('parent' in d) {
-        childEntries[field.schemaName] ??= [];
-        childEntries[field.schemaName]!.push(d);
+    const docs = await fyo.db.getAll(field.schemaName, options);
+    for (const linkedDoc of docs) {
+      if (linkedDoc.name === doc.name) {
+        continue;
+      }
+
+      if (schema.isChild) {
+        if (!childEntries[linkedDoc.name]) {
+          childEntries[linkedDoc.name] = [];
+        }
+
+        childEntries[linkedDoc.name].push({
+          name: linkedDoc.name,
+          parent: linkedDoc.parent,
+          parentSchemaName: schema.name,
+        });
       } else {
-        entries[field.schemaName] ??= [];
-        entries[field.schemaName].push(d);
+        if (!entries[linkedDoc.name]) {
+          entries[linkedDoc.name] = [];
+        }
+
+        entries[linkedDoc.name].push({
+          name: linkedDoc.name,
+          created: linkedDoc.creation,
+        });
       }
     }
   }
 
-  const parents = Object.values(childEntries)
-    .flat()
-    .map((c) => `${c.parentSchemaName}.${c.parent}`);
-  const parentsSet = new Set(parents);
-  for (const p of parentsSet) {
-    const i = p.indexOf('.');
-    const schemaName = p.slice(0, i);
-    const name = p.slice(i + 1);
-
-    const details = (await fyo.db.getAllRaw(schemaName, {
-      filters: { name },
-      fields: ['name', 'created'],
-    })) as Detail[];
-
-    entries[schemaName] ??= [];
-    entries[schemaName].push(...details);
-  }
-
-  const entryMap: Record<string, string[]> = {};
-  for (const schemaName in entries) {
-    entryMap[schemaName] = entries[schemaName]
-      .map((e) => ({ name: e.name, created: new Date(e.created) }))
-      .sort((a, b) => b.created.valueOf() - a.created.valueOf())
-      .map((e) => e.name);
-  }
-
-  return entryMap;
+  return Object.fromEntries(
+    Object.entries(entries).map(([name, details]) => [
+      name,
+      details.map(({ name }) => name),
+    ])
+  );
 }
