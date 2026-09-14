@@ -1,24 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-labelledby="title desc">
   <title id="title">ContraBooks</title>
-  <desc id="desc">ContraBooks logo — Simple. Powerful. Yours.</desc>
+  <desc id="desc">ContraBooks — Simple. Powerful. Yours.</desc>
   <defs>
     <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#60A5FA"/>
-      <stop offset="1" stop-color="#2563EB"/>
+      <stop offset="0" stop-color="#1769FF"/><stop offset="0.55" stop-color="#08BBD0"/><stop offset="1" stop-color="#12C98A"/>
     </linearGradient>
     <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#34D399"/>
-      <stop offset="1" stop-color="#10B981"/>
+      <stop offset="0" stop-color="#34D399"/><stop offset="1" stop-color="#10B981"/>
     </linearGradient>
   </defs>
-  <g transform="translate(8 13)">
+  <g transform="translate(7 10)">
     <path d="M63 0C31 0 5 25 5 57s26 57 58 57c20 0 38-10 48-26l-19-13c-6 9-16 15-29 15-19 0-34-15-34-33S44 24 63 24c12 0 22 6 29 15l19-13C101 10 83 0 63 0Z" fill="url(#blue)"/>
-    <rect x="46" y="51" width="11" height="30" rx="5.5" fill="#2563EB"/>
-    <rect x="63" y="39" width="11" height="42" rx="5.5" fill="#10B981"/>
-    <rect x="80" y="26" width="11" height="55" rx="5.5" fill="url(#green)"/>
+    <path d="M46 51h11v30H46z" fill="#2563EB"/>
+    <path d="M63 39h11v42H63z" fill="#10B981"/>
+    <path d="M80 26h11v55H80z" fill="url(#green)"/>
   </g>
-  <text x="138" y="61" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="43" font-weight="700" letter-spacing="-1.8">
-    <tspan fill="#FFFFFF">Contra</tspan><tspan fill="#10B981">Books</tspan>
-  </text>
-  <text x="140" y="88" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" letter-spacing="1.1" fill="#C9D8EA">Simple. Powerful. Yours.</text>
+  <text x="138" y="61" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="43" font-weight="700" letter-spacing="-1.8" textLength="370" lengthAdjust="spacingAndGlyphs"><tspan fill="#FFFFFF">Contra</tspan><tspan fill="#10B981">Books</tspan></text>
+  <text x="140" y="91" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" letter-spacing="1.1" textLength="370" lengthAdjust="spacingAndGlyphs" fill="#C9D8EA">Simple. Powerful. Yours.</text>
 </svg>
