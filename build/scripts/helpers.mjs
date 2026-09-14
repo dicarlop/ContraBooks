@@ -19,7 +19,7 @@ export function getMainProcessCommonConfig(root) {
     sourcesContent: false,
     platform: 'node',
     target: 'node20',
-    external: ['knex', 'electron', 'better-sqlite3'],
+    external: ['electron', 'better-sqlite3'],
     alias: {
       main: path.join(root, 'main'),
       utils: path.join(root, 'utils'),
