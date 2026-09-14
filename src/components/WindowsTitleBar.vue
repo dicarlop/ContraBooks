@@ -1,20 +1,9 @@
 <template>
   <div
-    class="
-      relative
-      window-drag
-      flex
-      items-center
-      border-b
-      dark:bg-gray-900
-      text-gray-900
-      dark:text-gray-100
-      border-gray-100
-      dark:border-gray-800
-    "
+    class="relative window-drag flex items-center border-b bg-white text-slate-900 border-slate-200"
     style="height: 28px"
   >
-    <Fb class="ms-2" />
+    <img :src="logoUrl" alt="ContraBooks" class="ms-2 h-5 w-5" draggable="false" />
     <p v-if="companyName && dbPath" class="mx-auto text-sm">
       {{ companyName }} - {{ dbPath }}
     </p>
@@ -23,27 +12,13 @@
       class="absolute window-no-drag flex h-full items-center right-0"
     >
       <div
-        class="
-          flex
-          items-center
-          px-4
-          h-full
-          hover:bg-gray-300
-          dark:hover:bg-gray-875
-        "
+        class="flex items-center px-4 h-full hover:bg-slate-100"
         @click="minimizeWindow"
       >
         <feather-icon name="minus" class="h-4 w-4 flex-shrink-0" />
       </div>
       <div
-        class="
-          flex
-          items-center
-          px-4
-          h-full
-          hover:bg-gray-300
-          dark:hover:bg-gray-875
-        "
+        class="flex items-center px-4 h-full hover:bg-slate-100"
         @click="toggleMaximize"
       >
         <feather-icon
@@ -63,18 +38,18 @@
   </div>
 </template>
 
-<script>
-import Fb from './Icons/18/fb.vue';
+<script lang="ts">
+import logoUrl from 'src/assets/img/contrabooks-logo.svg';
 
 export default {
   name: 'WindowsTitleBar',
-  components: { Fb },
   props: {
     dbPath: String,
     companyName: String,
   },
   data() {
     return {
+      logoUrl,
       isMax: Boolean,
       isFullscreen: Boolean,
     };
@@ -90,10 +65,7 @@ export default {
   },
   destroyed() {
     window.removeEventListener('resize', this.getIsFullscreen);
-    document.removeEventListener(
-      'webkitfullscreenchange',
-      this.getIsFullscreen
-    );
+    document.removeEventListener('webkitfullscreenchange', this.getIsFullscreen);
     document.removeEventListener('mozfullscreenchange', this.getIsFullscreen);
     document.removeEventListener('fullscreenchange', this.getIsFullscreen);
     document.removeEventListener('MSFullscreenChange', this.getIsFullscreen);
@@ -110,24 +82,18 @@ export default {
       ipc.closeWindow();
     },
     getIsMaximized() {
-      ipc
-        .isMaximized()
-        .then((result) => {
-          this.isMax = result;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      ipc.isMaximized().then((result) => {
+        this.isMax = result;
+      }).catch((error) => {
+        console.error(error);
+      });
     },
     getIsFullscreen() {
-      ipc
-        .isFullscreen()
-        .then((result) => {
-          this.isFullscreen = result;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      ipc.isFullscreen().then((result) => {
+        this.isFullscreen = result;
+      }).catch((error) => {
+        console.error(error);
+      });
     },
   },
 };
