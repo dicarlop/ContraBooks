@@ -1,14 +1,7 @@
 <template>
   <div
     id="app"
-    class="
-      dark:bg-gray-900
-      h-screen
-      flex flex-col
-      font-sans
-      overflow-hidden
-      antialiased
-    "
+    class="dark:bg-gray-900 h-screen flex flex-col font-sans overflow-hidden antialiased"
     :dir="languageDirection"
     :language="language"
   >
@@ -17,7 +10,6 @@
       :db-path="dbPath"
       :company-name="companyName"
     />
-    <!-- Main Contents -->
     <Desk
       v-if="activeScreen === 'Desk'"
       class="flex-1"
@@ -35,8 +27,6 @@
       @setup-complete="setupComplete"
       @setup-canceled="showDbSelector"
     />
-
-    <!-- Render target for toasts -->
     <div
       id="toast-container"
       class="absolute bottom-0 flex flex-col items-end mb-3 pe-6"
@@ -70,10 +60,7 @@ import { Shortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
 import { useKeys } from './utils/vueUtils';
 import { setDarkMode } from 'src/utils/theme';
-import {
-  registerInstanceToERPNext,
-  updateERPNSyncSettings,
-} from './utils/erpnextSync';
+import { registerInstanceToERPNext, updateERPNSyncSettings } from './utils/erpnextSync';
 import { ERPNextSyncSettings } from 'models/baseModels/ERPNextSyncSettings/ERPNextSyncSettings';
 import { ErrorLogEnum } from 'fyo/telemetry/types';
 
@@ -85,36 +72,20 @@ enum Screen {
 
 export default defineComponent({
   name: 'App',
-  components: {
-    Desk,
-    SetupWizard,
-    DatabaseSelector,
-    WindowsTitleBar,
-  },
+  components: { Desk, SetupWizard, DatabaseSelector, WindowsTitleBar },
   setup() {
     const keys = useKeys();
     const searcher: Ref<null | Search> = ref(null);
     const shortcuts = new Shortcuts(keys);
-    const languageDirection = ref(
-      getLanguageDirection(systemLanguageRef.value)
-    );
+    const languageDirection = ref(getLanguageDirection(systemLanguageRef.value));
 
     provide(injectionKeys.keysKey, keys);
     provide(injectionKeys.searcherKey, searcher);
     provide(injectionKeys.shortcutsKey, shortcuts);
     provide(injectionKeys.languageDirectionKey, languageDirection);
 
-    const databaseSelector = ref<InstanceType<typeof DatabaseSelector> | null>(
-      null
-    );
-
-    return {
-      keys,
-      searcher,
-      shortcuts,
-      languageDirection,
-      databaseSelector,
-    };
+    const databaseSelector = ref<InstanceType<typeof DatabaseSelector> | null>(null);
+    return { keys, searcher, shortcuts, languageDirection, databaseSelector };
   },
   data() {
     return {
@@ -148,15 +119,10 @@ export default defineComponent({
   methods: {
     async setInitialScreen(): Promise<void> {
       const lastSelectedFilePath = fyo.config.get('lastSelectedFilePath', null);
-
-      if (
-        typeof lastSelectedFilePath !== 'string' ||
-        !lastSelectedFilePath.length
-      ) {
+      if (typeof lastSelectedFilePath !== 'string' || !lastSelectedFilePath.length) {
         this.activeScreen = Screen.DatabaseSelector;
         return;
       }
-
       await this.fileSelected(lastSelectedFilePath);
     },
     async setSearcher(): Promise<void> {
@@ -170,10 +136,7 @@ export default defineComponent({
       await fyo.telemetry.start(true);
       await ipc.checkForUpdates();
       this.dbPath = filePath;
-      this.companyName = (await fyo.getValue(
-        ModelNameEnum.AccountingSettings,
-        'companyName'
-      )) as string;
+      this.companyName = (await fyo.getValue(ModelNameEnum.AccountingSettings, 'companyName')) as string;
       await this.setSearcher();
       updateConfigFiles(fyo);
     },
@@ -186,10 +149,8 @@ export default defineComponent({
         await showDialog({
           title: this.t`Cannot open file`,
           type: 'error',
-          detail: this
-            .t`Frappe Books does not have access to the selected file: ${filePath}`,
+          detail: this.t`ContraBooks does not have access to the selected file: ${filePath}`,
         });
-
         fyo.config.set('lastSelectedFilePath', null);
         return;
       }
@@ -209,20 +170,10 @@ export default defineComponent({
       await this.setDesk(filePath);
     },
     async showSetupWizardOrDesk(filePath: string): Promise<void> {
-      const { countryCode, error, actionSymbol } = await connectToDatabase(
-        this.fyo,
-        filePath
-      );
+      const { countryCode, error, actionSymbol } = await connectToDatabase(this.fyo, filePath);
+      if (!countryCode && error && actionSymbol) return await this.handleConnectionFailed(error, actionSymbol);
 
-      if (!countryCode && error && actionSymbol) {
-        return await this.handleConnectionFailed(error, actionSymbol);
-      }
-
-      const setupComplete = await fyo.getValue(
-        ModelNameEnum.AccountingSettings,
-        'setupComplete'
-      );
-
+      const setupComplete = await fyo.getValue(ModelNameEnum.AccountingSettings, 'setupComplete');
       if (!setupComplete) {
         this.activeScreen = Screen.SetupWizard;
         return;
@@ -231,49 +182,33 @@ export default defineComponent({
       await initializeInstance(filePath, false, countryCode, fyo);
       await updatePrintTemplates(fyo);
 
-      const syncSettingsDoc = (await fyo.doc.getDoc(
-        ModelNameEnum.ERPNextSyncSettings
-      )) as ERPNextSyncSettings;
-
+      const syncSettingsDoc = (await fyo.doc.getDoc(ModelNameEnum.ERPNextSyncSettings)) as ERPNextSyncSettings;
       const baseURL = syncSettingsDoc.baseURL;
       const token = syncSettingsDoc.authToken;
-      const enableERPNextSync =
-        fyo.singles.AccountingSettings?.enableERPNextSync;
+      const enableERPNextSync = fyo.singles.AccountingSettings?.enableERPNextSync;
 
       if (enableERPNextSync && baseURL && token) {
         try {
           await registerInstanceToERPNext(fyo);
           await updateERPNSyncSettings(fyo);
-          await ipc.initScheduler(
-            `${fyo.singles.ERPNextSyncSettings?.dataSyncInterval as string}m`
-          );
+          await ipc.initScheduler(`${fyo.singles.ERPNextSyncSettings?.dataSyncInterval as string}m`);
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-
+          const errorMessage = error instanceof Error ? error.message : String(error);
           try {
-            const existing = await fyo.db.getAll(
-              ErrorLogEnum.IntegrationErrorLog,
-              {
-                filters: {
-                  error: errorMessage,
-                },
-                limit: 1,
-              }
-            );
-
+            const existing = await fyo.db.getAll(ErrorLogEnum.IntegrationErrorLog, {
+              filters: { error: errorMessage },
+              limit: 1,
+            });
             if (!existing.length) {
-              await fyo.doc
-                .getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
-                  error: errorMessage,
-                  data: JSON.stringify({
-                    instance: fyo.singles.ERPNextSyncSettings?.deviceID,
-                    operation: 'register_instance',
-                    trigger: 'showSetupWizardOrDesk',
-                    baseURL: baseURL,
-                  }),
-                })
-                .sync();
+              await fyo.doc.getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
+                error: errorMessage,
+                data: JSON.stringify({
+                  instance: fyo.singles.ERPNextSyncSettings?.deviceID,
+                  operation: 'register_instance',
+                  trigger: 'showSetupWizardOrDesk',
+                  baseURL: baseURL,
+                }),
+              }).sync();
             }
           } catch (logError) {
             throw logError;
@@ -286,27 +221,18 @@ export default defineComponent({
     },
     async handleConnectionFailed(error: Error, actionSymbol: symbol) {
       await this.showDbSelector();
-
-      if (actionSymbol === dbErrorActionSymbols.CancelSelection) {
-        return;
-      }
-
+      if (actionSymbol === dbErrorActionSymbols.CancelSelection) return;
       if (actionSymbol === dbErrorActionSymbols.SelectFile) {
         await this.databaseSelector?.existingDatabase();
         return;
       }
-
       throw error;
     },
     async setDeskRoute(): Promise<void> {
       const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
       const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
-
       let route = '/get-started';
-      if (hideGetStarted || onboardingComplete) {
-        route = localStorage.getItem('lastRoute') || '/';
-      }
-
+      if (hideGetStarted || onboardingComplete) route = localStorage.getItem('lastRoute') || '/';
       await routeTo(route);
     },
     async showDbSelector(): Promise<void> {
