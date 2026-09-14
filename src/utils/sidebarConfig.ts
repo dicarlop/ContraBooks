@@ -19,7 +19,7 @@ function getFilteredSidebar(sideBar: SidebarConfig): SidebarConfig {
 function getRegionalSidebar(): SidebarRoot[] {
   if (!fyo.singles?.AccountingSettings?.gstin) return [];
   return [{
-    label: t`GST`, name: 'gst', icon: 'gst', route: '/report/GSTR1',
+    label: t`Tax`, name: 'gst', icon: 'gst', route: '/report/GSTR1',
     items: [
       { label: t`GSTR1`, name: 'gstr1', route: '/report/GSTR1' },
       { label: t`GSTR2`, name: 'gstr2', route: '/report/GSTR2' },
