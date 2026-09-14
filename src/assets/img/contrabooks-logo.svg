@@ -3,22 +3,31 @@
   <desc id="desc">ContraBooks — Simple. Powerful. Yours.</desc>
   <defs>
     <linearGradient id="markBlue" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1769FF"/>
-      <stop offset="0.55" stop-color="#08BBD0"/>
-      <stop offset="1" stop-color="#12C98A"/>
+      <stop offset="0" stop-color="#2563EB"/>
+      <stop offset="0.58" stop-color="#06B6D4"/>
+      <stop offset="1" stop-color="#10B981"/>
     </linearGradient>
     <linearGradient id="markGreen" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#34D399"/>
       <stop offset="1" stop-color="#10B981"/>
     </linearGradient>
   </defs>
-  <!-- Standalone ContraBooks mark: rounded C body, crisp/sharp terminals, three rising bars -->
+
+  <!-- ContraBooks mark: rounded C body/inner edge with crisp terminal points. -->
   <g transform="translate(7 10)">
-    <path fill="url(#markBlue)" d="M105 20C94 8 79 0 62 0 30 0 5 25 5 57s25 57 57 57c17 0 32-8 43-20l-18-15c-6 7-15 11-25 11-19 0-34-15-34-33s15-33 34-33c10 0 19 4 25 11z"/>
-    <path fill="#2563EB" d="M45 55 57 48v26L45 81z"/>
-    <path fill="#10B981" d="M61 43 73 36v38L61 81z"/>
-    <path fill="url(#markGreen)" d="M77 30 89 23v51L77 81z"/>
+    <path
+      fill="url(#markBlue)"
+      d="M104 20C93 7 78 0 62 0 30 0 5 25 5 57s25 57 57 57c16 0 31-7 42-20l-18-15c-6 8-14 12-24 12-19 0-34-15-34-34s15-34 34-34c10 0 18 4 24 12z"
+    />
+    <path fill="#2563EB" d="M45 55 57 48v26L45 81z" />
+    <path fill="#10B981" d="M61 43 73 36v38L61 81z" />
+    <path fill="url(#markGreen)" d="M77 30 89 23v51L77 81z" />
   </g>
-  <text x="138" y="61" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="43" font-weight="700" letter-spacing="-1.8" textLength="370" lengthAdjust="spacingAndGlyphs"><tspan fill="#FFFFFF">Contra</tspan><tspan fill="#10B981">Books</tspan></text>
-  <text x="140" y="91" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" letter-spacing="1.1" textLength="370" lengthAdjust="spacingAndGlyphs" fill="#C9D8EA">Simple. Powerful. Yours.</text>
+
+  <text x="138" y="61" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="43" font-weight="700" letter-spacing="-1.8" textLength="370" lengthAdjust="spacingAndGlyphs">
+    <tspan fill="#FFFFFF">Contra</tspan><tspan fill="#10B981">Books</tspan>
+  </text>
+  <text x="140" y="91" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" letter-spacing="1.1" textLength="370" lengthAdjust="spacingAndGlyphs" fill="#C9D8EA">
+    Simple. Powerful. Yours.
+  </text>
 </svg>
