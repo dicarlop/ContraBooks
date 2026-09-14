@@ -51,7 +51,7 @@
               class="w-full h-9 px-3 rounded-md flex items-center text-left text-sm transition-colors"
               :class="
                 isItemActive(item)
-                  ? 'bg-slate-700 text-white font-medium'
+                  ? 'bg-[#2563EB] text-white font-medium shadow-sm'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               "
               @click="routeToSidebarItem(item)"
