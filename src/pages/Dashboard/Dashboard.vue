@@ -1,19 +1,7 @@
 <template>
   <div class="h-screen" style="width: var(--w-desk)">
     <PageHeader :title="t`Dashboard`">
-      <div
-        class="
-          border
-          dark:border-gray-900
-          rounded
-          bg-gray-50
-          dark:bg-gray-890
-          focus-within:bg-gray-100
-          dark:focus-within:bg-gray-900
-          flex
-          items-center
-        "
-      >
+      <div class="border dark:border-gray-900 rounded-lg bg-gray-50 dark:bg-gray-890 focus-within:bg-gray-100 dark:focus-within:bg-gray-900 flex items-center shadow-sm">
         <PeriodSelector
           class="px-3"
           :value="period"
@@ -23,49 +11,54 @@
       </div>
     </PageHeader>
 
-    <div
-      class="no-scrollbar overflow-auto dark:bg-gray-875"
-      style="height: calc(100vh - var(--h-row-largest) - 1px)"
-    >
-      <div style="min-width: var(--w-desk-fixed)" class="overflow-auto">
-        <Cashflow
-          class="p-4"
-          :common-period="period"
-          :dark-mode="darkMode"
-          @period-change="handlePeriodChange"
-        />
-        <hr class="dark:border-gray-800" />
-        <div class="flex w-full">
-          <UnpaidInvoices
-            :schema-name="'SalesInvoice'"
+    <div class="no-scrollbar overflow-auto bg-gray-50 dark:bg-gray-875" style="height: calc(100vh - var(--h-row-largest) - 1px)">
+      <div style="min-width: var(--w-desk-fixed)" class="p-4 space-y-4">
+        <section class="rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <Cashflow
             :common-period="period"
             :dark-mode="darkMode"
-            class="border-e dark:border-gray-800"
+            class="p-4"
             @period-change="handlePeriodChange"
           />
-          <UnpaidInvoices
-            :schema-name="'PurchaseInvoice'"
-            :common-period="period"
-            :dark-mode="darkMode"
-            @period-change="handlePeriodChange"
-          />
+        </section>
+
+        <div class="grid grid-cols-2 gap-4">
+          <section class="rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <UnpaidInvoices
+              :schema-name="'SalesInvoice'"
+              :common-period="period"
+              :dark-mode="darkMode"
+              @period-change="handlePeriodChange"
+            />
+          </section>
+          <section class="rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <UnpaidInvoices
+              :schema-name="'PurchaseInvoice'"
+              :common-period="period"
+              :dark-mode="darkMode"
+              @period-change="handlePeriodChange"
+            />
+          </section>
         </div>
-        <hr class="dark:border-gray-800" />
-        <div class="flex">
-          <ProfitAndLoss
-            class="w-full p-4 border-e dark:border-gray-800"
-            :common-period="period"
-            :dark-mode="darkMode"
-            @period-change="handlePeriodChange"
-          />
-          <Expenses
-            class="w-full p-4"
-            :common-period="period"
-            :dark-mode="darkMode"
-            @period-change="handlePeriodChange"
-          />
+
+        <div class="grid grid-cols-2 gap-4">
+          <section class="rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <ProfitAndLoss
+              class="p-4"
+              :common-period="period"
+              :dark-mode="darkMode"
+              @period-change="handlePeriodChange"
+            />
+          </section>
+          <section class="rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <Expenses
+              class="p-4"
+              :common-period="period"
+              :dark-mode="darkMode"
+              @period-change="handlePeriodChange"
+            />
+          </section>
         </div>
-        <hr class="dark:border-gray-800" />
       </div>
     </div>
   </div>
