@@ -4,7 +4,7 @@
       <!-- eslint-disable vue/require-explicit-emits -->
       <Sidebar
         v-show="showSidebar"
-        class="h-full min-h-0 flex-shrink-0 border-e dark:border-gray-800 whitespace-nowrap w-sidebar"
+        class="h-full min-h-0 self-stretch flex-shrink-0 whitespace-nowrap bg-[#0F2D5B] w-sidebar"
         :dark-mode="darkMode"
         @change-db-file="$emit('change-db-file')"
       />
