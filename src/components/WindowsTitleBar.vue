@@ -1,11 +1,11 @@
 <template>
   <div
     class="relative window-drag flex items-center border-b bg-white text-slate-900 border-slate-200"
-    style="height: 28px"
+    style="height: 32px"
   >
-    <img :src="logoUrl" alt="ContraBooks" class="ms-2 h-5 w-5" draggable="false" />
-    <p v-if="companyName && dbPath" class="mx-auto text-sm">
-      {{ companyName }} - {{ dbPath }}
+    <img :src="logoUrl" alt="ContraBooks" class="ms-3 h-5 w-5" draggable="false" />
+    <p v-if="companyName" class="mx-auto text-xs font-medium text-slate-600 truncate max-w-[60%]">
+      ContraBooks<span v-if="companyName"> · {{ companyName }}</span>
     </p>
     <div
       v-if="!isFullscreen"
@@ -50,8 +50,8 @@ export default {
   data() {
     return {
       logoUrl,
-      isMax: Boolean,
-      isFullscreen: Boolean,
+      isMax: false,
+      isFullscreen: false,
     };
   },
   mounted() {
@@ -82,18 +82,24 @@ export default {
       ipc.closeWindow();
     },
     getIsMaximized() {
-      ipc.isMaximized().then((result) => {
-        this.isMax = result;
-      }).catch((error) => {
-        console.error(error);
-      });
+      ipc
+        .isMaximized()
+        .then((result) => {
+          this.isMax = result;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
     getIsFullscreen() {
-      ipc.isFullscreen().then((result) => {
-        this.isFullscreen = result;
-      }).catch((error) => {
-        console.error(error);
-      });
+      ipc
+        .isFullscreen()
+        .then((result) => {
+          this.isFullscreen = result;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
   },
 };
