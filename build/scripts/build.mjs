@@ -8,7 +8,7 @@ import * as vite from 'vite';
 import { getMainProcessCommonConfig } from './helpers.mjs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import frappeBooksConfig from '../../electron-builder-config.mjs';
+import contraBooksConfig from '../../electron-builder-config.mjs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(dirname, '..', '..');
@@ -103,13 +103,6 @@ async function buildRendererProcessSource() {
   });
 }
 
-/**
- * Copies the package.json file to the build folder with the
- * following changes:
- * - Irrelevant fields are removed.
- * - Non-external deps (those that are bundled) and devDeps are removed.
- * - Main file is updated to the bundled main process JS file.
- */
 function copyPackageJson() {
   const packageJsonText = fs.readFileSync(path.join(root, 'package.json'), {
     encoding: 'utf-8',
@@ -210,15 +203,6 @@ function copyExternalDependencies() {
   }
 }
 
-/**
- * Packages the app using electron builder.
- *
- * Note: this also handles signing and notarization if the
- * appropriate flags are set.
- *
- * Electron builder cli [commands](https://www.electron.build/cli)
- * are passed on as builderArgs.
- */
 async function packageApp() {
   const { configureBuildCommand } = await import(
     'electron-builder/out/builder.js'
@@ -233,7 +217,7 @@ async function packageApp() {
   }
 
   const buildOptions = {
-    config: frappeBooksConfig,
+    config: contraBooksConfig,
     ...builderArgs,
   };
 
