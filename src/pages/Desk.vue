@@ -67,4 +67,19 @@ export default defineComponent({
 .sidebar-leave-from { opacity:1; transform:translateX(0); width:var(--w-sidebar); }
 .sidebar-enter-active,
 .sidebar-leave-active { transition:all 150ms ease-out; }
+
+/* Keep the dashboard fully visible as the desktop window is resized. */
+:deep(.dashboard-page) {
+  zoom: clamp(0.55, calc(100vh / 900px), 1);
+  overflow: hidden;
+}
+
+:deep(.dashboard-page .dashboard-scroll) {
+  overflow: hidden;
+}
+
+:deep(.dashboard-page .dashboard-shell) {
+  min-height: 100%;
+  box-sizing: border-box;
+}
 </style>
