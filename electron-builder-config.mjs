@@ -8,7 +8,7 @@ export default {
   },
   win: {
     artifactName: '${productName}-v${version}-windows-${arch}.${ext}',
-    icon: 'build/icon.ico',
+    icon: 'build/icon.svg',
     publish: ['github'],
     target: [
       {
