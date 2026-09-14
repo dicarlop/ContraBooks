@@ -1,9 +1,10 @@
 <template>
   <div
-    class="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#0F2D5B] text-white"
+    class="relative flex h-full min-h-0 flex-col overflow-hidden text-white"
+    style="background-color: #0F2D5B"
     :class="{ 'window-drag': platform !== 'Windows' }"
   >
-    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div class="flex min-h-0 flex-1 flex-col overflow-hidden" style="background-color: #0F2D5B">
       <div class="window-no-drag shrink-0 px-5 pb-5 pt-5" :class="platform === 'Mac' && languageDirection === 'ltr' ? 'pt-10' : ''">
         <img
           :src="logoUrl"
@@ -16,7 +17,7 @@
         </div>
       </div>
 
-      <nav class="window-no-drag min-h-0 flex-1 overflow-y-auto px-3 pb-4 no-scrollbar">
+      <nav class="window-no-drag min-h-0 flex-1 overflow-y-auto px-3 pb-4 no-scrollbar" style="background-color: #0F2D5B">
         <div v-for="group in groups" :key="group.name || group.label" class="mb-1.5">
           <button
             class="sidebar-item flex h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium"
@@ -69,8 +70,8 @@
       </nav>
     </div>
 
-    <div class="window-no-drag shrink-0 border-t border-white/10 bg-[#0F2D5B] px-4 pb-4 pt-3">
-      <div class="flex items-center justify-center px-2 pt-1 text-[11px] font-medium">
+    <div class="window-no-drag shrink-0 px-4 pb-4 pt-3" style="background-color: #0F2D5B">
+      <div class="flex items-center justify-center px-2 pt-1 text-[11px] font-medium" style="background-color: #0F2D5B">
         <span class="text-white">ContraBooks</span>
         <span class="mx-1 text-[#10B981]">·</span>
         <span class="text-[#10B981]">v1.0.0</span>
