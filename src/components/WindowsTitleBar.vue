@@ -8,7 +8,7 @@
       ContraBooks<span v-if="companyName"> · {{ companyName }}</span>
     </p>
     <div
-      v-if="!isFullscreen"
+      v-if="!isWindowFullscreen"
       class="absolute window-no-drag flex h-full items-center right-0"
     >
       <div
@@ -22,7 +22,7 @@
         @click="toggleMaximize"
       >
         <feather-icon
-          v-if="isMax"
+          v-if="isWindowMaximized"
           name="minimize"
           class="h-3 w-3 flex-shrink-0"
         />
@@ -50,8 +50,8 @@ export default {
   data() {
     return {
       logoUrl,
-      isMax: false,
-      isFullscreen: false,
+      isWindowMaximized: false,
+      isWindowFullscreen: false,
     };
   },
   mounted() {
@@ -85,7 +85,7 @@ export default {
       ipc
         .isMaximized()
         .then((result) => {
-          this.isMax = result;
+          this.isWindowMaximized = Boolean(result);
         })
         .catch((error) => {
           console.error(error);
@@ -95,7 +95,7 @@ export default {
       ipc
         .isFullscreen()
         .then((result) => {
-          this.isFullscreen = result;
+          this.isWindowFullscreen = Boolean(result);
         })
         .catch((error) => {
           console.error(error);
