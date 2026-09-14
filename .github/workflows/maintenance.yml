@@ -119,3 +119,10 @@ jobs:
           $artifacts = Get-ChildItem -Path dist_electron -File -Filter *.exe
           if ($artifacts.Count -eq 0) { throw 'Electron Builder produced no Windows .exe artifacts.' }
           $artifacts | Select-Object Name, Length
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ContraBooks-Windows-x64
+          path: dist_electron/*.exe
+          if-no-files-found: error
+          retention-days: 14
