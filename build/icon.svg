@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">ContraBooks</title>
+  <desc id="desc">ContraBooks application icon</desc>
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10B981"/>
+      <stop offset="1" stop-color="#14B8A6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="192" fill="#0F172A"/>
+  <g transform="translate(176 176) scale(6.8)">
+    <path d="M30 0h27L39 18v31L18 61H0V30z" fill="url(#blue)"/>
+    <path d="M57 0v49L39 61V18z" fill="url(#green)"/>
+    <path d="M18 61V30l21-12v43z" fill="#0F172A" opacity=".18"/>
+  </g>
+</svg>
