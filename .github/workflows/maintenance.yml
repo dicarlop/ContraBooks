@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [master]
 
+# Only the newest maintenance run for a branch is useful. This prevents a burst
+# of UI/maintenance commits from consuming all available runners and leaving
+# every run waiting at setup/provisioning steps.
+concurrency:
+  group: maintenance-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
