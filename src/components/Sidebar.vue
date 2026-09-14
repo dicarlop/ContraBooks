@@ -5,13 +5,13 @@
   >
     <div class="flex-1 min-h-0 overflow-y-auto no-scrollbar">
       <div
-        class="window-no-drag px-5 pt-5 pb-4"
+        class="window-no-drag px-5 pt-5 pb-5"
         :class="platform === 'Mac' && languageDirection === 'ltr' ? 'pt-10' : ''"
       >
         <img
           :src="logoUrl"
           alt="ContraBooks"
-          class="w-full max-w-[210px] h-auto select-none"
+          class="block w-[220px] max-w-full h-auto select-none"
           draggable="false"
         />
         <div
@@ -22,15 +22,11 @@
         </div>
       </div>
 
-      <nav class="window-no-drag px-3 space-y-1">
+      <nav class="window-no-drag px-3 space-y-1.5">
         <div v-for="group in groups" :key="group.label">
           <button
-            class="w-full h-11 px-3 rounded-lg flex items-center gap-3 text-left text-sm font-medium transition-colors"
-            :class="
-              isGroupActive(group) && !group.items
-                ? 'bg-[#2563EB] text-white shadow-sm'
-                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            "
+            class="sidebar-item w-full h-11 px-3 rounded-xl flex items-center gap-3 text-left text-sm font-medium"
+            :class="isGroupActive(group) && !group.items ? 'sidebar-active' : 'sidebar-inactive'"
             @click="routeToSidebarItem(group)"
           >
             <Icon
@@ -41,19 +37,20 @@
               :active="!!isGroupActive(group)"
               :darkMode="true"
             />
-            <span class="truncate">{{ group.label }}</span>
+            <span class="truncate flex-1">{{ group.label }}</span>
+            <feather-icon
+              v-if="group.items"
+              :name="isGroupActive(group) ? 'chevron-up' : 'chevron-down'"
+              class="w-4 h-4 flex-shrink-0 opacity-80"
+            />
           </button>
 
-          <div v-if="group.items && isGroupActive(group)" class="mt-1 space-y-1 ps-3">
+          <div v-if="group.items && isGroupActive(group)" class="mt-1.5 space-y-1 ps-3">
             <button
               v-for="item in group.items"
               :key="item.label"
-              class="w-full h-9 px-3 rounded-md flex items-center text-left text-sm transition-colors"
-              :class="
-                isItemActive(item)
-                  ? 'bg-[#2563EB] text-white font-medium shadow-sm'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-              "
+              class="sidebar-subitem w-full h-9 px-3 rounded-lg flex items-center text-left text-sm"
+              :class="isItemActive(item) ? 'sidebar-active' : 'sidebar-subinactive'"
               @click="routeToSidebarItem(item)"
             >
               <span class="truncate">{{ item.label }}</span>
@@ -65,7 +62,7 @@
 
     <div class="window-no-drag px-4 pt-3 pb-4 border-t border-slate-800 space-y-1">
       <button
-        class="w-full h-9 px-2 flex items-center gap-2 rounded-md text-sm text-slate-400 hover:bg-slate-800 hover:text-white"
+        class="sidebar-footer-item w-full h-9 px-2 flex items-center gap-2 rounded-lg text-sm"
         @click="openDocumentation"
       >
         <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
@@ -73,7 +70,7 @@
       </button>
 
       <button
-        class="w-full h-9 px-2 flex items-center gap-2 rounded-md text-sm text-slate-400 hover:bg-slate-800 hover:text-white"
+        class="sidebar-footer-item w-full h-9 px-2 flex items-center gap-2 rounded-lg text-sm"
         @click="viewShortcuts = true"
       >
         <feather-icon name="command" class="h-4 w-4 flex-shrink-0" />
@@ -82,7 +79,7 @@
 
       <button
         data-testid="change-db"
-        class="w-full h-9 px-2 flex items-center gap-2 rounded-md text-sm text-slate-400 hover:bg-slate-800 hover:text-white"
+        class="sidebar-footer-item w-full h-9 px-2 flex items-center gap-2 rounded-lg text-sm"
         @click="$emit('change-db-file')"
       >
         <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
@@ -90,7 +87,7 @@
       </button>
 
       <button
-        class="w-full h-9 px-2 flex items-center gap-2 rounded-md text-sm text-slate-400 hover:bg-slate-800 hover:text-white"
+        class="sidebar-footer-item w-full h-9 px-2 flex items-center gap-2 rounded-lg text-sm"
         @click="() => reportIssue()"
       >
         <feather-icon name="flag" class="h-4 w-4 flex-shrink-0" />
@@ -228,3 +225,32 @@ export default defineComponent({
   },
 });
 </script>
+<style scoped>
+.sidebar-item,
+.sidebar-subitem,
+.sidebar-footer-item {
+  transition: background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+
+.sidebar-active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.22);
+}
+
+.sidebar-inactive {
+  color: #cbd5e1;
+}
+
+.sidebar-inactive:hover,
+.sidebar-subinactive:hover,
+.sidebar-footer-item:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+
+.sidebar-subinactive,
+.sidebar-footer-item {
+  color: #94a3b8;
+}
+</style>
