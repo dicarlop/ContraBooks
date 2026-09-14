@@ -147,14 +147,66 @@ function copyPackageJson() {
 }
 
 function copyExternalDependencies() {
+  const copiedPackages = new Set();
+
   for (const dep of commonConfig.external) {
     if (dep === 'electron') {
       continue;
     }
 
-    const source = path.join(root, 'node_modules', dep);
-    const destination = path.join(buildDirPath, 'node_modules', dep);
-    fs.copySync(source, destination);
+    copyDependencyTree(dep, root);
+  }
+
+  function copyDependencyTree(packageName, fromDir) {
+    const packageJsonPath = findPackageJson(packageName, fromDir);
+    if (copiedPackages.has(packageJsonPath)) {
+      return;
+    }
+
+    copiedPackages.add(packageJsonPath);
+
+    const packageDir = path.dirname(packageJsonPath);
+    const packageJson = JSON.parse(
+      fs.readFileSync(packageJsonPath, { encoding: 'utf-8' })
+    );
+    const relativePackagePath = path.relative(
+      path.join(root, 'node_modules'),
+      packageDir
+    );
+    const destination = path.join(
+      buildDirPath,
+      'node_modules',
+      relativePackagePath
+    );
+
+    fs.copySync(packageDir, destination);
+
+    for (const dependency of Object.keys(packageJson.dependencies ?? {})) {
+      copyDependencyTree(dependency, packageDir);
+    }
+  }
+
+  function findPackageJson(packageName, fromDir) {
+    let currentDir = fromDir;
+    const packageRelativePath = path.join(
+      'node_modules',
+      ...packageName.split('/')
+    );
+
+    while (true) {
+      const candidate = path.join(currentDir, packageRelativePath, 'package.json');
+      if (fs.existsSync(candidate)) {
+        return candidate;
+      }
+
+      const parentDir = path.dirname(currentDir);
+      if (parentDir === currentDir) {
+        throw new Error(
+          `Unable to find package ${packageName} required by ${fromDir}`
+        );
+      }
+      currentDir = parentDir;
+    }
   }
 }
 
