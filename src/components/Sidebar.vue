@@ -43,7 +43,7 @@
             <button
               v-for="item in group.items"
               :key="item.name || item.label"
-              class="sidebar-subitem flex h-8.5 w-full items-center rounded-lg px-3 text-left text-[12px]"
+              class="sidebar-subitem flex h-8.5 w-full items-center rounded-lg px-3 text-left text-sm font-medium"
               :class="isItemActive(item) ? 'sidebar-active' : 'sidebar-subinactive'"
               @click="routeToSidebarItem(item)"
             >
@@ -51,15 +51,15 @@
             </button>
 
             <template v-if="group.name === 'settings'">
-              <button class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-[12px]" @click="openDocumentation">
+              <button class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-medium" @click="openDocumentation">
                 <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
                 <span>{{ t`Help & Support` }}</span>
               </button>
-              <button data-testid="change-db" class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-[12px]" @click="$emit('change-db-file')">
+              <button data-testid="change-db" class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-medium" @click="$emit('change-db-file')">
                 <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
                 <span>{{ t`Change Database` }}</span>
               </button>
-              <button class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-[12px]" @click="() => reportIssue()">
+              <button class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-medium" @click="() => reportIssue()">
                 <feather-icon name="flag" class="h-4 w-4 flex-shrink-0" />
                 <span>{{ t`Report Issue` }}</span>
               </button>
@@ -70,22 +70,12 @@
     </div>
 
     <div class="window-no-drag shrink-0 border-t border-white/10 bg-[#0F2D5B] px-4 pb-4 pt-3">
-      <button class="sidebar-footer-item flex h-9 w-full items-center gap-2 rounded-lg px-2 text-sm" @click="viewShortcuts = true">
-        <feather-icon name="command" class="h-4 w-4 flex-shrink-0" />
-        <span>{{ t`Shortcuts` }}</span>
-      </button>
-      <div class="mt-3 flex items-center justify-between border-t border-white/10 px-2 pt-3 text-[10px] text-slate-400">
-        <span>ContraBooks</span><span>v1.0.0</span>
-      </div>
+      <div class="flex items-center justify-center px-2 pt-1 text-[10px] text-slate-400"><span>ContraBooks</span><span class="mx-1">·</span><span>v1.0.0</span></div>
     </div>
 
     <button class="absolute bottom-3 end-3 rounded-md p-1 text-slate-400 hover:bg-white/10 hover:text-white" @click="() => toggleSidebar()">
       <feather-icon name="chevrons-left" class="h-4 w-4" />
     </button>
-
-    <Modal :open-modal="viewShortcuts" @closemodal="viewShortcuts = false">
-      <ShortcutsHelper class="w-form" />
-    </Modal>
   </div>
 </template>
 <script lang="ts">
@@ -99,19 +89,17 @@ import { routeTo, toggleSidebar } from 'src/utils/ui';
 import { defineComponent, inject } from 'vue';
 import router from '../router';
 import Icon from './Icon.vue';
-import Modal from './Modal.vue';
-import ShortcutsHelper from './ShortcutsHelper.vue';
 
 const COMPONENT_NAME = 'Sidebar';
 
 export default defineComponent({
-  components: { Icon, Modal, ShortcutsHelper },
+  components: { Icon },
   props: { darkMode: { type: Boolean, default: false } },
   emits: ['change-db-file', 'toggle-darkmode'],
   setup() { return { logoUrl, languageDirection: inject(languageDirectionKey), shortcuts: inject(shortcutsKey) }; },
   data() {
-    return { companyName: '', groups: [], viewShortcuts: false, activeGroup: null, showDevMode: false } as {
-      companyName: string; groups: SidebarConfig; viewShortcuts: boolean; activeGroup: null | SidebarRoot; showDevMode: boolean;
+    return { companyName: '', groups: [], activeGroup: null, showDevMode: false } as {
+      companyName: string; groups: SidebarConfig; activeGroup: null | SidebarRoot; showDevMode: boolean;
     };
   },
   async mounted() {
@@ -157,9 +145,9 @@ export default defineComponent({
 });
 </script>
 <style scoped>
-.sidebar-item,.sidebar-subitem,.sidebar-footer-item{transition:background-color 140ms ease,color 140ms ease,box-shadow 140ms ease}
+.sidebar-item,.sidebar-subitem{transition:background-color 140ms ease,color 140ms ease,box-shadow 140ms ease}
 .sidebar-active{background:#2563EB;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.22)}
 .sidebar-inactive{color:#D7E5F4}
-.sidebar-inactive:hover,.sidebar-subinactive:hover,.sidebar-footer-item:hover{background:rgba(255,255,255,.09);color:#fff}
-.sidebar-subinactive,.sidebar-footer-item{color:#A9BFD5}
+.sidebar-inactive:hover,.sidebar-subinactive:hover{background:rgba(255,255,255,.09);color:#fff}
+.sidebar-subinactive{color:#A9BFD5}
 </style>
