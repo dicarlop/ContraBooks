@@ -1,31 +1,25 @@
 <template>
   <div
-    class="h-full min-h-0 flex flex-col bg-[#062A4F] text-white relative overflow-hidden"
+    class="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#0F2D5B] text-white"
     :class="{ 'window-drag': platform !== 'Windows' }"
   >
-    <div class="flex-1 min-h-0 overflow-y-auto no-scrollbar">
-      <div
-        class="window-no-drag px-5 pt-5 pb-5"
-        :class="platform === 'Mac' && languageDirection === 'ltr' ? 'pt-10' : ''"
-      >
+    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div class="window-no-drag shrink-0 px-5 pb-5 pt-5" :class="platform === 'Mac' && languageDirection === 'ltr' ? 'pt-10' : ''">
         <img
           :src="logoUrl"
-          alt="ContraBooks"
-          class="block w-[220px] max-w-full h-auto select-none"
+          alt="ContraBooks — Simple. Powerful. Yours."
+          class="block h-auto w-[210px] max-w-full select-none"
           draggable="false"
         />
-        <div
-          data-testid="company-name"
-          class="mt-4 truncate text-xs font-medium uppercase tracking-[0.16em] text-slate-300"
-        >
+        <div data-testid="company-name" class="mt-4 truncate text-xs font-medium uppercase tracking-[0.16em] text-slate-300">
           {{ companyName }}
         </div>
       </div>
 
-      <nav class="window-no-drag px-3 space-y-1.5">
-        <div v-for="group in groups" :key="group.label">
+      <nav class="window-no-drag min-h-0 flex-1 overflow-y-auto px-3 pb-4 no-scrollbar">
+        <div v-for="group in groups" :key="group.name || group.label" class="mb-1.5">
           <button
-            class="sidebar-item w-full h-11 px-3 rounded-xl flex items-center gap-3 text-left text-sm font-medium"
+            class="sidebar-item flex h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium"
             :class="isGroupActive(group) && !group.items ? 'sidebar-active' : 'sidebar-inactive'"
             @click="routeToSidebarItem(group)"
           >
@@ -37,19 +31,19 @@
               :active="!!isGroupActive(group)"
               :darkMode="true"
             />
-            <span class="truncate flex-1">{{ group.label }}</span>
+            <span class="flex-1 truncate">{{ group.label }}</span>
             <feather-icon
               v-if="group.items"
               :name="isGroupActive(group) ? 'chevron-up' : 'chevron-down'"
-              class="w-4 h-4 flex-shrink-0 opacity-80"
+              class="h-4 w-4 flex-shrink-0 opacity-70"
             />
           </button>
 
-          <div v-if="group.items && isGroupActive(group)" class="mt-1.5 space-y-1 ps-3">
+          <div v-if="group.items && isGroupActive(group)" class="mt-1 space-y-0.5 ps-3">
             <button
               v-for="item in group.items"
-              :key="item.label"
-              class="sidebar-subitem w-full h-9 px-3 rounded-lg flex items-center text-left text-sm"
+              :key="item.name || item.label"
+              class="sidebar-subitem flex h-8.5 w-full items-center rounded-lg px-3 text-left text-[12px]"
               :class="isItemActive(item) ? 'sidebar-active' : 'sidebar-subinactive'"
               @click="routeToSidebarItem(item)"
             >
@@ -57,25 +51,15 @@
             </button>
 
             <template v-if="group.name === 'settings'">
-              <button
-                class="sidebar-subitem w-full h-9 px-3 rounded-lg flex items-center gap-2 text-left text-sm"
-                @click="openDocumentation"
-              >
+              <button class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-[12px]" @click="openDocumentation">
                 <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
-                <span>{{ t`Help` }}</span>
+                <span>{{ t`Help & Support` }}</span>
               </button>
-              <button
-                data-testid="change-db"
-                class="sidebar-subitem w-full h-9 px-3 rounded-lg flex items-center gap-2 text-left text-sm"
-                @click="$emit('change-db-file')"
-              >
+              <button data-testid="change-db" class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-[12px]" @click="$emit('change-db-file')">
                 <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
-                <span>{{ t`Change DB` }}</span>
+                <span>{{ t`Change Database` }}</span>
               </button>
-              <button
-                class="sidebar-subitem w-full h-9 px-3 rounded-lg flex items-center gap-2 text-left text-sm"
-                @click="() => reportIssue()"
-              >
+              <button class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-[12px]" @click="() => reportIssue()">
                 <feather-icon name="flag" class="h-4 w-4 flex-shrink-0" />
                 <span>{{ t`Report Issue` }}</span>
               </button>
@@ -85,26 +69,18 @@
       </nav>
     </div>
 
-    <div class="window-no-drag shrink-0 px-4 pt-3 pb-4 border-t border-white/10 space-y-1 bg-[#062A4F]">
-      <button
-        class="sidebar-footer-item w-full h-9 px-2 flex items-center gap-2 rounded-lg text-sm"
-        @click="viewShortcuts = true"
-      >
+    <div class="window-no-drag shrink-0 border-t border-white/10 bg-[#0F2D5B] px-4 pb-4 pt-3">
+      <button class="sidebar-footer-item flex h-9 w-full items-center gap-2 rounded-lg px-2 text-sm" @click="viewShortcuts = true">
         <feather-icon name="command" class="h-4 w-4 flex-shrink-0" />
         <span>{{ t`Shortcuts` }}</span>
       </button>
-
-      <div class="flex items-center justify-between pt-3 px-2 text-[11px] text-slate-400">
-        <span>ContraBooks</span>
-        <span>v1.0</span>
+      <div class="mt-3 flex items-center justify-between border-t border-white/10 px-2 pt-3 text-[10px] text-slate-400">
+        <span>ContraBooks</span><span>v1.0.0</span>
       </div>
     </div>
 
-    <button
-      class="absolute bottom-3 end-3 text-slate-400 hover:text-white hover:bg-white/10 rounded-md p-1"
-      @click="() => toggleSidebar()"
-    >
-      <feather-icon name="chevrons-left" class="w-4 h-4" />
+    <button class="absolute bottom-3 end-3 rounded-md p-1 text-slate-400 hover:bg-white/10 hover:text-white" @click="() => toggleSidebar()">
+      <feather-icon name="chevrons-left" class="h-4 w-4" />
     </button>
 
     <Modal :open-modal="viewShortcuts" @closemodal="viewShortcuts = false">
@@ -132,26 +108,10 @@ export default defineComponent({
   components: { Icon, Modal, ShortcutsHelper },
   props: { darkMode: { type: Boolean, default: false } },
   emits: ['change-db-file', 'toggle-darkmode'],
-  setup() {
-    return {
-      logoUrl,
-      languageDirection: inject(languageDirectionKey),
-      shortcuts: inject(shortcutsKey),
-    };
-  },
+  setup() { return { logoUrl, languageDirection: inject(languageDirectionKey), shortcuts: inject(shortcutsKey) }; },
   data() {
-    return {
-      companyName: '',
-      groups: [],
-      viewShortcuts: false,
-      activeGroup: null,
-      showDevMode: false,
-    } as {
-      companyName: string;
-      groups: SidebarConfig;
-      viewShortcuts: boolean;
-      activeGroup: null | SidebarRoot;
-      showDevMode: boolean;
+    return { companyName: '', groups: [], viewShortcuts: false, activeGroup: null, showDevMode: false } as {
+      companyName: string; groups: SidebarConfig; viewShortcuts: boolean; activeGroup: null | SidebarRoot; showDevMode: boolean;
     };
   },
   async mounted() {
@@ -160,54 +120,34 @@ export default defineComponent({
     this.groups = await getSidebarConfig();
     this.setActiveGroup();
     router.afterEach(() => this.setActiveGroup());
-
-    this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyH'], () => {
-      if (document.body === document.activeElement) this.toggleSidebar();
-    });
+    this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyH'], () => { if (document.body === document.activeElement) this.toggleSidebar(); });
     this.shortcuts?.set(COMPONENT_NAME, ['F1'], () => this.openDocumentation());
     this.showDevMode = this.fyo.store.isDevelopment;
   },
-  unmounted() {
-    this.shortcuts?.delete(COMPONENT_NAME);
-  },
+  unmounted() { this.shortcuts?.delete(COMPONENT_NAME); },
   methods: {
-    routeTo,
-    reportIssue,
-    toggleSidebar,
-    openDocumentation() {
-      ipc.openLink('https://github.com/dicarlop/ContraBooks');
-    },
+    routeTo, reportIssue, toggleSidebar,
+    openDocumentation() { ipc.openLink('https://github.com/dicarlop/ContraBooks'); },
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute.value;
       const fallBackGroup = this.activeGroup;
-      this.activeGroup =
-        this.groups.find((g) => {
-          if (fullPath.startsWith(g.route) && g.route !== '/') return true;
-          if (g.route === fullPath) return true;
-          if (g.items) {
-            const activeItem = g.items.filter(
-              ({ route }) => route === fullPath || fullPath.startsWith(route)
-            );
-            if (activeItem.length) return true;
-          }
-        }) ?? fallBackGroup ?? this.groups[0];
+      this.activeGroup = this.groups.find((g) => {
+        if (fullPath.startsWith(g.route) && g.route !== '/') return true;
+        if (g.route === fullPath) return true;
+        if (g.items) return g.items.some(({ route }) => route === fullPath || fullPath.startsWith(route));
+        return false;
+      }) ?? fallBackGroup ?? this.groups[0];
     },
     isItemActive(item: SidebarItem) {
       const { path: currentRoute, params } = this.$route;
       const routeMatch = currentRoute === item.route;
       const schemaNameMatch = item.schemaName && params.schemaName === item.schemaName;
       const isMatch = routeMatch || schemaNameMatch;
-      if (params.name && item.schemaName && !isMatch) {
-        return currentRoute.includes(`${item.schemaName}/${params.name}`);
-      }
+      if (params.name && item.schemaName && !isMatch) return currentRoute.includes(`${item.schemaName}/${params.name}`);
       return isMatch;
     },
-    isGroupActive(group: SidebarRoot) {
-      return this.activeGroup && group.label === this.activeGroup.label;
-    },
-    routeToSidebarItem(item: SidebarItem | SidebarRoot) {
-      routeTo(this.getPath(item));
-    },
+    isGroupActive(group: SidebarRoot) { return this.activeGroup && group.name === this.activeGroup.name; },
+    routeToSidebarItem(item: SidebarItem | SidebarRoot) { routeTo(this.getPath(item)); },
     getPath(item: SidebarItem | SidebarRoot) {
       const { route: path, filters } = item;
       if (!filters) return path;
@@ -217,31 +157,9 @@ export default defineComponent({
 });
 </script>
 <style scoped>
-.sidebar-item,
-.sidebar-subitem,
-.sidebar-footer-item {
-  transition: background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
-}
-
-.sidebar-active {
-  background: #2563eb;
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.22);
-}
-
-.sidebar-inactive {
-  color: #d7e5f4;
-}
-
-.sidebar-inactive:hover,
-.sidebar-subinactive:hover,
-.sidebar-footer-item:hover {
-  background: rgba(255, 255, 255, 0.09);
-  color: #ffffff;
-}
-
-.sidebar-subinactive,
-.sidebar-footer-item {
-  color: #a9bfd5;
-}
+.sidebar-item,.sidebar-subitem,.sidebar-footer-item{transition:background-color 140ms ease,color 140ms ease,box-shadow 140ms ease}
+.sidebar-active{background:#2563EB;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.22)}
+.sidebar-inactive{color:#D7E5F4}
+.sidebar-inactive:hover,.sidebar-subinactive:hover,.sidebar-footer-item:hover{background:rgba(255,255,255,.09);color:#fff}
+.sidebar-subinactive,.sidebar-footer-item{color:#A9BFD5}
 </style>

@@ -1,101 +1,111 @@
 <template>
-  <div class="h-full min-h-0 min-w-0 w-full bg-[#F8FAFC]">
-    <PageHeader :title="''" class="dashboard-header">
-      <div class="dashboard-period">
-        <PeriodSelector
-          :value="period"
-          :options="['This Year', 'This Quarter', 'This Month', 'YTD']"
-          @change="(value) => (period = value)"
-        />
-      </div>
-    </PageHeader>
-
-    <div
-      class="no-scrollbar overflow-auto bg-[#F8FAFC]"
-      style="height: calc(100% - var(--h-row-largest) - 1px)"
-    >
+  <div class="dashboard-page h-full min-h-0 min-w-0 w-full bg-[#F8FAFC] text-[#0F172A]">
+    <header class="dashboard-topbar">
+      <div class="dashboard-search"><feather-icon name="search" class="h-4 w-4 text-[#64748B]"/><input aria-label="Search customers, invoices, or anything" placeholder="Search customers, invoices, or anything..."/><span>Ctrl K</span></div>
+      <div class="dashboard-top-actions"><button title="Notifications"><feather-icon name="bell" class="h-4 w-4"/></button><button title="Settings" @click="routeTo('/settings')"><feather-icon name="settings" class="h-4 w-4"/></button><div class="dashboard-avatar">{{ initials }}</div></div>
+    </header>
+    <div class="dashboard-scroll no-scrollbar">
       <div class="dashboard-shell">
-        <div class="dashboard-main">
+        <main class="dashboard-main">
           <header class="dashboard-welcome">
-            <div>
-              <h1>Good afternoon, {{ firstName }}</h1>
-              <p>Here's what's happening with your business today.</p>
-            </div>
-            <div class="dashboard-date">{{ formattedDate }}</div>
+            <div><h1>Good afternoon, {{ firstName }}</h1><p>Here's what's happening with your business today.</p></div>
+            <div class="dashboard-company"><div>{{ formattedDate }}</div><button @click="routeTo('/settings')"><feather-icon name="briefcase" class="h-4 w-4"/><span class="truncate">{{ companyName || 'Company file' }}</span><feather-icon name="chevron-down" class="h-3.5 w-3.5"/></button></div>
           </header>
 
           <div class="dashboard-kpis">
-            <section class="dashboard-card dashboard-kpi dashboard-kpi-blue"><div class="dashboard-kpi-icon">$</div><div><div class="dashboard-kpi-label">Outstanding Invoices</div><div class="dashboard-kpi-value"><UnpaidInvoices :schema-name="'SalesInvoice'" :common-period="period" :dark-mode="false" /></div></div></section>
-            <section class="dashboard-card dashboard-kpi dashboard-kpi-green"><div class="dashboard-kpi-icon">$</div><div><div class="dashboard-kpi-label">Outstanding Bills</div><div class="dashboard-kpi-value"><UnpaidInvoices :schema-name="'PurchaseInvoice'" :common-period="period" :dark-mode="false" /></div></div></section>
-            <section class="dashboard-card dashboard-kpi dashboard-kpi-purple"><div class="dashboard-kpi-icon">◎</div><div><div class="dashboard-kpi-label">Total Customers</div><div class="dashboard-kpi-value">&mdash;</div></div></section>
-            <section class="dashboard-card dashboard-kpi dashboard-kpi-teal"><div class="dashboard-kpi-icon">□</div><div><div class="dashboard-kpi-label">Total Suppliers</div><div class="dashboard-kpi-value">&mdash;</div></div></section>
+            <section class="dashboard-card dashboard-kpi blue"><div class="kpi-icon"><feather-icon name="file-text" class="h-5 w-5"/></div><div><b>Outstanding Invoices</b><strong><UnpaidInvoices :schema-name="'SalesInvoice'" :dark-mode="false"/></strong><button @click="routeTo('/list/SalesInvoice')">View invoices →</button></div></section>
+            <section class="dashboard-card dashboard-kpi green"><div class="kpi-icon"><feather-icon name="credit-card" class="h-5 w-5"/></div><div><b>Outstanding Bills</b><strong><UnpaidInvoices :schema-name="'PurchaseInvoice'" :dark-mode="false"/></strong><button @click="routeTo('/list/PurchaseInvoice')">View bills →</button></div></section>
+            <section class="dashboard-card dashboard-kpi purple"><div class="kpi-icon"><feather-icon name="users" class="h-5 w-5"/></div><div><b>Total Customers</b><strong>{{ customerCount }}</strong><button @click="routeTo('/list/Party/Customers')">Active customers →</button></div></section>
+            <section class="dashboard-card dashboard-kpi teal"><div class="kpi-icon"><feather-icon name="briefcase" class="h-5 w-5"/></div><div><b>Total Suppliers</b><strong>{{ supplierCount }}</strong><button @click="routeTo('/list/Party/Suppliers')">Active suppliers →</button></div></section>
           </div>
 
-          <section class="dashboard-card dashboard-chart-card"><Cashflow :common-period="period" :dark-mode="false" @period-change="handlePeriodChange" /></section>
-          <div class="dashboard-lower-grid">
-            <section class="dashboard-card dashboard-panel"><ProfitAndLoss :common-period="period" :dark-mode="false" @period-change="handlePeriodChange" /></section>
-            <section class="dashboard-card dashboard-panel"><Expenses :common-period="period" :dark-mode="false" @period-change="handlePeriodChange" /></section>
+          <div class="primary-grid">
+            <section class="dashboard-card chart-card">
+              <div class="section-head"><div><h2>Sales Overview</h2><p>Cash moving through your company file</p></div><div class="range-tabs"><button class="active">This Year</button><button @click="setPeriod('This Quarter')">Quarter</button><button @click="setPeriod('This Month')">Month</button><button @click="setPeriod('YTD')">YTD</button></div></div>
+              <Cashflow :common-period="period" :dark-mode="false" @period-change="handlePeriodChange"/>
+            </section>
+            <section class="dashboard-card list-card">
+              <div class="section-head"><div><h2>Recent Invoices</h2><p>Latest activity in your sales ledger</p></div><button class="view-all" @click="routeTo('/list/SalesInvoice')">View all</button></div>
+              <div v-if="recentInvoices.length">
+                <button v-for="invoice in recentInvoices" :key="invoice.name" class="invoice-row" @click="routeTo(`/edit/SalesInvoice/${invoice.name}`)"><span class="row-icon"><feather-icon name="file-text" class="h-4 w-4"/></span><span class="row-copy"><b>{{ invoice.name }}</b><small>{{ invoice.party || 'Customer' }} · {{ formatDate(invoice.date) }}</small></span><strong>{{ formatCurrency(invoice.grandTotal) }}</strong><em :class="`status-${invoice.status.toLowerCase()}`">{{ invoice.status }}</em></button>
+              </div><div v-else class="empty">No sales invoices have been recorded yet.</div>
+            </section>
           </div>
-        </div>
+
+          <div class="secondary-grid">
+            <section class="dashboard-card list-card"><div class="section-head"><div><h2>Recent Activity</h2><p>Latest invoice events</p></div><button class="view-all" @click="routeTo('/list/SalesInvoice')">View all</button></div><div v-if="recentInvoices.length"><div v-for="invoice in recentInvoices" :key="`a-${invoice.name}`" class="activity-row"><i :class="`activity-dot activity-${invoice.status.toLowerCase()}`"></i><span><b>{{ activityText(invoice) }}</b><small>{{ invoice.party || 'Customer' }} · {{ formatCurrency(invoice.grandTotal) }}</small></span><time>{{ formatDate(invoice.date, true) }}</time></div></div><div v-else class="empty">Activity will appear here as you work.</div></section>
+            <section class="dashboard-card list-card"><div class="section-head"><div><h2>Top Customers</h2><p>Sales recorded in the company file</p></div><button class="view-all" @click="routeTo('/list/Party/Customers')">View all</button></div><div v-if="topCustomers.length"><button v-for="(customer,index) in topCustomers" :key="customer.name" class="rank-row" @click="routeTo('/list/Party/Customers')"><span class="rank-avatar">{{ initialsFor(customer.name) }}</span><span><b>{{ customer.name }}</b><small>#{{ index+1 }}</small></span><strong>{{ formatCurrency(customer.total) }}</strong></button></div><div v-else class="empty">Sales by customer will appear here.</div></section>
+            <section class="dashboard-card list-card"><div class="section-head"><div><h2>Top Products / Services</h2><p>Items sold on submitted invoices</p></div><button class="view-all" @click="routeTo('/list/Item')">View all</button></div><div v-if="topProducts.length"><div v-for="(product,index) in topProducts" :key="product.name" class="rank-row"><span class="product-icon"><feather-icon name="package" class="h-4 w-4"/></span><span><b>{{ product.name }}</b><small>#{{ index+1 }}</small></span><strong>{{ formatCurrency(product.total) }}</strong></div></div><div v-else class="empty">Product and service sales will appear here.</div></section>
+          </div>
+        </main>
 
         <aside class="dashboard-rail">
-          <h2>Quick Actions</h2>
-          <button class="quick-action quick-action-blue" @click="routeTo('/list/SalesInvoice')"><span class="quick-action-icon">▤</span><span>Invoices</span><span class="quick-action-arrow">›</span></button>
-          <button class="quick-action quick-action-green" @click="routeTo('/list/Party/Customers')"><span class="quick-action-icon">●</span><span>Customers</span><span class="quick-action-arrow">›</span></button>
-          <button class="quick-action quick-action-teal" @click="routeTo('/list/Payment')"><span class="quick-action-icon">▣</span><span>Payments</span><span class="quick-action-arrow">›</span></button>
-          <button class="quick-action quick-action-purple" @click="routeTo('/list/PurchaseInvoice')"><span class="quick-action-icon">▤</span><span>Bills</span><span class="quick-action-arrow">›</span></button>
-          <button class="quick-action quick-action-navy" @click="routeTo('/report/GeneralLedger')"><span class="quick-action-icon">▥</span><span>View Reports</span><span class="quick-action-arrow">›</span></button>
-          <section class="dashboard-tip"><div class="dashboard-tip-icon">✓</div><h3>Keep your books in balance</h3><p>Track income, manage expenses, and grow your business — all in one place.</p><button @click="routeTo('/get-started')">Get started</button></section>
+          <section><div class="section-head"><div><h2>Quick Actions</h2><p>Common tasks, one click away</p></div></div>
+            <button class="quick blue" @click="createDocument('SalesInvoice')"><span><feather-icon name="file-plus" class="h-4 w-4"/></span>Create Invoice <b>›</b></button>
+            <button class="quick green" @click="createCustomer"><span><feather-icon name="user-plus" class="h-4 w-4"/></span>Add Customer <b>›</b></button>
+            <button class="quick teal" @click="createDocument('Payment')"><span><feather-icon name="credit-card" class="h-4 w-4"/></span>Record Payment <b>›</b></button>
+            <button class="quick purple" @click="createDocument('PurchaseInvoice')"><span><feather-icon name="file-text" class="h-4 w-4"/></span>Enter Bill <b>›</b></button>
+            <button class="quick navy" @click="routeTo('/report/GeneralLedger')"><span><feather-icon name="bar-chart-2" class="h-4 w-4"/></span>View Reports <b>›</b></button>
+          </section>
+          <section class="tip"><div><feather-icon name="check" class="h-6 w-6"/></div><h3>Keep your books in balance</h3><p>Track income, manage expenses, and grow your business — all in one place.</p><button @click="routeTo('/get-started')">Learn more</button></section>
+          <div class="connected"><i></i>Connected to your company file</div>
         </aside>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { t } from 'fyo';
+import { fyo } from 'src/initFyo';
 import PageHeader from 'src/components/PageHeader.vue';
 import UnpaidInvoices from './UnpaidInvoices.vue';
 import Cashflow from './Cashflow.vue';
-import Expenses from './Expenses.vue';
 import PeriodSelector from './PeriodSelector.vue';
-import ProfitAndLoss from './ProfitAndLoss.vue';
 import { docsPathRef } from 'src/utils/refs';
 import { routeTo } from 'src/utils/ui';
+import { ModelNameEnum } from 'models/types';
+
+type InvoiceRow={name:string;party:string;date:unknown;grandTotal:unknown;status:string};
+type RankRow={name:string;total:number};
 
 export default {
-  name: 'Dashboard',
-  components: { PageHeader, Cashflow, ProfitAndLoss, Expenses, PeriodSelector, UnpaidInvoices },
-  props: { darkMode: { type: Boolean, default: false } },
-  data() { return { period: 'This Year' }; },
-  computed: {
-    firstName() { const name = this.$route.query?.name; return typeof name === 'string' && name ? name : 'there'; },
-    formattedDate() { return new Intl.DateTimeFormat(undefined, { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date()); },
+  name:'Dashboard',
+  components:{PageHeader,Cashflow,PeriodSelector,UnpaidInvoices},
+  props:{darkMode:{type:Boolean,default:false}},
+  data(){return{period:'This Year',customerCount:0,supplierCount:0,companyName:'',recentInvoices:[] as InvoiceRow[],topCustomers:[] as RankRow[],topProducts:[] as RankRow[]};},
+  computed:{
+    firstName(){const name=this.$route.query?.name;return typeof name==='string'&&name?name:'there';},
+    initials(){return this.initialsFor(this.firstName);},
+    formattedDate(){return new Intl.DateTimeFormat(undefined,{month:'long',day:'numeric',year:'numeric'}).format(new Date());},
   },
-  activated() { docsPathRef.value = 'books/dashboard'; },
-  deactivated() { docsPathRef.value = ''; },
-  methods: { routeTo, handlePeriodChange(period) { if (period !== this.period) this.period = period; } },
+  async activated(){docsPathRef.value='books/dashboard';await this.loadDashboardData();},
+  deactivated(){docsPathRef.value='';},
+  methods:{
+    routeTo,
+    async loadDashboardData(){
+      this.companyName=(fyo.singles.AccountingSettings?.companyName as string)||'';
+      this.customerCount=await fyo.db.count(ModelNameEnum.Party,{filters:{role:['in',['Customer','Both']]} });
+      this.supplierCount=await fyo.db.count(ModelNameEnum.Party,{filters:{role:['in',['Supplier','Both']]} });
+      const invoices=(await fyo.db.getAllRaw('SalesInvoice',{fields:['name','party','date','grandTotal','outstandingAmount','submitted','cancelled'],orderBy:'date',order:'desc',limit:8})) as Record<string,unknown>[];
+      this.recentInvoices=invoices.map((invoice)=>{const outstanding=Number(invoice.outstandingAmount??0);const cancelled=invoice.cancelled===true;const submitted=invoice.submitted===true;return{name:String(invoice.name??''),party:String(invoice.party??''),date:invoice.date,grandTotal:invoice.grandTotal,status:cancelled?'Cancelled':!submitted?'Draft':outstanding>0?'Sent':'Paid'};});
+      const submitted=invoices.filter((invoice)=>invoice.submitted===true&&invoice.cancelled!==true);const customerTotals=new Map<string,number>();
+      for(const invoice of submitted){const party=String(invoice.party??'');const total=Number(invoice.grandTotal??0);if(party)customerTotals.set(party,(customerTotals.get(party)??0)+total);}
+      this.topCustomers=[...customerTotals.entries()].map(([name,total])=>({name,total})).sort((a,b)=>b.total-a.total).slice(0,5);
+      const itemRows=(await fyo.db.getAllRaw('SalesInvoiceItem',{fields:['item','amount'],orderBy:'amount',order:'desc',limit:5})) as Record<string,unknown>[];
+      this.topProducts=itemRows.map((row)=>({name:String(row.item??''),total:Number(row.amount??0)})).filter((row)=>row.name&&row.total>0);
+    },
+    setPeriod(period:string){this.period=period;},
+    handlePeriodChange(period:string){this.period=period;},
+    async createDocument(schemaName:string){const doc=fyo.doc.getNewDoc(schemaName);await routeTo(`/edit/${schemaName}/${doc.name!}`);},
+    async createCustomer(){const doc=fyo.doc.getNewDoc(ModelNameEnum.Party,{role:'Customer'});await routeTo(`/edit/${ModelNameEnum.Party}/${doc.name!}`);},
+    formatCurrency(value:unknown){return fyo.format(Number(value??0),'Currency');},
+    formatDate(value:unknown,relative=false){if(!value)return'—';const date=new Date(value as string|number|Date);if(Number.isNaN(date.getTime()))return'—';if(relative){const hours=Math.max(0,Math.round((Date.now()-date.getTime())/3600000));if(hours<1)return'now';if(hours<24)return`${hours}h ago`;return`${Math.round(hours/24)}d ago`;}return new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',year:'numeric'}).format(date);},
+    initialsFor(value:string){return value.split(/\s+/).filter(Boolean).slice(0,2).map((part)=>part[0]).join('').toUpperCase()||'CB';},
+    activityText(invoice:InvoiceRow){if(invoice.status==='Paid')return t`Invoice ${invoice.name} was paid`;if(invoice.status==='Sent')return t`Invoice ${invoice.name} was sent`;if(invoice.status==='Cancelled')return t`Invoice ${invoice.name} was cancelled`;return t`Invoice ${invoice.name} was created`;},
+  },
 };
 </script>
-
 <style scoped>
-.dashboard-header { background: #fff; border-bottom: 1px solid #e2e8f0; }
-.dashboard-period { border: 1px solid #dbeafe; border-radius: 10px; background: #fff; padding: 0 8px; }
-.dashboard-shell { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 18px; padding: 22px 24px 28px; min-width: 0; max-width: 100%; box-sizing: border-box; }
-.dashboard-main { min-width: 0; }
-.dashboard-welcome { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
-.dashboard-welcome h1 { margin: 0; color: #0f172a; font-size: clamp(22px, 2.1vw, 30px); line-height: 1.15; font-weight: 700; letter-spacing: -0.03em; }
-.dashboard-welcome p { margin: 7px 0 0; color: #64748b; font-size: 15px; }
-.dashboard-date { color: #2563eb; font-size: 13px; white-space: nowrap; padding-bottom: 3px; }
-.dashboard-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
-.dashboard-card { border: 1px solid #e2e8f0; border-radius: 14px; background: #fff; box-shadow: 0 4px 18px rgba(15,23,42,.05); box-sizing: border-box; }
-.dashboard-kpi { min-height: 118px; display: flex; align-items: center; gap: 12px; padding: 16px; }
-.dashboard-kpi-blue { border-color:#bfdbfe; background:#f8fbff; } .dashboard-kpi-green { border-color:#a7f3d0; background:#f5fffb; } .dashboard-kpi-purple { border-color:#ddd6fe; background:#fbf9ff; } .dashboard-kpi-teal { border-color:#a5f3fc; background:#f4feff; }
-.dashboard-kpi-icon { width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto;color:#fff;background:#2563eb;font-size:21px;font-weight:700; }
-.dashboard-kpi-green .dashboard-kpi-icon{background:#10b981}.dashboard-kpi-purple .dashboard-kpi-icon{background:#7c3aed}.dashboard-kpi-teal .dashboard-kpi-icon{background:#06b6d4}
-.dashboard-kpi-label{color:#2563eb;font-size:12px;font-weight:600}.dashboard-kpi-green .dashboard-kpi-label{color:#059669}.dashboard-kpi-purple .dashboard-kpi-label{color:#6d28d9}.dashboard-kpi-teal .dashboard-kpi-label{color:#0891b2}.dashboard-kpi-value{color:#0f172a;font-size:18px;font-weight:700;margin-top:6px}.dashboard-kpi-value :deep(.p-4){padding:0!important}.dashboard-kpi-value :deep(.mt-4){margin-top:0!important}.dashboard-kpi-value :deep(.text-sm){font-size:14px}
-.dashboard-chart-card{min-height:310px;overflow:hidden;padding:4px;margin-bottom:14px}.dashboard-lower-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.dashboard-panel{min-height:250px;overflow:hidden;padding:4px}.dashboard-rail{min-width:0}.dashboard-rail h2{color:#0f172a;font-size:16px;font-weight:700;margin:4px 0 10px}.quick-action{width:100%;height:54px;margin-bottom:8px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;display:flex;align-items:center;gap:10px;padding:0 12px;color:#0f172a;font-size:12px;font-weight:600;box-shadow:0 3px 12px rgba(15,23,42,.04);cursor:pointer}.quick-action-icon{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#fff;background:#2563eb}.quick-action-green .quick-action-icon{background:#10b981}.quick-action-teal .quick-action-icon{background:#06b6d4}.quick-action-purple .quick-action-icon{background:#7c3aed}.quick-action-navy .quick-action-icon{background:#0f172a}.quick-action-arrow{margin-left:auto;color:#2563eb;font-size:20px}
-.dashboard-tip{margin-top:16px;padding:18px 14px;border:1px solid #dbeafe;border-radius:14px;background:linear-gradient(180deg,#eff6ff 0%,#f8fbff 100%);text-align:center}.dashboard-tip-icon{width:54px;height:54px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:#d1fae5;color:#059669;font-size:25px;font-weight:700}.dashboard-tip h3{margin:0;color:#0f172a;font-size:17px;line-height:1.25}.dashboard-tip p{margin:9px 0 14px;color:#64748b;font-size:11px;line-height:1.5}.dashboard-tip button{width:100%;height:36px;border:0;border-radius:9px;background:#2563eb;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
-@media (max-width: 1150px) { .dashboard-shell { grid-template-columns: minmax(0, 1fr); } .dashboard-rail { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; } .dashboard-rail h2,.dashboard-tip { grid-column:1/-1; } .quick-action { margin-bottom:0; } }
-@media (max-width: 850px) { .dashboard-shell { padding:16px; } .dashboard-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); } .dashboard-lower-grid { grid-template-columns:1fr; } .dashboard-rail { grid-template-columns:1fr; } }
-@media (max-width: 560px) { .dashboard-kpis { grid-template-columns:1fr; } .dashboard-welcome { align-items:flex-start; flex-direction:column; gap:8px; } }
+.dashboard-page{display:flex;flex-direction:column}.dashboard-topbar{min-height:58px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 22px;background:#fff;border-bottom:1px solid #E2E8F0}.dashboard-search{min-width:0;width:min(620px,65%);height:38px;display:flex;align-items:center;gap:9px;padding:0 12px;border:1px solid #E2E8F0;border-radius:10px;background:#F8FAFC}.dashboard-search input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#0F172A;font-size:13px}.dashboard-search span{padding:3px 7px;border:1px solid #E2E8F0;border-radius:6px;color:#94A3B8;background:#fff;font-size:10px}.dashboard-top-actions{display:flex;align-items:center;gap:8px}.dashboard-top-actions button{width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:9px;color:#64748B;background:transparent;cursor:pointer}.dashboard-top-actions button:hover{background:#F1F5F9;color:#2563EB}.dashboard-avatar{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#DBEAFE;color:#2563EB;font-size:11px;font-weight:700}.dashboard-scroll{min-height:0;flex:1;overflow:auto}.dashboard-shell{width:100%;max-width:1560px;margin:0 auto;padding:22px 24px 18px;display:grid;grid-template-columns:minmax(0,1fr) 238px;gap:18px;box-sizing:border-box}.dashboard-main{min-width:0}.dashboard-welcome{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:18px}.dashboard-welcome h1{margin:0;color:#0F172A;font-size:clamp(23px,2vw,31px);line-height:1.12;font-weight:700;letter-spacing:-.035em}.dashboard-welcome p{margin:7px 0 0;color:#64748B;font-size:14px}.dashboard-company{display:flex;flex-direction:column;align-items:flex-end;gap:5px;min-width:170px;color:#64748B;font-size:12px}.dashboard-company button{max-width:240px;display:flex;align-items:center;gap:7px;border:0;background:transparent;color:#0F172A;font-size:12px;font-weight:600;cursor:pointer}.dashboard-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}.dashboard-card{border:1px solid #E2E8F0;border-radius:14px;background:#fff;box-shadow:0 4px 18px rgba(15,23,42,.045);box-sizing:border-box}.dashboard-kpi{min-height:124px;display:flex;align-items:flex-start;gap:12px;padding:16px}.dashboard-kpi.blue{background:#F8FBFF;border-color:#BFDBFE}.dashboard-kpi.green{background:#F5FFFB;border-color:#A7F3D0}.dashboard-kpi.purple{background:#FBF9FF;border-color:#DDD6FE}.dashboard-kpi.teal{background:#F4FEFF;border-color:#A5F3FC}.kpi-icon{width:42px;height:42px;flex:0 0 auto;display:grid;place-items:center;border-radius:12px;background:#2563EB;color:#fff}.dashboard-kpi.green .kpi-icon{background:#10B981}.dashboard-kpi.purple .kpi-icon{background:#7C3AED}.dashboard-kpi.teal .kpi-icon{background:#06B6D4}.dashboard-kpi b{display:block;color:#2563EB;font-size:11px}.dashboard-kpi.green b{color:#059669}.dashboard-kpi.purple b{color:#6D28D9}.dashboard-kpi.teal b{color:#0891B2}.dashboard-kpi strong{display:block;margin-top:5px;color:#0F172A;font-size:18px;line-height:1.1}.dashboard-kpi strong :deep(.p-4){padding:0!important}.dashboard-kpi strong :deep(.mt-4){margin-top:0!important}.dashboard-kpi button{margin-top:7px;border:0;padding:0;background:transparent;color:#64748B;font-size:10px;cursor:pointer}.primary-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.9fr);gap:14px;margin-bottom:14px}.secondary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.chart-card,.list-card{min-width:0;overflow:hidden;padding:16px}.chart-card{min-height:360px}.section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}.section-head h2{margin:0;color:#0F172A;font-size:15px;font-weight:700}.section-head p{margin:4px 0 0;color:#94A3B8;font-size:10px}.range-tabs{display:flex;gap:3px;padding:3px;border:1px solid #E2E8F0;border-radius:9px;background:#F8FAFC}.range-tabs button{height:27px;padding:0 8px;border:0;border-radius:7px;background:transparent;color:#64748B;font-size:10px;cursor:pointer}.range-tabs button.active,.range-tabs button:hover{background:#DBEAFE;color:#2563EB;font-weight:700}.view-all{border:0;background:transparent;padding:0;color:#2563EB;font-size:11px;font-weight:600;cursor:pointer}.invoice-row{width:100%;display:grid;grid-template-columns:32px minmax(0,1fr) auto auto;align-items:center;gap:9px;padding:10px 2px;border:0;border-bottom:1px solid #F1F5F9;background:transparent;text-align:left;cursor:pointer}.invoice-row:hover,.rank-row:hover{background:#F8FAFC}.row-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:#DBEAFE;color:#2563EB}.row-copy,.activity-row>span,.rank-row>span:nth-child(2){min-width:0;display:flex;flex-direction:column;gap:3px}.row-copy b,.activity-row b,.rank-row b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#0F172A;font-size:11px}.row-copy small,.activity-row small,.rank-row small{color:#94A3B8;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.invoice-row>strong,.rank-row>strong{color:#0F172A;font-size:10px;white-space:nowrap}.invoice-row em{padding:4px 7px;border-radius:999px;font-size:8px;font-style:normal;font-weight:700;background:#E2E8F0;color:#475569}.status-paid{background:#D1FAE5!important;color:#047857!important}.status-sent{background:#DBEAFE!important;color:#1D4ED8!important}.status-draft{background:#F1F5F9!important;color:#64748B!important}.status-cancelled{background:#FEE2E2!important;color:#B91C1C!important}.activity-row{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:9px;align-items:center;padding:10px 0;border-bottom:1px solid #F1F5F9}.activity-row:last-child,.rank-row:last-child,.invoice-row:last-child{border-bottom:0}.activity-dot{width:9px;height:9px;border-radius:50%;background:#2563EB}.activity-paid{background:#10B981}.activity-sent{background:#2563EB}.activity-draft{background:#94A3B8}.activity-cancelled{background:#F59E0B}.activity-row time{color:#94A3B8;font-size:9px;white-space:nowrap}.rank-row{width:100%;display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:9px;align-items:center;padding:9px 3px;border:0;border-bottom:1px solid #F1F5F9;background:transparent;text-align:left;cursor:pointer}.rank-avatar,.product-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:#DBEAFE;color:#2563EB;font-size:9px;font-weight:700}.product-icon{color:#059669;background:#D1FAE5}.empty{min-height:150px;display:grid;place-items:center;padding:20px;color:#94A3B8;font-size:11px;text-align:center}.dashboard-rail{min-width:0;display:flex;flex-direction:column;gap:14px}.quick{width:100%;height:52px;margin-bottom:8px;border:1px solid #E2E8F0;border-radius:12px;background:#fff;display:flex;align-items:center;gap:10px;padding:0 11px;color:#0F172A;font-size:11px;font-weight:600;box-shadow:0 3px 12px rgba(15,23,42,.035);cursor:pointer}.quick>span:first-child{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;color:#fff;background:#2563EB}.quick.green>span:first-child{background:#10B981}.quick.teal>span:first-child{background:#06B6D4}.quick.purple>span:first-child{background:#7C3AED}.quick.navy>span:first-child{background:#0F172A}.quick>b{margin-left:auto;color:#2563EB;font-size:19px}.tip{padding:20px 15px;border:1px solid #DBEAFE;border-radius:14px;background:linear-gradient(180deg,#EFF6FF 0%,#F8FBFF 100%);text-align:center}.tip>div{width:52px;height:52px;margin:0 auto 11px;border-radius:50%;display:grid;place-items:center;background:#D1FAE5;color:#059669}.tip h3{margin:0;color:#0F172A;font-size:16px}.tip p{margin:8px 0 14px;color:#64748B;font-size:10px;line-height:1.55}.tip button{width:100%;height:34px;border:0;border-radius:9px;background:#2563EB;color:#fff;font-size:11px;font-weight:700;cursor:pointer}.connected{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 8px;border-top:1px solid #E2E8F0;color:#64748B;font-size:9px}.connected i{width:7px;height:7px;border-radius:50%;background:#10B981;box-shadow:0 0 0 3px #D1FAE5}@media(max-width:1260px){.dashboard-shell{grid-template-columns:minmax(0,1fr) 210px;padding:18px}.primary-grid{grid-template-columns:1fr}.secondary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.secondary-grid>.dashboard-card:last-child{grid-column:1/-1}}@media(max-width:1000px){.dashboard-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-shell{grid-template-columns:1fr}.dashboard-rail{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.dashboard-rail>section:first-child{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dashboard-rail>section:first-child .section-head{grid-column:1/-1}.quick{margin:0}.tip,.connected{grid-column:1/-1}.connected{margin-top:0}}@media(max-width:700px){.dashboard-topbar{padding:0 12px}.dashboard-search{width:100%}.dashboard-search span{display:none}.dashboard-top-actions button:first-child{display:none}.dashboard-shell{padding:14px 12px}.dashboard-welcome{align-items:flex-start;flex-direction:column;gap:9px}.dashboard-company{align-items:flex-start}.secondary-grid{grid-template-columns:1fr}.secondary-grid>.dashboard-card:last-child{grid-column:auto}.dashboard-rail{grid-template-columns:1fr}.dashboard-rail>section:first-child{grid-template-columns:1fr}.tip,.connected{grid-column:auto}.dashboard-kpis{gap:9px}}@media(max-width:460px){.dashboard-kpis{grid-template-columns:1fr}.dashboard-kpi{min-height:108px}.invoice-row{grid-template-columns:32px minmax(0,1fr) auto}.invoice-row em{display:none}.range-tabs{width:100%}.range-tabs button{flex:1}}
 </style>
