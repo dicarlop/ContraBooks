@@ -1,4 +1,4 @@
-name: Maintenance checks
+name: Linux maintenance checks
 
 on:
   push:
@@ -6,12 +6,10 @@ on:
   pull_request:
     branches: [master]
 
-# Only the newest maintenance run for a branch is useful. This prevents a burst
-# of UI/maintenance commits from consuming all available runners and leaving
-# every run waiting at setup/provisioning steps.
+# Linux validation is independent from the Windows packaging workflow.
 concurrency:
-  group: maintenance-${{ github.ref }}
-  cancel-in-progress: true
+  group: maintenance-linux-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -91,45 +89,3 @@ jobs:
             exit "$audit_status"
           fi
           if [ "$audit_status" -eq 4 ]; then echo "Yarn reported vulnerabilities, but none are high or critical; continuing."; fi
-
-  windows-build:
-    name: Windows Electron build
-    runs-on: windows-2022
-    timeout-minutes: 45
-    steps:
-      - name: Configure Git defaults
-        shell: pwsh
-        run: git config --global init.defaultBranch main
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24.8.0
-          cache: yarn
-      - name: Enable Corepack and pin Yarn
-        shell: pwsh
-        run: |
-          corepack enable
-          corepack prepare yarn@1.22.22 --activate
-          node --version
-          yarn --version
-      - name: Install dependencies
-        shell: pwsh
-        run: yarn install --frozen-lockfile --non-interactive --silent
-      - name: Full Windows package build
-        shell: pwsh
-        run: yarn build --win --x64 --nosign --publish never
-      - name: Verify Windows artifacts
-        shell: pwsh
-        run: |
-          $artifacts = Get-ChildItem -Path dist_electron -File -Filter *.exe
-          if ($artifacts.Count -eq 0) { throw 'Electron Builder produced no Windows .exe artifacts.' }
-          $artifacts | Select-Object Name, Length
-      - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ContraBooks-Windows-x64
-          path: dist_electron/*.exe
-          if-no-files-found: error
-          retention-days: 14
