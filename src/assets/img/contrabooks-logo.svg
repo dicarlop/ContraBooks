@@ -1,33 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 114" role="img" aria-labelledby="title desc">
   <title id="title">ContraBooks</title>
   <desc id="desc">ContraBooks — Simple. Powerful. Yours.</desc>
   <defs>
-    <linearGradient id="markBlue" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#2563EB"/>
-      <stop offset="0.58" stop-color="#06B6D4"/>
+    <linearGradient id="cBlueGreen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0EA5E9"/>
+      <stop offset="0.52" stop-color="#06B6D4"/>
       <stop offset="1" stop-color="#10B981"/>
     </linearGradient>
-    <linearGradient id="markGreen" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#34D399"/>
+    <linearGradient id="barBlue" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="barGreen" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#06B6D4"/>
       <stop offset="1" stop-color="#10B981"/>
     </linearGradient>
   </defs>
 
-  <!-- ContraBooks mark: rounded C body/inner edge with crisp terminal points. -->
-  <g transform="translate(7 10)">
-    <path
-      fill="url(#markBlue)"
-      d="M104 20C93 7 78 0 62 0 30 0 5 25 5 57s25 57 57 57c16 0 31-7 42-20l-18-15c-6 8-14 12-24 12-19 0-34-15-34-34s15-34 34-34c10 0 18 4 24 12z"
-    />
-    <path fill="#2563EB" d="M45 55 57 48v26L45 81z" />
-    <path fill="#10B981" d="M61 43 73 36v38L61 81z" />
-    <path fill="url(#markGreen)" d="M77 30 89 23v51L77 81z" />
+  <!-- Canonical ContraBooks growth-mark geometry, adapted from the supplied lockup for the dark sidebar. -->
+  <g transform="translate(8 6)">
+    <path fill="url(#cBlueGreen)" d="M103 19L83 42H61C48 42 38 51 38 63.5S48 85 61 85H84V108H61C36 108 16 88 16 63.5S36 19 61 19Z"/>
+    <path fill="url(#barBlue)" d="M55 63L73 52.5V108H55Z"/>
+    <path fill="url(#barBlue)" d="M76 50L94 39.5V108H76Z"/>
+    <path fill="url(#barGreen)" d="M97 38L115 27.5V108H97Z"/>
   </g>
 
-  <text x="138" y="61" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="43" font-weight="700" letter-spacing="-1.8" textLength="370" lengthAdjust="spacingAndGlyphs">
+  <!-- White Contra is the sidebar-safe treatment of the supplied navy wordmark. -->
+  <text x="133" y="61" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="43" font-weight="800" letter-spacing="-1.7">
     <tspan fill="#FFFFFF">Contra</tspan><tspan fill="#10B981">Books</tspan>
   </text>
-  <text x="140" y="91" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" letter-spacing="1.1" textLength="370" lengthAdjust="spacingAndGlyphs" fill="#C9D8EA">
+  <text x="135" y="94" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" letter-spacing="0.7" fill="#9DB3CC">
     Simple. Powerful. Yours.
   </text>
 </svg>
