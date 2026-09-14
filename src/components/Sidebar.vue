@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-full flex flex-col justify-between bg-[#0F172A] text-white relative overflow-hidden"
+    class="h-full min-h-0 flex flex-col bg-[#062A4F] text-white relative overflow-hidden"
     :class="{ 'window-drag': platform !== 'Windows' }"
   >
     <div class="flex-1 min-h-0 overflow-y-auto no-scrollbar">
@@ -55,20 +55,37 @@
             >
               <span class="truncate">{{ item.label }}</span>
             </button>
+
+            <template v-if="group.name === 'settings'">
+              <button
+                class="sidebar-subitem w-full h-9 px-3 rounded-lg flex items-center gap-2 text-left text-sm"
+                @click="openDocumentation"
+              >
+                <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
+                <span>{{ t`Help` }}</span>
+              </button>
+              <button
+                data-testid="change-db"
+                class="sidebar-subitem w-full h-9 px-3 rounded-lg flex items-center gap-2 text-left text-sm"
+                @click="$emit('change-db-file')"
+              >
+                <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
+                <span>{{ t`Change DB` }}</span>
+              </button>
+              <button
+                class="sidebar-subitem w-full h-9 px-3 rounded-lg flex items-center gap-2 text-left text-sm"
+                @click="() => reportIssue()"
+              >
+                <feather-icon name="flag" class="h-4 w-4 flex-shrink-0" />
+                <span>{{ t`Report Issue` }}</span>
+              </button>
+            </template>
           </div>
         </div>
       </nav>
     </div>
 
-    <div class="window-no-drag px-4 pt-3 pb-4 border-t border-slate-800 space-y-1">
-      <button
-        class="sidebar-footer-item w-full h-9 px-2 flex items-center gap-2 rounded-lg text-sm"
-        @click="openDocumentation"
-      >
-        <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
-        <span>{{ t`Help` }}</span>
-      </button>
-
+    <div class="window-no-drag shrink-0 px-4 pt-3 pb-4 border-t border-white/10 space-y-1 bg-[#062A4F]">
       <button
         class="sidebar-footer-item w-full h-9 px-2 flex items-center gap-2 rounded-lg text-sm"
         @click="viewShortcuts = true"
@@ -77,40 +94,14 @@
         <span>{{ t`Shortcuts` }}</span>
       </button>
 
-      <button
-        data-testid="change-db"
-        class="sidebar-footer-item w-full h-9 px-2 flex items-center gap-2 rounded-lg text-sm"
-        @click="$emit('change-db-file')"
-      >
-        <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
-        <span>{{ t`Change DB` }}</span>
-      </button>
-
-      <button
-        class="sidebar-footer-item w-full h-9 px-2 flex items-center gap-2 rounded-lg text-sm"
-        @click="() => reportIssue()"
-      >
-        <feather-icon name="flag" class="h-4 w-4 flex-shrink-0" />
-        <span>{{ t`Report Issue` }}</span>
-      </button>
-
-      <div class="flex items-center justify-between pt-3 px-2 text-[11px] text-slate-500">
+      <div class="flex items-center justify-between pt-3 px-2 text-[11px] text-slate-400">
         <span>ContraBooks</span>
         <span>v1.0</span>
       </div>
-
-      <p
-        v-if="showDevMode"
-        class="text-xs text-slate-500 select-none cursor-pointer px-2 pt-1"
-        @click="showDevMode = false"
-        title="Open dev tools with Ctrl+Shift+I"
-      >
-        dev mode
-      </p>
     </div>
 
     <button
-      class="absolute bottom-3 end-3 text-slate-500 hover:text-white hover:bg-slate-800 rounded-md p-1"
+      class="absolute bottom-3 end-3 text-slate-400 hover:text-white hover:bg-white/10 rounded-md p-1"
       @click="() => toggleSidebar()"
     >
       <feather-icon name="chevrons-left" class="w-4 h-4" />
@@ -239,18 +230,18 @@ export default defineComponent({
 }
 
 .sidebar-inactive {
-  color: #cbd5e1;
+  color: #d7e5f4;
 }
 
 .sidebar-inactive:hover,
 .sidebar-subinactive:hover,
 .sidebar-footer-item:hover {
-  background: #1e293b;
+  background: rgba(255, 255, 255, 0.09);
   color: #ffffff;
 }
 
 .sidebar-subinactive,
 .sidebar-footer-item {
-  color: #94a3b8;
+  color: #a9bfd5;
 }
 </style>
