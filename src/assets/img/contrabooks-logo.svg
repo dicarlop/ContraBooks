@@ -2,18 +2,22 @@
   <title id="title">ContraBooks</title>
   <desc id="desc">ContraBooks — Simple. Powerful. Yours.</desc>
   <defs>
-    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1769FF"/><stop offset="0.55" stop-color="#08BBD0"/><stop offset="1" stop-color="#12C98A"/>
+    <linearGradient id="markBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1769FF"/>
+      <stop offset="0.55" stop-color="#08BBD0"/>
+      <stop offset="1" stop-color="#12C98A"/>
     </linearGradient>
-    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#34D399"/><stop offset="1" stop-color="#10B981"/>
+    <linearGradient id="markGreen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#34D399"/>
+      <stop offset="1" stop-color="#10B981"/>
     </linearGradient>
   </defs>
+  <!-- Standalone ContraBooks mark: rounded C body, crisp/sharp terminals, three rising bars -->
   <g transform="translate(7 10)">
-    <path d="M63 0C31 0 5 25 5 57s26 57 58 57c20 0 38-10 48-26l-19-13c-6 9-16 15-29 15-19 0-34-15-34-33S44 24 63 24c12 0 22 6 29 15l19-13C101 10 83 0 63 0Z" fill="url(#blue)"/>
-    <path d="M46 51h11v30H46z" fill="#2563EB"/>
-    <path d="M63 39h11v42H63z" fill="#10B981"/>
-    <path d="M80 26h11v55H80z" fill="url(#green)"/>
+    <path fill="url(#markBlue)" d="M105 20C94 8 79 0 62 0 30 0 5 25 5 57s25 57 57 57c17 0 32-8 43-20l-18-15c-6 7-15 11-25 11-19 0-34-15-34-33s15-33 34-33c10 0 19 4 25 11z"/>
+    <path fill="#2563EB" d="M45 55 57 48v26L45 81z"/>
+    <path fill="#10B981" d="M61 43 73 36v38L61 81z"/>
+    <path fill="url(#markGreen)" d="M77 30 89 23v51L77 81z"/>
   </g>
   <text x="138" y="61" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="43" font-weight="700" letter-spacing="-1.8" textLength="370" lengthAdjust="spacingAndGlyphs"><tspan fill="#FFFFFF">Contra</tspan><tspan fill="#10B981">Books</tspan></text>
   <text x="140" y="91" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="500" letter-spacing="1.1" textLength="370" lengthAdjust="spacingAndGlyphs" fill="#C9D8EA">Simple. Powerful. Yours.</text>
