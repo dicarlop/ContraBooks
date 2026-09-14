@@ -70,7 +70,11 @@
     </div>
 
     <div class="window-no-drag shrink-0 border-t border-white/10 bg-[#0F2D5B] px-4 pb-4 pt-3">
-      <div class="flex items-center justify-center px-2 pt-1 text-[10px] text-slate-400"><span>ContraBooks</span><span class="mx-1">·</span><span>v1.0.0</span></div>
+      <div class="flex items-center justify-center px-2 pt-1 text-[11px] font-medium">
+        <span class="text-white">ContraBooks</span>
+        <span class="mx-1 text-[#10B981]">·</span>
+        <span class="text-[#10B981]">v1.0.0</span>
+      </div>
     </div>
 
     <button class="absolute bottom-3 end-3 rounded-md p-1 text-slate-400 hover:bg-white/10 hover:text-white" @click="() => toggleSidebar()">
