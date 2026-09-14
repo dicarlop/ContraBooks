@@ -17,15 +17,16 @@
     </linearGradient>
   </defs>
 
-  <!-- Canonical ContraBooks growth-mark geometry, adapted from the supplied lockup for the dark sidebar. -->
+  <!-- Canonical growth-mark geometry based on the supplied ContraBooks lockup. -->
   <g transform="translate(8 6)">
     <path fill="url(#cBlueGreen)" d="M103 19L83 42H61C48 42 38 51 38 63.5S48 85 61 85H84V108H61C36 108 16 88 16 63.5S36 19 61 19Z"/>
-    <path fill="url(#barBlue)" d="M55 63L73 52.5V108H55Z"/>
-    <path fill="url(#barBlue)" d="M76 50L94 39.5V108H76Z"/>
-    <path fill="url(#barGreen)" d="M97 38L115 27.5V108H97Z"/>
+    <!-- Deliberate clear gaps between the three bars, matching the supplied artwork. -->
+    <path fill="url(#barBlue)" d="M54 63L71 53V108H54Z"/>
+    <path fill="url(#barBlue)" d="M77 50L94 40V108H77Z"/>
+    <path fill="url(#barGreen)" d="M100 37L117 27V108H100Z"/>
   </g>
 
-  <!-- White Contra is the sidebar-safe treatment of the supplied navy wordmark. -->
+  <!-- Sidebar-safe treatment: white Contra, green Books. -->
   <text x="133" y="61" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="43" font-weight="800" letter-spacing="-1.7">
     <tspan fill="#FFFFFF">Contra</tspan><tspan fill="#10B981">Books</tspan>
   </text>
