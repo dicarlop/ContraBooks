@@ -7,22 +7,13 @@
     }"
   >
     <div
-      class="
-        w-full w-form
-        shadow-lg
-        rounded-lg
-        border
-        dark:border-gray-800
-        relative
-        bg-white
-        dark:bg-gray-875
-      "
+      class="w-full w-form shadow-lg rounded-lg border dark:border-gray-800 relative bg-white dark:bg-gray-875"
       style="height: 700px"
     >
-      <!-- Welcome to Frappe Books -->
+      <!-- Welcome to ContraBooks -->
       <div class="px-4 py-4">
         <h1 class="text-2xl font-semibold select-none dark:text-gray-25">
-          {{ t`Welcome to Frappe Books` }}
+          {{ t`Welcome to ContraBooks` }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400 text-base select-none">
           {{
@@ -71,17 +62,7 @@
         "
         @click="existingDatabase"
       >
-        <div
-          class="
-            w-8
-            h-8
-            rounded-full
-            bg-green-500
-            dark:bg-green-600
-            relative
-            flex-center
-          "
-        >
+        <div class="w-8 h-8 rounded-full bg-green-500 dark:bg-green-600 relative flex-center">
           <feather-icon
             name="upload"
             class="w-4 h-4 text-white dark:text-gray-900"
@@ -108,17 +89,7 @@
         "
         @click="createDemo"
       >
-        <div
-          class="
-            w-8
-            h-8
-            rounded-full
-            bg-pink-500
-            dark:bg-pink-600
-            relative
-            flex-center
-          "
-        >
+        <div class="w-8 h-8 rounded-full bg-pink-500 dark:bg-pink-600 relative flex-center">
           <feather-icon name="monitor" class="w-4 h-4 text-white" />
         </div>
         <div>
@@ -126,7 +97,7 @@
             {{ t`Create Demo` }}
           </p>
           <p class="text-sm text-gray-600 dark:text-gray-400">
-            {{ t`Create a demo company to try out Frappe Books` }}
+            {{ t`Create a demo company to try out ContraBooks` }}
           </p>
         </div>
       </div>
@@ -146,22 +117,7 @@
           :title="t`${file.companyName} stored at ${file.dbPath}`"
           @click="selectFile(file)"
         >
-          <div
-            class="
-              w-8
-              h-8
-              rounded-full
-              flex
-              justify-center
-              items-center
-              bg-gray-200
-              dark:bg-gray-800
-              text-gray-500
-              font-semibold
-              flex-shrink-0
-              text-base
-            "
-          >
+          <div class="w-8 h-8 rounded-full flex justify-center items-center bg-gray-200 dark:bg-gray-800 text-gray-500 font-semibold flex-shrink-0 text-base">
             {{ i + 1 }}
           </div>
           <div class="w-full">
@@ -169,42 +125,16 @@
               <h2 class="font-medium dark:text-gray-200">
                 {{ file.companyName }}
               </h2>
-              <p
-                class="
-                  whitespace-nowrap
-                  text-sm text-gray-600
-                  dark:text-gray-400
-                "
-              >
+              <p class="whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
                 {{ formatDate(file.modified) }}
               </p>
             </div>
-            <p
-              class="
-                text-sm text-gray-600
-                dark:text-gray-400
-                overflow-x-auto
-                no-scrollbar
-                whitespace-nowrap
-              "
-            >
+            <p class="text-sm text-gray-600 dark:text-gray-400 overflow-x-auto no-scrollbar whitespace-nowrap">
               {{ truncate(file.dbPath) }}
             </p>
           </div>
           <button
-            class="
-              ms-auto
-              p-2
-              hover:bg-red-200
-              dark:hover:bg-red-900 dark:hover:bg-opacity-40
-              rounded-full
-              w-8
-              h-8
-              text-gray-600
-              dark:text-gray-400
-              hover:text-red-400
-              dark:hover:text-red-200
-            "
+            class="ms-auto p-2 hover:bg-red-200 dark:hover:bg-red-900 dark:hover:bg-opacity-40 rounded-full w-8 h-8 text-gray-600 dark:text-gray-400 hover:text-red-400 dark:hover:text-red-200"
             @click.stop="() => deleteDb(i)"
           >
             <feather-icon name="x" class="w-4 h-4" />
@@ -214,37 +144,11 @@
       <hr v-if="files?.length" class="dark:border-gray-800" />
 
       <!-- Language Selector -->
-      <div
-        class="
-          w-full
-          flex
-          justify-between
-          items-center
-          absolute
-          p-4
-          text-gray-900
-          dark:text-gray-100
-        "
-        style="top: 100%; transform: translateY(-100%)"
-      >
+      <div class="w-full flex justify-between items-center absolute p-4 text-gray-900 dark:text-gray-100" style="top: 100%; transform: translateY(-100%)">
         <LanguageSelector v-show="!creatingDemo" class="text-sm w-28" />
         <button
           v-if="files?.length"
-          class="
-            text-sm
-            bg-gray-100
-            dark:bg-gray-890
-            hover:bg-gray-200
-            dark:hover:bg-gray-900
-            rounded
-            px-4
-            py-1.5
-            w-auto
-            h-8
-            no-scrollbar
-            overflow-x-auto
-            whitespace-nowrap
-          "
+          class="text-sm bg-gray-100 dark:bg-gray-890 hover:bg-gray-200 dark:hover:bg-gray-900 rounded px-4 py-1.5 w-auto h-8 no-scrollbar overflow-x-auto whitespace-nowrap"
           :disabled="creatingDemo"
           @click="createDemo"
         >
@@ -270,23 +174,12 @@
           creating the dummy instance.
         </p>
         <div class="flex my-12 justify-center items-baseline gap-4 text-base">
-          <label for="basecount" class="text-gray-600 dark:text-gray-400"
-            >Base Count</label
-          >
+          <label for="basecount" class="text-gray-600 dark:text-gray-400">Base Count</label>
           <input
             v-model="baseCount"
             type="number"
             name="basecount"
-            class="
-              bg-gray-100
-              dark:bg-gray-875
-              focus:bg-gray-200
-              dark:focus:bg-gray-890
-              rounded-md
-              px-2
-              py-1
-              outline-none
-            "
+            class="bg-gray-100 dark:bg-gray-875 focus:bg-gray-200 dark:focus:bg-gray-890 rounded-md px-2 py-1 outline-none"
           />
         </div>
         <div class="flex justify-between">
