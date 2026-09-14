@@ -4,13 +4,12 @@
     :class="{ 'window-drag': platform !== 'Windows' }"
   >
     <div class="flex-1 min-h-0 overflow-y-auto no-scrollbar">
-      <!-- ContraBooks brand -->
       <div
         class="window-no-drag px-5 pt-5 pb-4"
         :class="platform === 'Mac' && languageDirection === 'ltr' ? 'pt-10' : ''"
       >
         <img
-          src="/src/assets/img/contrabooks-logo.svg"
+          :src="logoUrl"
           alt="ContraBooks"
           class="w-full max-w-[210px] h-auto select-none"
           draggable="false"
@@ -23,7 +22,6 @@
         </div>
       </div>
 
-      <!-- Sidebar Items -->
       <nav class="window-no-drag px-3 space-y-1">
         <div v-for="group in groups" :key="group.label">
           <button
@@ -65,7 +63,6 @@
       </nav>
     </div>
 
-    <!-- Footer actions -->
     <div class="window-no-drag px-4 pt-3 pb-4 border-t border-slate-800 space-y-1">
       <button
         class="w-full h-9 px-2 flex items-center gap-2 rounded-md text-sm text-slate-400 hover:bg-slate-800 hover:text-white"
@@ -128,10 +125,10 @@
   </div>
 </template>
 <script lang="ts">
+import logoUrl from 'src/assets/img/contrabooks-logo.svg';
 import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { languageDirectionKey, shortcutsKey } from 'src/utils/injectionKeys';
-import { docsPathRef } from 'src/utils/refs';
 import { getSidebarConfig } from 'src/utils/sidebarConfig';
 import { SidebarConfig, SidebarItem, SidebarRoot } from 'src/utils/types';
 import { routeTo, toggleSidebar } from 'src/utils/ui';
@@ -149,6 +146,7 @@ export default defineComponent({
   emits: ['change-db-file', 'toggle-darkmode'],
   setup() {
     return {
+      logoUrl,
       languageDirection: inject(languageDirectionKey),
       shortcuts: inject(shortcutsKey),
     };
@@ -167,11 +165,6 @@ export default defineComponent({
       activeGroup: null | SidebarRoot;
       showDevMode: boolean;
     };
-  },
-  computed: {
-    appVersion() {
-      return fyo.store.appVersion;
-    },
   },
   async mounted() {
     const { companyName } = await fyo.doc.getDoc('AccountingSettings');
