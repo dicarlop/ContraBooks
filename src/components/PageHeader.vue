@@ -1,18 +1,7 @@
 <template>
   <div
-    class="
-      px-4
-      flex
-      justify-between
-      items-center
-      h-row-largest
-      flex-shrink-0
-      dark:bg-gray-875
-    "
-    :class="[
-      border ? 'border-b dark:border-gray-800' : '',
-      platform !== 'Windows' ? 'window-drag' : '',
-    ]"
+    class="px-5 flex justify-between items-center h-row-largest flex-shrink-0 bg-white border-b border-slate-200"
+    :class="[platform !== 'Windows' ? 'window-drag' : '']"
   >
     <Transition name="spacer" class="border-none">
       <div
@@ -26,28 +15,19 @@
       class="flex items-center window-no-drag gap-4 me-auto"
       :class="platform === 'Mac' && languageDirection === 'rtl' ? 'me-18' : ''"
     >
-      <!-- Nav Group -->
       <PageHeaderNavGroup />
       <h1
         v-if="title"
-        class="
-          text-xl
-          font-semibold
-          select-none
-          whitespace-nowrap
-          dark:text-white
-        "
+        class="text-2xl font-semibold text-slate-900 select-none whitespace-nowrap"
       >
         {{ title }}
       </h1>
 
-      <!-- Left Slot -->
       <div class="flex items-stretch window-no-drag gap-4">
         <slot name="left" />
       </div>
     </div>
 
-    <!-- Right (regular) Slot -->
     <div
       class="flex items-stretch window-no-drag gap-2 ms-auto"
       :class="platform === 'Mac' && languageDirection === 'rtl' ? 'me-18' : ''"
@@ -77,14 +57,8 @@ export default defineComponent({
       return !!this.$slots.default && this.searchborder;
     },
     spacerClass() {
-      if (this.showSidebar) {
-        return '';
-      }
-
-      if (this.border) {
-        return 'w-tl me-4 border-e';
-      }
-
+      if (this.showSidebar) return '';
+      if (this.border) return 'w-tl me-4 border-e border-slate-200';
       return 'w-tl me-4';
     },
   },
