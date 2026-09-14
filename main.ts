@@ -17,7 +17,7 @@ import registerIpcMainMessageListeners from './main/registerIpcMainMessageListen
 import registerProcessListeners from './main/registerProcessListeners';
 
 export class Main {
-  title = 'Frappe Books';
+  title = 'ContraBooks';
   icon: string;
 
   winURL = '';
@@ -78,6 +78,8 @@ export class Main {
     const options: BrowserWindowConstructorOptions = {
       width: this.WIDTH,
       height: this.HEIGHT,
+      minWidth: 960,
+      minHeight: 640,
       title: this.title,
       titleBarStyle: 'hidden',
       trafficLightPosition: { x: 16, y: 16 },
