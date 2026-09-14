@@ -1,5 +1,5 @@
 export default {
-  appId: 'com.frappe.books',
+  appId: 'app.contrabooks.desktop',
   productName: 'ContraBooks',
   directories: {
     app: 'dist_electron/build',
@@ -8,7 +8,7 @@ export default {
   },
   win: {
     artifactName: '${productName}-v${version}-windows-${arch}.${ext}',
-    icon: 'icon.ico',
+    icon: 'build/icon.ico',
     publish: ['github'],
     target: [
       {
