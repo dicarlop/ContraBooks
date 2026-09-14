@@ -1,10 +1,10 @@
 {
-  "name": "frappe-books",
-  "version": "0.37.0",
-  "description": "Simple book-keeping app for everyone",
+  "name": "contrabooks",
+  "version": "1.0.0",
+  "description": "Modern bookkeeping for small businesses",
   "author": {
-    "name": "Frappe Technologies Pvt. Ltd.",
-    "email": "hello@frappe.io"
+    "name": "ContraBooks Contributors",
+    "email": "hello@contrabooks.app"
   },
   "scripts": {
     "dev": "node build/scripts/dev.mjs",
@@ -71,7 +71,6 @@
     "globals": "17.12.0",
     "playwright": "^1.55.1",
     "postcss": "8.5.28",
-    "prettier": "3.9.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
     "tailwindcss-rtl": "^0.9.0",
     "tap-spec": "^5.0.0",
@@ -94,9 +93,9 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "homepage": "https://frappe.io/books",
+  "homepage": "https://github.com/dicarlop/ContraBooks",
   "repository": {
-    "url": "https://github.com/frappe/books"
+    "url": "https://github.com/dicarlop/ContraBooks"
   },
   "license": "AGPL-3.0-only"
 }
