@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 /**
- * Common ESBuild config used for building main process source
+ * Common ESBuild config used to build main process source
  * code for both dev and production.
  *
  * @param {string} root
@@ -19,7 +19,7 @@ export function getMainProcessCommonConfig(root) {
     sourcesContent: false,
     platform: 'node',
     target: 'node20',
-    external: ['knex', 'electron', 'better-sqlite3', 'electron-store'],
+    external: ['knex', 'electron', 'better-sqlite3'],
     alias: {
       main: path.join(root, 'main'),
       utils: path.join(root, 'utils'),
