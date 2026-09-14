@@ -249,11 +249,50 @@ input[type='number']::-webkit-inner-spin-button {
 
 [dir='rtl'].dark.custom-scroll::-webkit-scrollbar-track:vertical,
 [dir='rtl'].dark .custom-scroll::-webkit-scrollbar-track:vertical {
-  border-right: solid 1px theme('colors.gray.850');
+  border-right-color: theme('colors.gray.850');
 }
 
 .pill {
-  @apply py-0.5 px-1.5 rounded-md  text-xs;
+  @apply py-0.5 px-1.5 rounded-md text-xs;
   width: fit-content;
   height: fit-content;
 }
+
+/* ContraBooks visual treatment */
+.w-sidebar > div:first-child {
+  background: linear-gradient(180deg, #0f2a4a 0%, #08213d 55%, #071b34 100%);
+  color: #fff;
+}
+
+.w-sidebar > div:first-child > div:first-child {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.w-sidebar > div:first-child [class*='hover\\:bg-gray-100']:hover,
+.w-sidebar > div:first-child [class*='hover\\:bg-gray-875']:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.w-sidebar > div:first-child [class*='bg-gray-100'] {
+  background-color: #2563eb;
+  color: #fff;
+  border-radius: 0.5rem;
+  margin-inline: 0.5rem;
+}
+
+.w-sidebar > div:first-child [class*='text-gray-700'],
+.w-sidebar > div:first-child [class*='text-gray-900'] {
+  color: #e5eefb;
+}
+
+.w-sidebar > div:first-child [class*='dark\\:text-gray-300'],
+.w-sidebar > div:first-child [class*='dark\\:text-gray-400'] {
+  color: #b8c7dc;
+}
+
+.w-sidebar > div:last-child {
+  background: #071b34;
+  color: #b8c7dc;
+}
+
+/* Dashboard cards */
