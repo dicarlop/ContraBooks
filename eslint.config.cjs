@@ -93,10 +93,4 @@ module.exports = tseslint.config(
       'vue/no-unused-components': 'off',
     },
   },
-  {
-    files: ['src/pages/TemplateBuilder/PrintContainer.vue', 'src/shims-vue.d.ts'],
-    rules: {
-      '@typescript-eslint/no-empty-object-type': 'off',
-    },
-  },
 );
