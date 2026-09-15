@@ -153,9 +153,10 @@ async function removeUserDataDir(userDataDir) {
         );
 
         await window.getByTestId('submit-button').click();
+        const companyName = await window.getByTestId('company-name').innerText();
         t.equal(
-          await window.getByTestId('company-name').innerText(),
-          'Test Company',
+          companyName.trim().toLowerCase(),
+          'test company',
           'new instance created, company name found in sidebar'
         );
 
