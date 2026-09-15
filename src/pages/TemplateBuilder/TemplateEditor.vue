@@ -4,7 +4,7 @@
     class="bg-white dark:bg-gray-875 text-gray-900 dark:text-gray-100"
   >
     <div
-      v-if="!disabled && (quickInsertOptions.length || fieldOptions.length)"
+      v-if="!disabled && (quickInsertOptions.length || fieldGroups.length)"
       class="sticky top-0 z-10 flex flex-wrap items-center gap-2 p-2 border-b dark:border-gray-800 bg-gray-50 dark:bg-gray-850"
     >
       <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">
@@ -21,21 +21,27 @@
         {{ option.label }}
       </button>
       <select
-        v-if="fieldOptions.length"
+        v-if="fieldGroups.length"
         v-model="selectedField"
-        class="px-2 py-1 text-xs rounded border bg-white dark:bg-gray-900 dark:border-gray-700"
+        class="px-2 py-1 text-xs rounded border bg-white dark:bg-gray-900 dark:border-gray-700 max-w-xs"
         aria-label="Insert Field"
         @mousedown.stop
         @change="insertSelectedField"
       >
         <option value="">{{ t`Insert Field...` }}</option>
-        <option
-          v-for="option in fieldOptions"
-          :key="option.value"
-          :value="option.value"
+        <optgroup
+          v-for="group in fieldGroups"
+          :key="group.label"
+          :label="group.label"
         >
-          {{ option.label }}
-        </option>
+          <option
+            v-for="option in group.options"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </optgroup>
       </select>
     </div>
   </div>
@@ -71,6 +77,11 @@ type FieldOption = {
   value: string;
 };
 
+type FieldGroup = {
+  label: string;
+  options: FieldOption[];
+};
+
 export default defineComponent({
   props: {
     initialValue: { type: String, required: true },
@@ -100,8 +111,27 @@ export default defineComponent({
         hasHintPath(this.hints, value)
       );
     },
-    fieldOptions(): FieldOption[] {
-      return flattenHintPaths(this.hints);
+    fieldGroups(): FieldGroup[] {
+      const fields = flattenHintPaths(this.hints);
+      const groups = new Map<string, FieldOption[]>();
+
+      for (const field of fields) {
+        const separator = field.value.indexOf('.');
+        const group = separator === -1 ? 'Other' : field.value.slice(0, separator);
+        const options = groups.get(group) ?? [];
+        options.push({
+          ...field,
+          label: separator === -1 ? field.label : field.value.slice(separator + 1),
+        });
+        groups.set(group, options);
+      }
+
+      return Array.from(groups.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([label, options]) => ({
+          label,
+          options: options.sort((a, b) => a.label.localeCompare(b.label)),
+        }));
     },
   },
   watch: {
