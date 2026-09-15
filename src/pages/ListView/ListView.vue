@@ -269,6 +269,19 @@ export default defineComponent({
 });
 
 function getListConfig(schemaName: string) {
+  if (schemaName === 'EmailLog') {
+    return {
+      columns: [
+        'documentType',
+        'documentName',
+        'to',
+        'subject',
+        'status',
+        'sentAt',
+      ],
+    };
+  }
+
   const listConfig = fyo.models[schemaName]?.getListViewSettings?.(fyo);
   if (listConfig?.columns === undefined) {
     return {
