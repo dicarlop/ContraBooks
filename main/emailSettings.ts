@@ -50,7 +50,9 @@ export function setEmailSettings(settings: EmailSettings): void {
     port: settings.port,
     secure: settings.secure,
     username: settings.username.trim(),
-    encryptedPassword: safeStorage.encryptString(settings.password),
+    encryptedPassword: safeStorage
+      .encryptString(settings.password)
+      .toString('base64'),
     from: settings.from.trim(),
   });
 }
