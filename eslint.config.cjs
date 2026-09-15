@@ -1,7 +1,6 @@
 const tseslint = require('typescript-eslint');
 const vue = require('eslint-plugin-vue');
 const globals = require('globals');
-const prettierRecommended = require('eslint-plugin-prettier/recommended');
 
 module.exports = tseslint.config(
   {
@@ -47,25 +46,13 @@ module.exports = tseslint.config(
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-misused-promises': 'warn',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
-      '@typescript-eslint/no-unsafe-enum-comparison': 'warn',
-      '@typescript-eslint/no-base-to-string': 'warn',
-      '@typescript-eslint/no-redundant-type-constituents': 'warn',
-      '@typescript-eslint/no-unsafe-unary-minus': 'warn',
-      '@typescript-eslint/no-empty-object-type': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-unused-expressions': 'warn',
-      '@typescript-eslint/prefer-promise-reject-errors': 'warn',
-      '@typescript-eslint/no-duplicate-enum-values': 'warn',
-      '@typescript-eslint/no-unsafe-member-access': 'warn',
     },
   },
   {
     files: ['**/*.vue'],
     rules: {
-      '@typescript-eslint/no-misused-promises': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
@@ -98,13 +85,6 @@ module.exports = tseslint.config(
     files: ['src/pages/GetStarted.vue'],
     rules: {
       '@typescript-eslint/no-unsafe-argument': 'off',
-    },
-  },
-  prettierRecommended,
-  {
-    files: ['**/*.{ts,vue}'],
-    rules: {
-      'prettier/prettier': 'warn',
     },
   },
 );
