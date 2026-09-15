@@ -60,7 +60,7 @@ export interface SidebarRoot {
 
 export interface SidebarItem {
   label: string;
-  value: string;
+  name: string;
   route: string;
   schemaName?: string;
   hidden?: () => boolean;
