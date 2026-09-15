@@ -2,11 +2,17 @@ import BetterSQLite3 from 'better-sqlite3';
 import fs from 'fs-extra';
 import { DatabaseError } from 'fyo/utils/errors';
 import path from 'path';
+import os from 'os';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { getMapFromList } from 'utils/index';
 import { Version } from 'utils/version';
 import { getSchemas } from '../../schemas';
 import { databaseMethodSet, unlinkIfExists } from '../helpers';
+import {
+  decryptCompanyFile,
+  encryptCompanyFile,
+  isEncryptedCompanyFile,
+} from '../security/companyFileEncryption';
 import patches from '../patches';
 import { BespokeQueries } from './bespoke';
 import DatabaseCore from './core';
@@ -16,28 +22,56 @@ import { BespokeFunction, Patch, RawCustomField } from './types';
 export class DatabaseManager extends DatabaseDemuxBase {
   db?: DatabaseCore;
   rawCustomFields: RawCustomField[] = [];
+  #storageDbPath?: string;
+  #workingDbPath?: string;
+  #encryptionPassword?: string;
+  #workingDbDir?: string;
 
   get #isInitialized(): boolean {
     return this.db !== undefined && this.db.knex !== undefined;
   }
 
-  getSchemaMap() {
-    if (this.#isInitialized) {
-      return this.db?.schemaMap ?? getSchemas('-', this.rawCustomFields);
+  async createNewDatabase(
+    dbPath: string,
+    countryCode: string,
+    password?: string
+  ) {
+    await unlinkIfExists(dbPath);
+    const workingPath = password
+      ? await this.#createWorkingDatabasePath()
+      : dbPath;
+
+    this.#setEncryptionState(dbPath, workingPath, password);
+    try {
+      return await this.connectToDatabase(workingPath, countryCode);
+    } catch (error) {
+      await this.#clearEncryptionState();
+      throw error;
+    }
+  }
+
+  async connectToDatabase(
+    dbPath: string,
+    countryCode?: string,
+    password?: string
+  ) {
+    const resolvedPath = await this.#resolveDatabasePath(dbPath, password);
+    if (resolvedPath !== dbPath) {
+      this.#setEncryptionState(dbPath, resolvedPath, password);
+    } else if (this.#storageDbPath === undefined && password) {
+      this.#setEncryptionState(dbPath, dbPath, password);
     }
 
-    return getSchemas('-', this.rawCustomFields);
-  }
-
-  async createNewDatabase(dbPath: string, countryCode: string) {
-    await unlinkIfExists(dbPath);
-    return await this.connectToDatabase(dbPath, countryCode);
-  }
-
-  async connectToDatabase(dbPath: string, countryCode?: string) {
-    countryCode = await this._connect(dbPath, countryCode);
-    await this.#migrate();
-    return countryCode;
+    try {
+      countryCode = await this._connect(resolvedPath, countryCode);
+      await this.#migrate();
+      return countryCode;
+    } catch (error) {
+      if (resolvedPath !== dbPath) {
+        await this.#clearEncryptionState();
+      }
+      throw error;
+    }
   }
 
   async _connect(dbPath: string, countryCode?: string) {
@@ -107,12 +141,6 @@ export class DatabaseManager extends DatabaseDemuxBase {
     }[];
 
     const runPatchesMap = getMapFromList(query, 'name');
-    /**
-     * A patch is run only if:
-     * - it hasn't run and was added in a future version
-     *    i.e. app version is before patch added version
-     * - it ran but failed in some other version (i.e fixed)
-     */
     const filtered = patches
       .filter((p) => {
         const exec = runPatchesMap[p.name];
@@ -147,6 +175,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
     const response = await this.db[method](...args);
     if (method === 'close') {
       delete this.db;
+      await this.#finalizeEncryptedFile();
     }
 
     return response;
@@ -195,7 +224,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
   }
 
   async #getBackupFilePath() {
-    const { dbPath } = this.db ?? {};
+    const dbPath = this.#storageDbPath ?? this.db?.dbPath;
     if (dbPath === ':memory:' || !dbPath) {
       return null;
     }
@@ -233,6 +262,78 @@ export class DatabaseManager extends DatabaseDemuxBase {
     }
 
     return BetterSQLite3(dbPath, { readonly: true });
+  }
+
+  async #resolveDatabasePath(dbPath: string, password?: string): Promise<string> {
+    if (!(await fs.pathExists(dbPath))) {
+      return dbPath;
+    }
+
+    const header = await fs.readFile(dbPath).then((data) => data.subarray(0, 5));
+    if (!isEncryptedCompanyFile(header)) {
+      return dbPath;
+    }
+
+    if (!password) {
+      throw new Error('Company file password is required');
+    }
+
+    const encrypted = await fs.readFile(dbPath);
+    const plaintext = await decryptCompanyFile(encrypted, password);
+    const workingPath = await this.#createWorkingDatabasePath();
+    await fs.writeFile(workingPath, plaintext, { mode: 0o600 });
+    return workingPath;
+  }
+
+  async #createWorkingDatabasePath(): Promise<string> {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'contrabooks-'));
+    this.#workingDbDir = dir;
+    const workingPath = path.join(dir, 'company.books.db');
+    this.#workingDbPath = workingPath;
+    return workingPath;
+  }
+
+  #setEncryptionState(
+    storagePath: string,
+    workingPath: string,
+    password?: string
+  ) {
+    this.#storageDbPath = storagePath;
+    this.#workingDbPath = workingPath;
+    this.#encryptionPassword = password;
+  }
+
+  async #finalizeEncryptedFile() {
+    if (
+      !this.#storageDbPath ||
+      !this.#workingDbPath ||
+      !this.#encryptionPassword
+    ) {
+      await this.#clearEncryptionState();
+      return;
+    }
+
+    const plaintext = await fs.readFile(this.#workingDbPath);
+    const encrypted = await encryptCompanyFile(
+      plaintext,
+      this.#encryptionPassword
+    );
+    const replacementPath = `${this.#storageDbPath}.tmp`;
+    await fs.writeFile(replacementPath, encrypted, { mode: 0o600 });
+    await fs.move(replacementPath, this.#storageDbPath, { overwrite: true });
+    await this.#clearEncryptionState();
+  }
+
+  async #clearEncryptionState() {
+    const workingDir = this.#workingDbDir;
+    this.#storageDbPath = undefined;
+    this.#workingDbPath = undefined;
+    this.#encryptionPassword = undefined;
+    this.#workingDbDir = undefined;
+
+    if (workingDir) {
+      await fs.remove(workingDir);
+    }
   }
 }
 
