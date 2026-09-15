@@ -156,6 +156,11 @@ function validateConfig(config: SmtpConfig, message: SmtpMessage) {
   }
   if (!config.username.trim()) throw new Error('SMTP username is required');
   if (!config.from.trim()) throw new Error('SMTP from address is required');
+  if (/[\r\n]/.test(config.from)) throw new Error('SMTP from address is invalid');
+  if (allRecipients(message).some((recipient) => /[\r\n]/.test(recipient))) {
+    throw new Error('SMTP recipient address is invalid');
+  }
+  if (/[\r\n]/.test(message.subject)) throw new Error('Email subject is invalid');
   if (allRecipients(message).length === 0) {
     throw new Error('At least one recipient is required');
   }
@@ -213,7 +218,7 @@ function buildMimeMessage(from: string, message: SmtpMessage) {
   const attachments = message.attachments ?? [];
   if (attachments.length === 0) {
     headers.push('Content-Type: text/plain; charset=utf-8', 'Content-Transfer-Encoding: 8bit');
-    return `${headers.join('\r\n')}\r\n\r\n${dotStuff(message.text)}\r\n.`;
+    return `${headers.join('\r\n')}\r\n\r\n${dotStuff(message.text)}\r\n.\r\n`;
   }
 
   const boundary = `----ContraBooks-${Date.now().toString(36)}`;
@@ -237,7 +242,7 @@ function buildMimeMessage(from: string, message: SmtpMessage) {
     '.',
   ];
 
-  return `${headers.join('\r\n')}\r\n\r\n${dotStuff(body.join('\r\n'))}`;
+  return `${headers.join('\r\n')}\r\n\r\n${dotStuff(body.join('\r\n'))}\r\n`;
 }
 
 function wrapBase64(data: Buffer) {
