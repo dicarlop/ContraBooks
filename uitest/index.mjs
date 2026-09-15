@@ -142,10 +142,20 @@ async function removeUserDataDir(userDataDir) {
         await window.getByPlaceholder('Company Name').fill('Test Company');
         await window.getByPlaceholder('John Doe').fill('Test Owner');
         await window.getByPlaceholder('john@doe.com').fill('test@example.com');
-        await window.getByPlaceholder('Select Country').fill('India');
-        await window.getByPlaceholder('Select Country').blur();
-        await window.getByPlaceholder('Prime Bank').fill('Test Bank');
-        await window.getByPlaceholder('Prime Bank').blur();
+
+        const country = window.getByPlaceholder('Select Country');
+        await country.fill('India');
+        await country.press('ArrowDown');
+        await country.press('Enter');
+
+        const bank = window.getByPlaceholder('Prime Bank');
+        await bank.fill('Test Bank');
+        await bank.blur();
+
+        await window.getByTestId('submit-button').waitFor({ state: 'visible' });
+        await window.waitForFunction(
+          () => !document.querySelector('[data-testid="submit-button"]')?.hasAttribute('disabled')
+        );
         t.equal(
           await window.getByTestId('submit-button').isDisabled(),
           false,
