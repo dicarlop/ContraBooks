@@ -152,6 +152,19 @@ const ipc = {
     )) as boolean;
   },
 
+  async createPDFFromHTML(
+    html: string,
+    width: number,
+    height: number
+  ): Promise<Uint8Array> {
+    return (await ipcRenderer.invoke(
+      IPC_ACTIONS.CREATE_PDF_FROM_HTML,
+      html,
+      width,
+      height
+    )) as Uint8Array;
+  },
+
   async printDocument(
     html: string,
     width: number,
