@@ -2,6 +2,7 @@ import test from 'tape';
 import {
   decryptCompanyFile,
   encryptCompanyFile,
+  isEncryptedCompanyFile,
 } from '../companyFileEncryption';
 
 test('company file encryption: round trip', async (t) => {
@@ -58,5 +59,19 @@ test('company file encryption: missing password is rejected', async (t) => {
   } catch (error) {
     t.match(String(error), /password is required/);
   }
+  t.end();
+});
+
+test('company file encryption: format detection', async (t) => {
+  const encrypted = await encryptCompanyFile(
+    Buffer.from('private data'),
+    'password'
+  );
+
+  t.ok(isEncryptedCompanyFile(encrypted), 'encrypted files should be detected');
+  t.notOk(
+    isEncryptedCompanyFile(Buffer.from('SQLite format 3\u0000')),
+    'plain SQLite files should not be detected as encrypted'
+  );
   t.end();
 });
