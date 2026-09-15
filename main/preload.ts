@@ -22,8 +22,8 @@ import type {
 type IPCRendererListener = Parameters<typeof ipcRenderer.on>[1];
 const ipc = {
   desktop: true,
-  reloadWindow() { return ipcRenderer.send(IPC_MESSAGES.RELOAD_WINDOW); },
-  minimizeWindow() { return ipcRenderer.send(IPC_MESSAGES.MINIMIZE_WINDOW); },
+  reloadWindow() { return ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW); },
+  minimizeWindow() { return ipcRenderer.send(IPC_MESSAGES.MINIMIZE_MAIN_WINDOW); },
   toggleMaximize() { return ipcRenderer.send(IPC_MESSAGES.MAXIMIZE_MAIN_WINDOW); },
   isMaximized() { return new Promise((resolve) => { ipcRenderer.send(IPC_MESSAGES.ISMAXIMIZED_MAIN_WINDOW); ipcRenderer.once(IPC_MESSAGES.ISMAXIMIZED_RESULT, (_event, value) => resolve(value)); }); },
   isFullscreen() { return new Promise((resolve) => { ipcRenderer.send(IPC_MESSAGES.ISFULLSCREEN_MAIN_WINDOW); ipcRenderer.once(IPC_MESSAGES.ISFULLSCREEN_RESULT, (_event, value) => resolve(value)); }); },
