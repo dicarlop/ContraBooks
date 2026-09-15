@@ -1,4 +1,5 @@
 import net from 'net';
+import os from 'os';
 import tls from 'tls';
 
 export interface SmtpConfig {
@@ -79,18 +80,13 @@ class SmtpClient {
 
   constructor(socket: SmtpSocket) {
     this.socket = socket;
-    socket.setEncoding('utf8');
-    socket.on('data', (chunk) => this.onData(chunk));
-    socket.on('error', (error) => this.rejectAll(error));
-    socket.on('close', () => this.rejectAll(new Error('SMTP connection closed')));
+    this.attach(socket);
   }
 
   setSocket(socket: SmtpSocket) {
     this.socket = socket;
-    socket.setEncoding('utf8');
-    socket.on('data', (chunk) => this.onData(chunk));
-    socket.on('error', (error) => this.rejectAll(error));
-    socket.on('close', () => this.rejectAll(new Error('SMTP connection closed')));
+    this.buffer = '';
+    this.attach(socket);
   }
 
   write(data: string) {
@@ -111,6 +107,13 @@ class SmtpClient {
 
   destroy() {
     this.socket.destroy();
+  }
+
+  private attach(socket: SmtpSocket) {
+    socket.setEncoding('utf8');
+    socket.on('data', (chunk) => this.onData(chunk));
+    socket.on('error', (error) => this.rejectAll(error));
+    socket.on('close', () => this.rejectAll(new Error('SMTP connection closed')));
   }
 
   private onData(chunk: string) {
@@ -153,7 +156,9 @@ function validateConfig(config: SmtpConfig, message: SmtpMessage) {
   }
   if (!config.username.trim()) throw new Error('SMTP username is required');
   if (!config.from.trim()) throw new Error('SMTP from address is required');
-  if (allRecipients(message).length === 0) throw new Error('At least one recipient is required');
+  if (allRecipients(message).length === 0) {
+    throw new Error('At least one recipient is required');
+  }
 }
 
 function connect(config: SmtpConfig): Promise<SmtpSocket> {
@@ -166,18 +171,18 @@ function connect(config: SmtpConfig): Promise<SmtpSocket> {
       socket.destroy();
       reject(error);
     };
-
-    socket.once('error', onError);
-    socket.once('connect', () => {
+    const onConnect = () => {
       socket.removeListener('error', onError);
       resolve(socket);
-    });
+    };
+
+    socket.once('error', onError);
     if (config.secure) {
-      (socket as tls.TLSSocket).once('secureConnect', () => {
-        socket.removeListener('error', onError);
-        resolve(socket);
-      });
+      (socket as tls.TLSSocket).once('secureConnect', onConnect);
+    } else {
+      socket.once('connect', onConnect);
     }
+    socket.setTimeout(30000, () => onError(new Error('SMTP connection timed out')));
   });
 }
 
@@ -197,11 +202,10 @@ function allRecipients(message: SmtpMessage) {
 }
 
 function buildMimeMessage(from: string, message: SmtpMessage) {
-  const recipients = [...message.to, ...(message.cc ?? [])];
   const headers = [
     `From: ${from}`,
     `To: ${message.to.join(', ')}`,
-    ...(recipients.length > message.to.length ? [`Cc: ${message.cc?.join(', ') ?? ''}`] : []),
+    ...(message.cc?.length ? [`Cc: ${message.cc.join(', ')}`] : []),
     `Subject: ${encodeHeader(message.subject)}`,
     'MIME-Version: 1.0',
   ];
@@ -246,9 +250,11 @@ function dotStuff(value: string) {
 }
 
 function encodeHeader(value: string) {
-  return /^[\x00-\x7F]*$/.test(value) ? value : `=?UTF-8?B?${Buffer.from(value).toString('base64')}?=`;
+  return /^[\x00-\x7F]*$/.test(value)
+    ? value
+    : `=?UTF-8?B?${Buffer.from(value).toString('base64')}?=`;
 }
 
 function getHostname() {
-  return net.isIP(require('os').hostname()) ? 'localhost' : require('os').hostname();
+  return os.hostname();
 }
