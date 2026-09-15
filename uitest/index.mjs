@@ -6,7 +6,6 @@ const appPath = path.join(process.cwd(), 'dist_electron/build');
 
 async function getWindow(app) {
   const window = await app.firstWindow();
-  await window.waitForLoadState('domcontentloaded');
   return window;
 }
 
@@ -15,13 +14,13 @@ test('Electron UI smoke test', async (t) => {
   const window = await getWindow(app);
 
   try {
+    const createNew = window.getByText('Create New', { exact: true });
+    await createNew.waitFor({ state: 'visible' });
     t.equal(await window.title(), 'ContraBooks', 'title matches');
     t.ok(await window.locator('body').isVisible(), 'window has loaded');
-
-    await window.getByText('Create New', { exact: true }).waitFor({ state: 'visible' });
     t.pass('create new is visible');
 
-    await window.getByText('Create New', { exact: true }).click();
+    await createNew.click();
     await window.getByTestId('submit-button').waitFor({ state: 'visible' });
     t.equal(
       await window.getByTestId('submit-button').isDisabled(),
