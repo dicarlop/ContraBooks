@@ -53,7 +53,7 @@ export default {
       const itemRows=(await fyo.db.getAllRaw('SalesInvoiceItem',{fields:['item','amount'],orderBy:'amount',order:'desc',limit:5})) as Record<string,unknown>[];
       this.topProducts=itemRows.map((row)=>({name:String(row.item??''),total:Number(row.amount??0)})).filter((row)=>row.name&&row.total>0);
     },
-    setPeriod(period:PeriodKey){this.period=period;},
+    setPeriod(period:string){this.period=period as PeriodKey;},
     handlePeriodChange(period:PeriodKey){this.period=period;},
     async createDocument(schemaName:string){const doc=fyo.doc.getNewDoc(schemaName);await routeTo(`/edit/${schemaName}/${doc.name!}`);},
     async createCustomer(){const doc=fyo.doc.getNewDoc(ModelNameEnum.Party,{role:'Customer'});await routeTo(`/edit/${ModelNameEnum.Party}/${doc.name!}`);},
