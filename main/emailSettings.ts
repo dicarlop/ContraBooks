@@ -17,7 +17,11 @@ export type EmailSettings = Omit<SmtpConfig, 'password'> & {
   password: string;
 };
 
-export function getEmailSettings(): EmailSettings {
+export type EmailSettingsPublic = Omit<EmailSettings, 'password'> & {
+  passwordSet: boolean;
+};
+
+export function getEmailSettings(): EmailSettingsPublic {
   const stored = store.get('email');
   if (!stored) {
     return {
@@ -25,8 +29,8 @@ export function getEmailSettings(): EmailSettings {
       port: 587,
       secure: false,
       username: '',
-      password: '',
       from: '',
+      passwordSet: false,
     };
   }
 
@@ -35,7 +39,28 @@ export function getEmailSettings(): EmailSettings {
     port: stored.port,
     secure: stored.secure,
     username: stored.username,
-    password: decryptPassword(stored.encryptedPassword),
+    from: stored.from,
+    passwordSet: Boolean(stored.encryptedPassword),
+  };
+}
+
+export function getSmtpConfig(): SmtpConfig {
+  const stored = store.get('email');
+  if (!stored) {
+    throw new Error('Email settings are not configured');
+  }
+
+  const password = decryptPassword(stored.encryptedPassword);
+  if (!password) {
+    throw new Error('SMTP password is not available');
+  }
+
+  return {
+    host: stored.host,
+    port: stored.port,
+    secure: stored.secure,
+    username: stored.username,
+    password,
     from: stored.from,
   };
 }
@@ -45,14 +70,17 @@ export function setEmailSettings(settings: EmailSettings): void {
     throw new Error('Secure credential storage is unavailable on this system');
   }
 
+  const existing = store.get('email');
+  const password = settings.password.trim();
+
   store.set('email', {
     host: settings.host.trim(),
     port: settings.port,
     secure: settings.secure,
     username: settings.username.trim(),
-    encryptedPassword: safeStorage
-      .encryptString(settings.password)
-      .toString('base64'),
+    encryptedPassword: password
+      ? safeStorage.encryptString(password).toString('base64')
+      : existing?.encryptedPassword ?? '',
     from: settings.from.trim(),
   });
 }
