@@ -167,6 +167,9 @@ async function removeUserDataDir(userDataDir) {
         await indiaCoaOption.waitFor({ state: 'visible' });
         await indiaCoaOption.click();
 
+        await window.getByPlaceholder('Fiscal Year Start Date').fill('2026-04-01');
+        await window.getByPlaceholder('Fiscal Year End Date').fill('2027-03-31');
+
         const bank = window.getByPlaceholder('Prime Bank');
         await bank.fill('Test Bank');
         await bank.blur();
