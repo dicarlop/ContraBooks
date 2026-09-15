@@ -19,6 +19,10 @@
       <Password :df="field('password', 'Password')" :value="settings.password" :show-label="true" :border="true" @input="settings.password = inputValue($event)" />
     </div>
 
+    <div v-if="settings.passwordSet" class="text-sm text-gray-600 dark:text-gray-400">
+      {{ t`A saved SMTP password is already configured. Leave Password blank to keep it.` }}
+    </div>
+
     <Data :df="field('from', 'From Address')" :value="settings.from" :show-label="true" :border="true" @input="settings.from = inputValue($event)" />
 
     <Check :df="field('secure', 'Use secure connection')" :value="settings.secure" :show-label="true" @change="settings.secure = Boolean($event)" />
@@ -49,12 +53,12 @@ export default defineComponent({
       saving: false,
       message: '',
       settings: {
-        host: '', port: 587, secure: false, username: '', password: '', from: '',
+        host: '', port: 587, secure: false, username: '', password: '', from: '', passwordSet: false,
       },
     };
   },
   async mounted() {
-    this.settings = await ipc.getEmailSettings();
+    this.settings = { ...await ipc.getEmailSettings(), password: '' };
   },
   methods: {
     field(fieldname: string, label: string): Field {
@@ -68,7 +72,16 @@ export default defineComponent({
       this.saving = true;
       this.message = '';
       try {
-        await ipc.setEmailSettings(this.settings);
+        await ipc.setEmailSettings({
+          host: this.settings.host,
+          port: this.settings.port,
+          secure: this.settings.secure,
+          username: this.settings.username,
+          password: this.settings.password,
+          from: this.settings.from,
+        });
+        this.settings.password = '';
+        this.settings.passwordSet = true;
         this.message = this.t`Email settings saved.`;
       } catch (error) {
         this.message = error instanceof Error ? error.message : this.t`Unable to save email settings.`;
