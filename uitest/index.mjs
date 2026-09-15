@@ -14,7 +14,7 @@ test('Electron UI smoke test', async (t) => {
   const window = await getWindow(app);
 
   try {
-    const createNew = window.getByText('Create New', { exact: true });
+    const createNew = window.getByTestId('create-new-file');
     await createNew.waitFor({ state: 'visible' });
     t.equal(await window.title(), 'ContraBooks', 'title matches');
     t.ok(await window.locator('body').isVisible(), 'window has loaded');
