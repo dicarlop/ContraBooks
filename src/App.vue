@@ -78,12 +78,10 @@ export default defineComponent({
     const searcher: Ref<null | Search> = ref(null);
     const shortcuts = new Shortcuts(keys);
     const languageDirection = ref(getLanguageDirection(systemLanguageRef.value));
-
     provide(injectionKeys.keysKey, keys);
     provide(injectionKeys.searcherKey, searcher);
     provide(injectionKeys.shortcutsKey, shortcuts);
     provide(injectionKeys.languageDirectionKey, languageDirection);
-
     const databaseSelector = ref<InstanceType<typeof DatabaseSelector> | null>(null);
     return { keys, searcher, shortcuts, languageDirection, databaseSelector };
   },
@@ -158,6 +156,16 @@ export default defineComponent({
       try {
         await this.showSetupWizardOrDesk(filePath);
       } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (message === 'Company file password is required') {
+          const unlockKey = window.prompt(this.t`Enter company file password`);
+          if (unlockKey === null) {
+            fyo.config.set('lastSelectedFilePath', null);
+            return;
+          }
+          await this.showSetupWizardOrDesk(filePath, unlockKey);
+          return;
+        }
         await handleErrorWithDialog(error, undefined, true, true);
         await this.showDbSelector();
       }
@@ -169,8 +177,8 @@ export default defineComponent({
       fyo.config.set('lastSelectedFilePath', filePath);
       await this.setDesk(filePath);
     },
-    async showSetupWizardOrDesk(filePath: string): Promise<void> {
-      const { countryCode, error, actionSymbol } = await connectToDatabase(this.fyo, filePath);
+    async showSetupWizardOrDesk(filePath: string, unlockKey?: string): Promise<void> {
+      const { countryCode, error, actionSymbol } = await connectToDatabase(this.fyo, filePath, undefined, unlockKey);
       if (!countryCode && error && actionSymbol) return await this.handleConnectionFailed(error, actionSymbol);
 
       const setupComplete = await fyo.getValue(ModelNameEnum.AccountingSettings, 'setupComplete');
@@ -195,19 +203,11 @@ export default defineComponent({
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
           try {
-            const existing = await fyo.db.getAll(ErrorLogEnum.IntegrationErrorLog, {
-              filters: { error: errorMessage },
-              limit: 1,
-            });
+            const existing = await fyo.db.getAll(ErrorLogEnum.IntegrationErrorLog, { filters: { error: errorMessage }, limit: 1 });
             if (!existing.length) {
               await fyo.doc.getNewDoc(ErrorLogEnum.IntegrationErrorLog, {
                 error: errorMessage,
-                data: JSON.stringify({
-                  instance: fyo.singles.ERPNextSyncSettings?.deviceID,
-                  operation: 'register_instance',
-                  trigger: 'showSetupWizardOrDesk',
-                  baseURL: baseURL,
-                }),
+                data: JSON.stringify({ instance: fyo.singles.ERPNextSyncSettings?.deviceID, operation: 'register_instance', trigger: 'showSetupWizardOrDesk', baseURL }),
               }).sync();
             }
           } catch (logError) {
@@ -216,7 +216,6 @@ export default defineComponent({
           showToast({ message: 'Connection Failed', type: 'error' });
         }
       }
-
       await this.setDesk(filePath);
     },
     async handleConnectionFailed(error: Error, actionSymbol: symbol) {
