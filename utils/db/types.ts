@@ -10,13 +10,11 @@ import { SchemaMap } from 'schemas/types';
 
 type UnknownMap = Record<string, unknown>;
 export abstract class DatabaseBase {
-  // Create
   abstract insert(
     schemaName: string,
     fieldValueMap: UnknownMap
   ): Promise<UnknownMap>;
 
-  // Read
   abstract get(
     schemaName: string,
     name: string,
@@ -32,7 +30,6 @@ export abstract class DatabaseBase {
     ...fieldnames: ({ fieldname: string; parent?: string } | string)[]
   ): Promise<{ fieldname: string; parent: string; value: unknown }[]>;
 
-  // Update
   abstract rename(
     schemaName: string,
     oldName: string,
@@ -41,12 +38,10 @@ export abstract class DatabaseBase {
 
   abstract update(schemaName: string, fieldValueMap: UnknownMap): Promise<void>;
 
-  // Delete
   abstract delete(schemaName: string, name: string): Promise<void>;
-  
-  abstract deleteAll(schemaName:string, filters:QueryFilter): Promise<number>;
 
-  // Other
+  abstract deleteAll(schemaName: string, filters: QueryFilter): Promise<number>;
+
   abstract close(): Promise<void>;
 
   abstract exists(schemaName: string, name?: string): Promise<boolean>;
@@ -69,24 +64,19 @@ export type QueryFilter = Record<
   boolean | string | null | (string | number | (string | number | null)[])[]
 >;
 
-/**
- * DatabaseDemuxBase is an abstract class that ensures that the function signatures
- * match between the DatabaseManager and the DatabaseDemux.
- *
- * This allows testing the frontend code while directly plugging in the DatabaseManager
- * and bypassing all the API and IPC calls.
- */
 export abstract class DatabaseDemuxBase {
   abstract getSchemaMap(): Promise<SchemaMap> | SchemaMap;
 
   abstract createNewDatabase(
     dbPath: string,
-    countryCode: string
+    countryCode: string,
+    password?: string
   ): Promise<string>;
 
   abstract connectToDatabase(
     dbPath: string,
-    countryCode?: string
+    countryCode?: string,
+    password?: string
   ): Promise<string>;
 
   abstract call(method: DatabaseMethod, ...args: unknown[]): Promise<unknown>;
@@ -94,7 +84,6 @@ export abstract class DatabaseDemuxBase {
   abstract callBespoke(method: string, ...args: unknown[]): Promise<unknown>;
 }
 
-// Return types of Bespoke Queries
 export type TopExpenses = { account: string; total: number }[];
 export type TotalOutstanding = { total: number; outstanding: number };
 export type Cashflow = { inflow: number; outflow: number; yearmonth: string }[];
