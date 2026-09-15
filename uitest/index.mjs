@@ -145,8 +145,9 @@ async function removeUserDataDir(userDataDir) {
 
         const country = window.getByPlaceholder('Select Country');
         await country.fill('India');
-        await country.press('ArrowDown');
-        await country.press('Enter');
+        const indiaOption = window.getByText('India', { exact: true }).last();
+        await indiaOption.waitFor({ state: 'visible' });
+        await indiaOption.click();
 
         const bank = window.getByPlaceholder('Prime Bank');
         await bank.fill('Test Bank');
