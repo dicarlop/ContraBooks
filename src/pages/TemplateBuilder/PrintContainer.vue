@@ -12,7 +12,6 @@
       :propagate="false"
       @error-captured="handleErrorCaptured"
     >
-      <!-- Template -->
       <component
         :is="templateComponent"
         class="flex-1 bg-white"
@@ -21,7 +20,6 @@
       />
     </ErrorBoundary>
 
-    <!-- Compilation Error -->
     <div
       v-else
       class="
@@ -127,21 +125,6 @@ export default defineComponent({
   },
   methods: {
     compile(template: string) {
-      /**
-       * Note: This is a hacky method to prevent
-       * broken templates from reaching the `<component />`
-       * element.
-       *
-       * It's required because the CompilerOptions doesn't
-       * have an option to capture the errors.
-       *
-       * The compile function returns a code that can be
-       * converted into a render function.
-       *
-       * This render function can be used instead
-       * of passing the template to the `<component />` element
-       * where it gets compiled again.
-       */
       this.error = null;
       return compile(template, {
         hoistStatic: true,
@@ -176,16 +159,68 @@ export default defineComponent({
     getCodeFrame(loc: SourceLocation) {
       return generateCodeFrame(this.template, loc.start.offset, loc.end.offset);
     },
-    async savePDF(name?: string, shouldPrint?: boolean) {
-      /* eslint-disable */
-
-      /**
-       * To be called through ref by the parent component.
-       */
-
+    getInnerHTML(): string | null {
       // @ts-ignore
-      const innerHTML = this.$refs.scaledContainer.$el.children[0].innerHTML;
-      if (typeof innerHTML !== 'string') {
+      const innerHTML = this.$refs.scaledContainer?.$el?.children?.[0]?.innerHTML;
+      return typeof innerHTML === 'string' ? innerHTML : null;
+    },
+    getPDFHtml(): string | null {
+      const innerHTML = this.getInnerHTML();
+      if (!innerHTML) {
+        return null;
+      }
+
+      const html = document.createElement('html');
+      const head = document.createElement('head');
+      const body = document.createElement('body');
+      const cssTexts: string[] = [];
+
+      for (const sheet of document.styleSheets) {
+        try {
+          for (const rule of sheet.cssRules) {
+            cssTexts.push(rule.cssText);
+          }
+        } catch {
+          continue;
+        }
+      }
+
+      const style = document.createElement('style');
+      style.innerHTML = cssTexts.join('\n');
+      const printCSS = document.createElement('style');
+      printCSS.innerHTML = `
+        @media print {
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white;
+          }
+          @page { margin: 0; }
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+        }
+      `;
+
+      head.innerHTML = '<meta charset="UTF-8"><title>Print Window</title>';
+      head.append(style, printCSS);
+      body.innerHTML = innerHTML;
+      html.append(head, body);
+      return html.outerHTML;
+    },
+    async getPDF(): Promise<Uint8Array | null> {
+      const html = this.getPDFHtml();
+      if (!html) {
+        return null;
+      }
+
+      return await ipc.createPDFFromHTML(html, this.width, this.height);
+    },
+    async savePDF(name?: string, shouldPrint?: boolean) {
+      const innerHTML = this.getInnerHTML();
+      if (!innerHTML) {
         return;
       }
 
