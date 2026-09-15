@@ -20,7 +20,6 @@ module.exports = tseslint.config(
     ],
   },
   ...tseslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
   ...vue.configs['flat/recommended'],
   {
     files: ['**/*.{ts,vue}'],
@@ -31,8 +30,6 @@ module.exports = tseslint.config(
         ...globals.node,
       },
       parserOptions: {
-        projectService: true,
-        tsconfigRootDir: __dirname,
         extraFileExtensions: ['.vue'],
         parser: tseslint.parser,
       },
