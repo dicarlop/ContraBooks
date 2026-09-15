@@ -2,7 +2,6 @@ import test from 'tape';
 import { _electron as electron } from 'playwright';
 import path from 'path';
 
-const electronPath = require.resolve('electron');
 const appPath = path.join(process.cwd(), 'dist_electron/build');
 
 async function getWindow(app) {
