@@ -3,7 +3,7 @@ import {
   createDocumentEmail,
   getDefaultEmailTemplate,
   renderEmailTemplate,
-} from 'utils/email';
+} from 'src/utils/email';
 
 test('email templates: render document context', (t) => {
   const template = getDefaultEmailTemplate('Invoice');
