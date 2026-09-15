@@ -13,6 +13,7 @@ import { pathToFileURL } from 'url';
 import registerAppLifecycleListeners from './main/registerAppLifecycleListeners';
 import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
+import registerIpcMainEmailListener from './main/registerIpcMainEmailListener';
 import registerIpcMainMessageListeners from './main/registerIpcMainMessageListeners';
 import registerProcessListeners from './main/registerProcessListeners';
 
@@ -68,6 +69,7 @@ export class Main {
   registerListeners() {
     registerIpcMainMessageListeners(this);
     registerIpcMainActionListeners(this);
+    registerIpcMainEmailListener();
     registerAutoUpdaterListeners(this);
     registerAppLifecycleListeners(this);
     registerProcessListeners(this);
