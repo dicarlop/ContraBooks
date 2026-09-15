@@ -29,8 +29,8 @@ test('Electron UI smoke test', async (t) => {
     );
 
     await window.getByPlaceholder('Company Name').fill('Test Company');
-    await window.getByPlaceholder('Full Name').fill('Test Person');
-    await window.getByPlaceholder('Email').fill('test@testmyfantasy.com');
+    await window.getByPlaceholder('John Doe').fill('Test Person');
+    await window.getByPlaceholder('john@doe.com').fill('test@testmyfantasy.com');
 
     const country = window.getByPlaceholder('Select Country');
     await country.click();
@@ -39,7 +39,7 @@ test('Electron UI smoke test', async (t) => {
     await indiaOption.waitFor({ state: 'visible' });
     await indiaOption.click();
 
-    const currency = window.getByPlaceholder('Select Currency');
+    const currency = window.getByPlaceholder('Currency');
     await currency.click();
     await currency.fill('INR');
     const inrOption = window.locator('a:visible').filter({ hasText: /^INR$/ }).last();
