@@ -26,6 +26,11 @@ export interface EncryptedCompanyFile {
   ciphertext: Buffer;
 }
 
+export function isEncryptedCompanyFile(data: Uint8Array): boolean {
+  const buffer = Buffer.from(data);
+  return buffer.length >= MAGIC.length && buffer.subarray(0, MAGIC.length).equals(MAGIC);
+}
+
 function deriveKey(password: string, salt: Buffer): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     scryptCallback(
