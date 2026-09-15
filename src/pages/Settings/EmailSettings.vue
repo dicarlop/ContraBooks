@@ -10,53 +10,18 @@
     </div>
 
     <div class="grid grid-cols-2 gap-4">
-      <Data
-        :df="field('host', 'SMTP Host')"
-        :value="settings.host"
-        :show-label="true"
-        :border="true"
-        @input="settings.host = inputValue($event)"
-      />
-      <Data
-        :df="field('port', 'SMTP Port')"
-        :value="settings.port"
-        :show-label="true"
-        :border="true"
-        @input="settings.port = Number(inputValue($event)) || 587"
-      />
+      <Data :df="field('host', 'SMTP Host')" :value="settings.host" :show-label="true" :border="true" @input="settings.host = inputValue($event)" />
+      <Data :df="field('port', 'SMTP Port')" :value="settings.port" :show-label="true" :border="true" @input="settings.port = Number(inputValue($event)) || 587" />
     </div>
 
     <div class="grid grid-cols-2 gap-4">
-      <Data
-        :df="field('username', 'Username')"
-        :value="settings.username"
-        :show-label="true"
-        :border="true"
-        @input="settings.username = inputValue($event)"
-      />
-      <Data
-        :df="field('password', 'Password')"
-        :value="settings.password"
-        :show-label="true"
-        :border="true"
-        @input="settings.password = inputValue($event)"
-      />
+      <Data :df="field('username', 'Username')" :value="settings.username" :show-label="true" :border="true" @input="settings.username = inputValue($event)" />
+      <Password :df="field('password', 'Password')" :value="settings.password" :show-label="true" :border="true" @input="settings.password = inputValue($event)" />
     </div>
 
-    <Data
-      :df="field('from', 'From Address')"
-      :value="settings.from"
-      :show-label="true"
-      :border="true"
-      @input="settings.from = inputValue($event)"
-    />
+    <Data :df="field('from', 'From Address')" :value="settings.from" :show-label="true" :border="true" @input="settings.from = inputValue($event)" />
 
-    <Check
-      :df="field('secure', 'Use secure connection')"
-      :value="settings.secure"
-      :show-label="true"
-      @change="settings.secure = Boolean($event)"
-    />
+    <Check :df="field('secure', 'Use secure connection')" :value="settings.secure" :show-label="true" @change="settings.secure = Boolean($event)" />
 
     <div class="flex justify-end gap-2">
       <Button type="primary" :disabled="saving" @click="save">
@@ -64,9 +29,7 @@
       </Button>
     </div>
 
-    <div v-if="message" class="text-sm text-gray-600 dark:text-gray-400">
-      {{ message }}
-    </div>
+    <div v-if="message" class="text-sm text-gray-600 dark:text-gray-400">{{ message }}</div>
   </div>
 </template>
 
@@ -75,21 +38,17 @@ import { defineComponent } from 'vue';
 import Button from 'src/components/Button.vue';
 import Check from 'src/components/Controls/Check.vue';
 import Data from 'src/components/Controls/Data.vue';
+import Password from 'src/components/Controls/Password.vue';
 
 export default defineComponent({
   name: 'EmailSettings',
-  components: { Button, Check, Data },
+  components: { Button, Check, Data, Password },
   data() {
     return {
       saving: false,
       message: '',
       settings: {
-        host: '',
-        port: 587,
-        secure: false,
-        username: '',
-        password: '',
-        from: '',
+        host: '', port: 587, secure: false, username: '', password: '', from: '',
       },
     };
   },
