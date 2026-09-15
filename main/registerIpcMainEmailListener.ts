@@ -1,14 +1,20 @@
 import { app, ipcMain } from 'electron';
 import databaseManager from '../backend/database/manager';
+import type { EmailDocumentType } from '../src/utils/email';
 import { IPC_ACTIONS } from '../utils/messages';
 import { sendSmtpMessage } from './email';
 import { getEmailSettings, getSmtpConfig, setEmailSettings } from './emailSettings';
 import { renderHtmlAsPdf } from './saveHtmlAsPdf';
 
+type DocumentEmailMessage = Parameters<typeof sendSmtpMessage>[1] & {
+  documentType: EmailDocumentType;
+  documentNumber: string;
+};
+
 export default function registerIpcMainEmailListener() {
   ipcMain.handle(
     IPC_ACTIONS.SEND_DOCUMENT_EMAIL,
-    async (_, message: Parameters<typeof sendSmtpMessage>[1]) => {
+    async (_, message: DocumentEmailMessage) => {
       try {
         await sendSmtpMessage(getSmtpConfig(), message);
         await logEmailAttempt(message, 'Sent');
@@ -36,18 +42,14 @@ export default function registerIpcMainEmailListener() {
 }
 
 async function logEmailAttempt(
-  message: Parameters<typeof sendSmtpMessage>[1],
+  message: DocumentEmailMessage,
   status: 'Sent' | 'Failed',
   error?: string
 ) {
-  const attachmentName = message.attachments?.[0]?.filename;
-  const documentName = attachmentName?.replace(/\.pdf$/i, '') ?? message.subject;
-  const documentType = getDocumentType(message.subject);
-
   try {
     await databaseManager.call('insert', 'EmailLog', {
-      documentType,
-      documentName,
+      documentType: message.documentType,
+      documentName: message.documentNumber,
       to: message.to.join(', '),
       cc: message.cc?.join(', '),
       bcc: message.bcc?.join(', '),
@@ -59,13 +61,4 @@ async function logEmailAttempt(
   } catch {
     // Email history must never hide the actual SMTP result.
   }
-}
-
-function getDocumentType(subject: string) {
-  if (/payment reminder/i.test(subject)) return 'Payment Reminder';
-  if (/credit note/i.test(subject)) return 'Credit Note';
-  if (/statement/i.test(subject)) return 'Statement';
-  if (/quote/i.test(subject)) return 'Quote';
-  if (/receipt/i.test(subject)) return 'Receipt';
-  return 'Invoice';
 }
