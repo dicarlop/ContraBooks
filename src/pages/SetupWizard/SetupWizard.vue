@@ -18,7 +18,6 @@
       >
       </FormHeader>
 
-      <!-- Section Container -->
       <div
         v-if="hasDoc"
         class="overflow-auto custom-scroll custom-scroll-thumb1"
@@ -41,9 +40,36 @@
           :collapsible="false"
           @value-change="onValueChange"
         />
+
+        <div class="p-4 border-t dark:border-gray-800">
+          <p class="text-base font-medium mb-3">{{ t`Company File Security` }}</p>
+          <div class="flex flex-col gap-3">
+            <input
+              v-model="password"
+              type="password"
+              autocomplete="new-password"
+              class="border rounded px-3 py-2 bg-white dark:bg-gray-900 dark:border-gray-700"
+              :placeholder="t`Company File Password`"
+              data-testid="company-file-password"
+            />
+            <input
+              v-model="passwordConfirm"
+              type="password"
+              autocomplete="new-password"
+              class="border rounded px-3 py-2 bg-white dark:bg-gray-900 dark:border-gray-700"
+              :placeholder="t`Confirm Company File Password`"
+              data-testid="company-file-password-confirm"
+            />
+            <p
+              v-if="passwordConfirm && password !== passwordConfirm"
+              class="text-sm text-red-600 dark:text-red-400"
+            >
+              {{ t`Passwords do not match.` }}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <!-- Buttons Bar -->
       <div
         class="
           mt-auto
@@ -124,10 +150,14 @@ export default defineComponent({
       docOrNull: null,
       errors: {},
       loading: false,
+      password: '',
+      passwordConfirm: '',
     } as {
       errors: Record<string, string>;
       docOrNull: null | Doc;
       loading: boolean;
+      password: string;
+      passwordConfirm: string;
     };
   },
   computed: {
@@ -150,7 +180,7 @@ export default defineComponent({
         .filter((f) => f.required)
         .map((f) => this.doc[f.fieldname]);
 
-      return values.every(Boolean);
+      return values.every(Boolean) && !!this.password && this.password === this.passwordConfirm;
     },
     activeGroup(): Map<string, Field[]> {
       if (!this.hasDoc) {
@@ -189,6 +219,8 @@ export default defineComponent({
       await this.doc.set('fullname', 'Lin Slovenly');
       await this.doc.set('bankName', 'Max Finance');
       await this.doc.set('country', 'India');
+      this.password = 'test-password';
+      this.passwordConfirm = 'test-password';
     },
     async onValueChange(field: Field, value: DocValue) {
       if (!this.hasDoc) {
@@ -216,14 +248,17 @@ export default defineComponent({
       if (!this.areAllValuesFilled) {
         return await showDialog({
           title: this.t`Mandatory Error`,
-          detail: this.t`Please fill all values.`,
+          detail: this.t`Please fill all values and provide matching company file passwords.`,
           type: 'error',
         });
       }
 
       this.loading = true;
       this.fyo.telemetry.log(Verb.Completed, ModelNameEnum.SetupWizard);
-      this.$emit('setup-complete', this.doc.getValidDict());
+      this.$emit('setup-complete', {
+        ...this.doc.getValidDict(),
+        password: this.password,
+      });
     },
     cancel() {
       this.fyo.telemetry.log(Verb.Cancelled, ModelNameEnum.SetupWizard);
