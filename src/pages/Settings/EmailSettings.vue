@@ -39,6 +39,7 @@ import Button from 'src/components/Button.vue';
 import Check from 'src/components/Controls/Check.vue';
 import Data from 'src/components/Controls/Data.vue';
 import Password from 'src/components/Controls/Password.vue';
+import type { Field } from 'schemas/types';
 
 export default defineComponent({
   name: 'EmailSettings',
@@ -56,7 +57,7 @@ export default defineComponent({
     this.settings = await ipc.getEmailSettings();
   },
   methods: {
-    field(fieldname: string, label: string) {
+    field(fieldname: string, label: string): Field {
       return { fieldname, label, fieldtype: 'Data' };
     },
     inputValue(event: Event): string {
