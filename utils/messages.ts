@@ -20,9 +20,7 @@ export enum IPC_ACTIONS {
   GET_SAVE_FILEPATH = 'save-dialog',
   GET_DIALOG_RESPONSE = 'show-message-box',
   GET_ENV = 'get-env',
-  SAVE_HTML_AS_PDF = 'save-html-as-pdf',
-  PRINT_HTML_DOCUMENT = 'print-html-document',
-  SAVE_DATA = 'save-data',
+  SAVE_HTML_AS_PDF = 'save-data',
   SHOW_ERROR = 'show-error',
   SEND_ERROR = 'send-error',
   GET_LANGUAGE_MAP = 'get-language-map',
@@ -40,7 +38,6 @@ export enum IPC_ACTIONS {
   CREATE_PDF_FROM_HTML = 'create-pdf-from-html',
   GET_EMAIL_SETTINGS = 'get-email-settings',
   SET_EMAIL_SETTINGS = 'set-email-settings',
-  // Database messages
   DB_CREATE = 'db-create',
   DB_CONNECT = 'db-connect',
   DB_CALL = 'db-call',
