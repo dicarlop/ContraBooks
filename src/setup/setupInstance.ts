@@ -33,11 +33,11 @@ export default async function setupInstance(
   setupWizardOptions: SetupWizardOptions,
   fyo: Fyo
 ) {
-  const { companyName, country, bankName, chartOfAccounts } =
+  const { companyName, country, bankName, chartOfAccounts, password } =
     setupWizardOptions;
 
   fyo.store.skipTelemetryLogging = true;
-  await initializeDatabase(dbPath, country, fyo);
+  await initializeDatabase(dbPath, country, fyo, password);
   await updateSystemSettings(setupWizardOptions, fyo);
   await updateAccountingSettings(setupWizardOptions, fyo);
   await updatePrintSettings(setupWizardOptions, fyo);
@@ -75,9 +75,14 @@ async function createDefaultEntries(fyo: Fyo) {
   }
 }
 
-async function initializeDatabase(dbPath: string, country: string, fyo: Fyo) {
+async function initializeDatabase(
+  dbPath: string,
+  country: string,
+  fyo: Fyo,
+  password?: string
+) {
   const countryCode = getCountryCodeFromCountry(country);
-  await initializeInstance(dbPath, true, countryCode, fyo);
+  await initializeInstance(dbPath, true, countryCode, fyo, password);
 }
 
 async function updateAccountingSettings(
@@ -285,7 +290,7 @@ async function checkIfExactRecordAbsent(
   const matchList = Object.keys(newDocObject).map((key) => {
     const newValue = newDocObject[key];
     const storedValue = storedDocObject[key];
-    return newValue == storedValue; // Should not be type sensitive.
+    return newValue == storedValue;
   });
 
   if (!matchList.every(Boolean)) {
@@ -303,7 +308,6 @@ async function getBankAccountParentName(country: string, fyo: Fyo) {
   });
 
   if (parentBankAccount.length === 0) {
-    // This should not happen if the fixtures are correct.
     return 'Bank Accounts';
   } else if (parentBankAccount.length > 1) {
     switch (country) {
