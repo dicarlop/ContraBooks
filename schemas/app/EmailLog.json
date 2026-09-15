@@ -1,6 +1,6 @@
 {
   "name": "EmailLog",
-  "label": "Email Log",
+  "label": "Email History",
   "naming": "random",
   "isSingle": false,
   "isChild": false,
