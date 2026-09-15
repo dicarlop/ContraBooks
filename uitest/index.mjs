@@ -145,7 +145,7 @@ async function removeUserDataDir(userDataDir) {
 
         const country = window.getByPlaceholder('Select Country');
         await country.fill('India');
-        const indiaOption = window.getByText('India', { exact: true }).last();
+        const indiaOption = window.locator('a:visible').filter({ hasText: /^India$/ }).last();
         await indiaOption.waitFor({ state: 'visible' });
         await indiaOption.click();
 
