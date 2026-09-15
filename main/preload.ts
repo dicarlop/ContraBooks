@@ -235,6 +235,28 @@ const ipc = {
     await ipcRenderer.invoke(IPC_ACTIONS.SEND_DOCUMENT_EMAIL, config, message);
   },
 
+  async getEmailSettings() {
+    return (await ipcRenderer.invoke(IPC_ACTIONS.GET_EMAIL_SETTINGS)) as {
+      host: string;
+      port: number;
+      secure: boolean;
+      username: string;
+      password: string;
+      from: string;
+    };
+  },
+
+  async setEmailSettings(settings: {
+    host: string;
+    port: number;
+    secure: boolean;
+    username: string;
+    password: string;
+    from: string;
+  }) {
+    await ipcRenderer.invoke(IPC_ACTIONS.SET_EMAIL_SETTINGS, settings);
+  },
+
   registerMainProcessErrorListener(listener: IPCRendererListener) {
     ipcRenderer.on(IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR, listener);
   },
