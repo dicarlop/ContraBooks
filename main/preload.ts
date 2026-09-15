@@ -210,6 +210,31 @@ const ipc = {
     >;
   },
 
+  async sendDocumentEmail(
+    config: {
+      host: string;
+      port: number;
+      secure: boolean;
+      username: string;
+      password: string;
+      from: string;
+    },
+    message: {
+      to: string[];
+      cc?: string[];
+      bcc?: string[];
+      subject: string;
+      text: string;
+      attachments?: {
+        filename: string;
+        content: Uint8Array;
+        contentType?: string;
+      }[];
+    }
+  ) {
+    await ipcRenderer.invoke(IPC_ACTIONS.SEND_DOCUMENT_EMAIL, config, message);
+  },
+
   registerMainProcessErrorListener(listener: IPCRendererListener) {
     ipcRenderer.on(IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR, listener);
   },
