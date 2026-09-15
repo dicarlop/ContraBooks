@@ -207,6 +207,13 @@ export default defineComponent({
           },
         },
         {
+          label: this.t`Email History`,
+          group: this.t`View`,
+          action: async () => {
+            await routeTo('/list/EmailLog');
+          },
+        },
+        {
           label: this.t`New Template`,
           group: this.t`Create`,
           action: async () => {
@@ -340,7 +347,7 @@ export default defineComponent({
         getPDF: () => Promise<Uint8Array | null>;
       };
 
-      if (!printContainer?.getPDF || !this.emailContext) {
+      if (!printContainer?.getPDF) {
         return;
       }
 
@@ -353,8 +360,8 @@ export default defineComponent({
 
         await ipc.sendDocumentEmail({
           ...message,
-          documentType: this.emailContext.documentType,
-          documentNumber: this.emailContext.documentNumber,
+          documentType: this.emailContext?.documentType,
+          documentNumber: this.emailContext?.documentNumber,
           attachments: [
             {
               filename: `${this.doc?.name ?? this.name}.pdf`,
