@@ -16,6 +16,14 @@
         @change="onTemplateNameChange"
       />
       <DropdownWithActions :actions="actions" :title="t`More`" />
+      <Button
+        v-if="emailContext"
+        class="text-xs"
+        type="primary"
+        @click="emailOpen = true"
+      >
+        {{ t`Email` }}
+      </Button>
       <Button class="text-xs" type="primary" @click="savePDF()">
         {{ t`Save as PDF` }}
       </Button>
@@ -24,9 +32,7 @@
       </Button>
     </PageHeader>
 
-    <!-- Template Display Area -->
     <div class="overflow-auto custom-scroll custom-scroll-thumb1 p-4">
-      <!-- Display Hints -->
       <div
         v-if="helperMessage"
         class="text-sm text-gray-700 dark:text-gray-300"
@@ -34,7 +40,6 @@
         {{ helperMessage }}
       </div>
 
-      <!-- Template Container -->
       <PrintContainer
         v-if="printProps"
         ref="printContainer"
@@ -46,6 +51,16 @@
         :height="templateDoc?.height"
       />
     </div>
+
+    <EmailDocumentModal
+      v-if="emailContext"
+      :open="emailOpen"
+      :context="emailContext"
+      :initial-to="emailInitialTo"
+      :sending="emailSending"
+      @close="emailOpen = false"
+      @send="sendEmail"
+    />
   </div>
 </template>
 <script lang="ts">
@@ -56,10 +71,13 @@ import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
 import AutoComplete from 'src/components/Controls/AutoComplete.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
+import EmailDocumentModal from 'src/components/EmailDocumentModal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { getPrintTemplatePropValues } from 'src/utils/printTemplates';
+import { showToast } from 'src/utils/interactive';
+import type { DocumentEmailContext } from 'src/utils/email';
 import { showSidebar } from 'src/utils/refs';
 import { PrintValues } from 'src/utils/types';
 import { getFormRoute, openSettings, routeTo } from 'src/utils/ui';
@@ -74,6 +92,7 @@ export default defineComponent({
     AutoComplete,
     PrintContainer,
     DropdownWithActions,
+    EmailDocumentModal,
   },
   props: {
     schemaName: { type: String, required: true },
@@ -87,6 +106,8 @@ export default defineComponent({
       templateDoc: null,
       templateName: null,
       templateList: [],
+      emailOpen: false,
+      emailSending: false,
     } as {
       doc: null | Doc;
       scale: number;
@@ -94,6 +115,8 @@ export default defineComponent({
       templateDoc: null | PrintTemplate;
       templateName: null | string;
       templateList: string[];
+      emailOpen: boolean;
+      emailSending: boolean;
     };
   },
   computed: {
@@ -123,6 +146,56 @@ export default defineComponent({
       }
 
       return { values, template };
+    },
+    emailContext(): DocumentEmailContext | null {
+      if (!this.doc || !this.values) {
+        return null;
+      }
+
+      const documentTypeMap: Record<string, DocumentEmailContext['documentType']> = {
+        SalesInvoice: 'Invoice',
+        PurchaseInvoice: 'Invoice',
+        Quote: 'Quote',
+        Payment: 'Receipt',
+        Receipt: 'Receipt',
+        Statement: 'Statement',
+        CreditNote: 'Credit Note',
+      };
+
+      const party = this.values.doc.links?.party as
+        | Record<string, unknown>
+        | undefined;
+      const customerName =
+        this.values.doc.customerName ?? party?.name ?? this.doc.party;
+
+      return {
+        documentType: documentTypeMap[this.schemaName] ?? 'Invoice',
+        documentNumber: this.doc.name ?? this.name,
+        customerName: typeof customerName === 'string' ? customerName : undefined,
+        companyName:
+          typeof this.values.print.companyName === 'string'
+            ? this.values.print.companyName
+            : undefined,
+        amountDue:
+          typeof this.values.doc.outstandingAmount === 'string'
+            ? this.values.doc.outstandingAmount
+            : undefined,
+        dueDate:
+          typeof this.values.doc.dueDate === 'string'
+            ? this.values.doc.dueDate
+            : undefined,
+      };
+    },
+    emailInitialTo(): string {
+      if (!this.values) {
+        return '';
+      }
+
+      const party = this.values.doc.links?.party as
+        | Record<string, unknown>
+        | undefined;
+      const email = party?.email ?? this.values.doc.email ?? this.doc?.email;
+      return typeof email === 'string' ? email : '';
     },
     actions(): Action[] {
       const actions = [
@@ -224,6 +297,8 @@ export default defineComponent({
       this.templateList = [];
       this.templateDoc = null;
       this.scale = 1;
+      this.emailOpen = false;
+      this.emailSending = false;
     },
     async onTemplateNameChange(value: string | null): Promise<void> {
       if (!value) {
@@ -259,6 +334,40 @@ export default defineComponent({
       }
 
       await printContainer.savePDF(this.doc?.name, shouldPrint);
+    },
+    async sendEmail(message: Parameters<typeof ipc.sendDocumentEmail>[0]) {
+      const printContainer = this.$refs.printContainer as {
+        getPDF: () => Promise<Uint8Array | null>;
+      };
+
+      if (!printContainer?.getPDF) {
+        return;
+      }
+
+      this.emailSending = true;
+      try {
+        const pdf = await printContainer.getPDF();
+        if (!pdf) {
+          throw new Error(this.t`Unable to generate the PDF attachment`);
+        }
+
+        await ipc.sendDocumentEmail({
+          ...message,
+          attachments: [
+            {
+              filename: `${this.doc?.name ?? this.name}.pdf`,
+              content: pdf,
+              contentType: 'application/pdf',
+            },
+          ],
+        });
+        this.emailOpen = false;
+        showToast({ message: this.t`Email sent successfully`, type: 'success' });
+      } catch (error) {
+        await handleErrorWithDialog(error, this.doc ?? undefined);
+      } finally {
+        this.emailSending = false;
+      }
     },
     async setTemplateFromDefault() {
       const defaultName =
