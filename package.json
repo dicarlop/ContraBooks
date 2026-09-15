@@ -17,7 +17,7 @@
     "test": "scripts/test.sh",
     "uitest": "node uitest/index.mjs | tap-spec",
     "typecheck": "vue-tsc --noEmit --pretty false",
-    "lint": "eslint . --ext ts,vue",
+    "lint": "eslint .",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -74,7 +74,7 @@
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
     "tailwindcss-rtl": "^0.9.0",
     "tap-spec": "^5.0.0",
-    "tape": "^5.6.1",
+    "tape": "^5.6.0",
     "ts-node": "^10.7.0",
     "tsconfig-paths": "^3.14.1",
     "tslib": "^2.3.1",
