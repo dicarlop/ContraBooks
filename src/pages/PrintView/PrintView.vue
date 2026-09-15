@@ -340,7 +340,7 @@ export default defineComponent({
         getPDF: () => Promise<Uint8Array | null>;
       };
 
-      if (!printContainer?.getPDF) {
+      if (!printContainer?.getPDF || !this.emailContext) {
         return;
       }
 
@@ -353,6 +353,8 @@ export default defineComponent({
 
         await ipc.sendDocumentEmail({
           ...message,
+          documentType: this.emailContext.documentType,
+          documentNumber: this.emailContext.documentNumber,
           attachments: [
             {
               filename: `${this.doc?.name ?? this.name}.pdf`,
