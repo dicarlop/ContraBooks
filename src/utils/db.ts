@@ -1,7 +1,6 @@
 import { Fyo, t } from 'fyo';
 
-type DbErrorAction =
-  typeof dbErrorActionSymbols[keyof typeof dbErrorActionSymbols];
+type DbErrorAction = typeof dbErrorActionSymbols[keyof typeof dbErrorActionSymbols];
 
 type Conn = {
   countryCode: string;
@@ -22,15 +21,15 @@ const dbErrors = {
 export async function connectToDatabase(
   fyo: Fyo,
   dbPath: string,
-  countryCode?: string
+  countryCode?: string,
+  unlockKey?: string
 ): Promise<Conn> {
   try {
-    return { countryCode: await fyo.db.connectToDatabase(dbPath, countryCode) };
+    return {
+      countryCode: await fyo.db.connectToDatabase(dbPath, countryCode, unlockKey),
+    };
   } catch (error) {
-    if (!(error instanceof Error)) {
-      throw error;
-    }
-
+    if (!(error instanceof Error)) throw error;
     return {
       countryCode: '',
       error,
@@ -39,40 +38,20 @@ export async function connectToDatabase(
   }
 }
 
-export async function handleDatabaseConnectionError(
-  error: Error,
-  dbPath: string
-): Promise<DbErrorAction> {
+export async function handleDatabaseConnectionError(error: Error, dbPath: string): Promise<DbErrorAction> {
   const message = error.message;
-  if (typeof message !== 'string') {
-    throw error;
-  }
-
-  if (message.includes(dbErrors.DirectoryDoesNotExist)) {
-    return await handleDirectoryDoesNotExist(dbPath);
-  }
-
-  if (message.includes(dbErrors.UnableToAcquireConnection)) {
-    return await handleUnableToAcquireConnection(dbPath);
-  }
-
+  if (typeof message !== 'string') throw error;
+  if (message.includes(dbErrors.DirectoryDoesNotExist)) return await handleDirectoryDoesNotExist(dbPath);
+  if (message.includes(dbErrors.UnableToAcquireConnection)) return await handleUnableToAcquireConnection(dbPath);
   throw error;
 }
 
-async function handleUnableToAcquireConnection(
-  dbPath: string
-): Promise<DbErrorAction> {
-  return await showDbErrorDialog(
-    t`Could not connect to database file ${dbPath}, please select the file manually`
-  );
+async function handleUnableToAcquireConnection(dbPath: string): Promise<DbErrorAction> {
+  return await showDbErrorDialog(t`Could not connect to database file ${dbPath}, please select the file manually`);
 }
 
-async function handleDirectoryDoesNotExist(
-  dbPath: string
-): Promise<DbErrorAction> {
-  return await showDbErrorDialog(
-    t`Directory for database file ${dbPath} does not exist, please select the file manually`
-  );
+async function handleDirectoryDoesNotExist(dbPath: string): Promise<DbErrorAction> {
+  return await showDbErrorDialog(t`Directory for database file ${dbPath} does not exist, please select the file manually`);
 }
 
 async function showDbErrorDialog(detail: string): Promise<DbErrorAction> {
@@ -82,26 +61,10 @@ async function showDbErrorDialog(detail: string): Promise<DbErrorAction> {
     title: t`Cannot Open File`,
     detail,
     buttons: [
-      {
-        label: t`Select File`,
-        action() {
-          return dbErrorActionSymbols.SelectFile;
-        },
-        isPrimary: true,
-      },
-      {
-        label: t`Cancel`,
-        action() {
-          return dbErrorActionSymbols.CancelSelection;
-        },
-        isEscape: true,
-      },
+      { label: t`Select File`, action() { return dbErrorActionSymbols.SelectFile; }, isPrimary: true },
+      { label: t`Cancel`, action() { return dbErrorActionSymbols.CancelSelection; }, isEscape: true },
     ],
   });
-
-  if (typeof result === 'symbol') {
-    return result;
-  }
-
+  if (typeof result === 'symbol') return result;
   throw new Error('Unexpected database dialog action');
 }
