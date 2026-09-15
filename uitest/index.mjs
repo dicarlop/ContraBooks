@@ -56,14 +56,19 @@ test('Electron UI smoke test', async (t) => {
     await indiaCoaOption.waitFor({ state: 'visible' });
     await indiaCoaOption.click();
 
-    const fiscalYearStart = window.locator(
-      'input[type="date"]:visible[placeholder="Fiscal Year Start Date"]'
-    );
-    const fiscalYearEnd = window.locator(
-      'input[type="date"]:visible[placeholder="Fiscal Year End Date"]'
-    );
-    await fiscalYearStart.fill('2026-04-01');
-    await fiscalYearEnd.fill('2027-03-31');
+    const setDateValue = async (placeholder, value) => {
+      const input = window.locator(`input[type="date"][placeholder="${placeholder}"]`);
+      await input.evaluate((element, nextValue) => {
+        const inputElement = element;
+        inputElement.value = nextValue;
+        inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+        inputElement.dispatchEvent(new Event('change', { bubbles: true }));
+        inputElement.dispatchEvent(new FocusEvent('blur', { bubbles: true }));
+      }, value);
+    };
+
+    await setDateValue('Fiscal Year Start Date', '2026-04-01');
+    await setDateValue('Fiscal Year End Date', '2027-03-31');
 
     const bank = window.getByPlaceholder('Prime Bank');
     await bank.fill('Test Bank');
