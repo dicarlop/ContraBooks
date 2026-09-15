@@ -1,7 +1,9 @@
-import { randomBytes, scrypt as scryptCallback, createCipheriv, createDecipheriv } from 'crypto';
-import { promisify } from 'util';
-
-const scrypt = promisify(scryptCallback);
+import {
+  createCipheriv,
+  createDecipheriv,
+  randomBytes,
+  scrypt as scryptCallback,
+} from 'crypto';
 
 const VERSION = 1;
 const ALGORITHM = 'aes-256-gcm';
@@ -12,6 +14,7 @@ const TAG_LENGTH = 16;
 const SCRYPT_N = 16384;
 const SCRYPT_R = 8;
 const SCRYPT_P = 1;
+const SCRYPT_MAXMEM = 32 * 1024 * 1024;
 
 const MAGIC = Buffer.from('CBENC', 'ascii');
 
@@ -23,13 +26,27 @@ export interface EncryptedCompanyFile {
   ciphertext: Buffer;
 }
 
-async function deriveKey(password: string, salt: Buffer): Promise<Buffer> {
-  return (await scrypt(password, salt, KEY_LENGTH, {
-    N: SCRYPT_N,
-    r: SCRYPT_R,
-    p: SCRYPT_P,
-    maxmem: 32 * 1024 * 1024,
-  })) as Buffer;
+function deriveKey(password: string, salt: Buffer): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    scryptCallback(
+      password,
+      salt,
+      KEY_LENGTH,
+      {
+        N: SCRYPT_N,
+        r: SCRYPT_R,
+        p: SCRYPT_P,
+        maxmem: SCRYPT_MAXMEM,
+      },
+      (error, key) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(key);
+      }
+    );
+  });
 }
 
 export async function encryptCompanyFile(
@@ -66,8 +83,12 @@ export async function decryptCompanyFile(
   }
 
   const data = Buffer.from(encrypted);
-  const headerLength = MAGIC.length + 1 + SALT_LENGTH + IV_LENGTH + TAG_LENGTH;
-  if (data.length < headerLength || !data.subarray(0, MAGIC.length).equals(MAGIC)) {
+  const headerLength =
+    MAGIC.length + 1 + SALT_LENGTH + IV_LENGTH + TAG_LENGTH;
+  if (
+    data.length < headerLength ||
+    !data.subarray(0, MAGIC.length).equals(MAGIC)
+  ) {
     throw new Error('Invalid encrypted company file');
   }
 
@@ -91,6 +112,8 @@ export async function decryptCompanyFile(
     decipher.setAuthTag(tag);
     return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
   } catch {
-    throw new Error('Unable to decrypt company file: incorrect password or corrupted file');
+    throw new Error(
+      'Unable to decrypt company file: incorrect password or corrupted file'
+    );
   }
 }
