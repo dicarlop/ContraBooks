@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
 import { IPC_ACTIONS } from '../utils/messages';
 import { sendSmtpMessage } from './email';
 import { getEmailSettings, getSmtpConfig, setEmailSettings } from './emailSettings';
@@ -14,7 +14,7 @@ export default function registerIpcMainEmailListener() {
   ipcMain.handle(
     IPC_ACTIONS.CREATE_PDF_FROM_HTML,
     async (_, html: string, width: number, height: number) =>
-      renderHtmlAsPdf(html, require('electron').app, width, height)
+      renderHtmlAsPdf(html, app, width, height)
   );
 
   ipcMain.handle(IPC_ACTIONS.GET_EMAIL_SETTINGS, () => getEmailSettings());
