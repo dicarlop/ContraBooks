@@ -1,0 +1,90 @@
+{
+  "name": "EmailLog",
+  "label": "Email Log",
+  "naming": "random",
+  "isSingle": false,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "documentType",
+      "label": "Document Type",
+      "fieldtype": "Select",
+      "options": [
+        { "value": "Invoice", "label": "Invoice" },
+        { "value": "Quote", "label": "Quote" },
+        { "value": "Receipt", "label": "Receipt" },
+        { "value": "Payment Reminder", "label": "Payment Reminder" },
+        { "value": "Statement", "label": "Statement" },
+        { "value": "Credit Note", "label": "Credit Note" }
+      ],
+      "required": true,
+      "section": "Document"
+    },
+    {
+      "fieldname": "documentName",
+      "label": "Document",
+      "fieldtype": "Data",
+      "required": true,
+      "section": "Document"
+    },
+    {
+      "fieldname": "to",
+      "label": "To",
+      "fieldtype": "Data",
+      "required": true,
+      "section": "Message"
+    },
+    {
+      "fieldname": "cc",
+      "label": "CC",
+      "fieldtype": "Data",
+      "section": "Message"
+    },
+    {
+      "fieldname": "bcc",
+      "label": "BCC",
+      "fieldtype": "Data",
+      "section": "Message"
+    },
+    {
+      "fieldname": "subject",
+      "label": "Subject",
+      "fieldtype": "Data",
+      "required": true,
+      "section": "Message"
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": [
+        { "value": "Sent", "label": "Sent" },
+        { "value": "Failed", "label": "Failed" }
+      ],
+      "required": true,
+      "section": "Result"
+    },
+    {
+      "fieldname": "error",
+      "label": "Error",
+      "fieldtype": "Small Text",
+      "section": "Result"
+    },
+    {
+      "fieldname": "sentAt",
+      "label": "Sent At",
+      "fieldtype": "Datetime",
+      "required": true,
+      "section": "Result"
+    }
+  ],
+  "quickEditFields": [
+    "documentType",
+    "documentName",
+    "to",
+    "subject",
+    "status",
+    "sentAt"
+  ],
+  "keywordFields": ["documentName", "to", "subject", "status"]
+}
