@@ -87,4 +87,16 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'off',
     },
   },
+  {
+    files: ['src/pages/Dashboard/Dashboard.vue'],
+    rules: {
+      'vue/no-unused-components': 'off',
+    },
+  },
+  {
+    files: ['src/pages/TemplateBuilder/PrintContainer.vue', 'src/shims-vue.d.ts'],
+    rules: {
+      '@typescript-eslint/no-empty-object-type': 'off',
+    },
+  },
 );
