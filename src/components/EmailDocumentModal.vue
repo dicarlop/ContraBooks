@@ -9,36 +9,23 @@
       <div class="grid grid-cols-1 gap-4">
         <label class="space-y-1">
           <span class="text-sm text-gray-600 dark:text-gray-300">{{ t`To` }}</span>
-          <input
-            v-model="toText"
-            class="form-input w-full"
-            type="text"
-            :placeholder="t`customer@example.com`"
-          />
+          <input v-model="toText" class="form-input w-full" type="text" :placeholder="t`customer@example.com`" />
         </label>
-
         <label class="space-y-1">
           <span class="text-sm text-gray-600 dark:text-gray-300">{{ t`CC` }}</span>
           <input v-model="ccText" class="form-input w-full" type="text" />
         </label>
-
         <label class="space-y-1">
           <span class="text-sm text-gray-600 dark:text-gray-300">{{ t`BCC` }}</span>
           <input v-model="bccText" class="form-input w-full" type="text" />
         </label>
-
         <label class="space-y-1">
           <span class="text-sm text-gray-600 dark:text-gray-300">{{ t`Subject` }}</span>
           <input v-model="subject" class="form-input w-full" type="text" />
         </label>
-
         <label class="space-y-1">
           <span class="text-sm text-gray-600 dark:text-gray-300">{{ t`Message` }}</span>
-          <textarea
-            v-model="text"
-            class="form-textarea w-full min-h-48"
-            rows="8"
-          ></textarea>
+          <textarea v-model="text" class="form-textarea w-full min-h-48" rows="8"></textarea>
         </label>
       </div>
 
@@ -58,17 +45,14 @@
 </template>
 
 <script lang="ts">
-import { createDocumentEmail, renderEmailTemplate } from 'src/utils/email';
+import { createDocumentEmail } from 'src/utils/email';
+import type { DocumentEmailContext, EmailAttachment } from 'src/utils/email';
+import { defineComponent, PropType } from 'vue';
 import Button from './Button.vue';
 import Modal from './Modal.vue';
-import { defineComponent, PropType } from 'vue';
-import type { DocumentEmailContext, EmailAttachment } from 'src/utils/email';
 
 const splitAddresses = (value: string): string[] =>
-  value
-    .split(/[;,]/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+  value.split(/[;,]/).map((item) => item.trim()).filter(Boolean);
 
 export default defineComponent({
   name: 'EmailDocumentModal',
@@ -82,18 +66,12 @@ export default defineComponent({
   },
   emits: ['close', 'send'],
   data() {
-    const template = renderEmailTemplate(
-      createDocumentEmail(this.context, []).to
-        ? { subject: '', text: '' }
-        : { subject: '', text: '' },
-      this.context
-    );
     return {
       toText: this.initialTo,
       ccText: '',
       bccText: '',
-      subject: template.subject,
-      text: template.text,
+      subject: '',
+      text: '',
     };
   },
   computed: {
