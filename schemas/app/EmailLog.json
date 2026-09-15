@@ -84,7 +84,8 @@
     "to",
     "subject",
     "status",
-    "sentAt"
+    "sentAt",
+    "error"
   ],
-  "keywordFields": ["documentName", "to", "subject", "status"]
+  "keywordFields": ["documentName", "to", "subject", "status", "error"]
 }
