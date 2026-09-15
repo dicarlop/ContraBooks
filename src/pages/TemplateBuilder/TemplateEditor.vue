@@ -2,7 +2,26 @@
   <div
     ref="container"
     class="bg-white dark:bg-gray-875 text-gray-900 dark:text-gray-100"
-  ></div>
+  >
+    <div
+      v-if="!disabled && quickInsertOptions.length"
+      class="sticky top-0 z-10 flex flex-wrap items-center gap-2 p-2 border-b dark:border-gray-800 bg-gray-50 dark:bg-gray-850"
+    >
+      <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">
+        {{ t`Quick Insert` }}
+      </span>
+      <button
+        v-for="option in quickInsertOptions"
+        :key="option.value"
+        type="button"
+        class="px-2 py-1 text-xs rounded border bg-white dark:bg-gray-900 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+        @mousedown.prevent
+        @click="insertPlaceholder(option.value)"
+      >
+        {{ option.label }}
+      </button>
+    </div>
+  </div>
 </template>
 <script lang="ts">
 import { autocompletion, CompletionContext } from '@codemirror/autocomplete';
@@ -18,6 +37,17 @@ import { tags } from '@lezer/highlight';
 import { basicSetup } from 'codemirror';
 import { uicolors } from 'src/utils/colors';
 import { defineComponent, markRaw } from 'vue';
+
+const quickInsertCandidates = [
+  { label: 'Document #', value: 'doc.name' },
+  { label: 'Date', value: 'doc.date' },
+  { label: 'Total', value: 'doc.grandTotal' },
+  { label: 'Company', value: 'print.companyName' },
+  { label: 'Email', value: 'print.email' },
+  { label: 'Phone', value: 'print.phone' },
+  { label: 'Address', value: 'print.address' },
+  { label: 'Entry Type', value: 'doc.entryLabel' },
+] as const;
 
 export default defineComponent({
   props: {
@@ -41,6 +71,11 @@ export default defineComponent({
       }
 
       throw new Error('ref container is not a div element');
+    },
+    quickInsertOptions() {
+      return quickInsertCandidates.filter(({ value }) =>
+        hasHintPath(this.hints, value)
+      );
     },
   },
   watch: {
@@ -102,6 +137,25 @@ export default defineComponent({
         this.$emit('blur', this.view?.state.doc.toString() ?? '');
       }
     },
+    insertPlaceholder(value: string) {
+      if (this.disabled || !this.view) {
+        return;
+      }
+
+      const placeholder = `{{ ${value} }}`;
+      const selection = this.view.state.selection.main;
+      this.view.dispatch({
+        changes: {
+          from: selection.from,
+          to: selection.to,
+          insert: placeholder,
+        },
+        selection: {
+          anchor: selection.from + placeholder.length,
+        },
+      });
+      this.view.focus();
+    },
     setDisabled(value: boolean) {
       const { readOnly, editable } = this.compartments;
       this.view?.dispatch({
@@ -113,6 +167,27 @@ export default defineComponent({
     },
   },
 });
+
+function hasHintPath(hints: object | undefined, path: string): boolean {
+  if (!hints) {
+    return false;
+  }
+
+  let current: unknown = hints;
+  for (const segment of path.split('.')) {
+    if (typeof current !== 'object' || current === null) {
+      return false;
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(current, segment)) {
+      return false;
+    }
+
+    current = (current as Record<string, unknown>)[segment];
+  }
+
+  return true;
+}
 
 function getCompletionsFromHints(hints: Record<string, unknown>) {
   const options = hintsToCompletionOptions(hints);
