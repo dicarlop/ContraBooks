@@ -31,6 +31,10 @@ export class DatabaseManager extends DatabaseDemuxBase {
     return this.db !== undefined && this.db.knex !== undefined;
   }
 
+  getSchemaMap() {
+    return this.db?.schemaMap ?? {};
+  }
+
   async createNewDatabase(
     dbPath: string,
     countryCode: string,
