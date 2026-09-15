@@ -53,17 +53,17 @@ export interface SidebarRoot {
   icon: string;
   iconSize?: string;
   iconHeight?: number;
-  hidden?: boolean;
+  hidden?: () => boolean;
   items?: SidebarItem[];
   filters?: QueryFilter;
 }
 
 export interface SidebarItem {
   label: string;
-  name: string;
+  value: string;
   route: string;
   schemaName?: string;
-  hidden?: boolean;
+  hidden?: () => boolean;
   filters?: QueryFilter;
 }
 
