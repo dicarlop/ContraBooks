@@ -53,7 +53,7 @@ export interface SidebarRoot {
   icon: string;
   iconSize?: string;
   iconHeight?: number;
-  hidden?: () => boolean;
+  hidden?: boolean;
   items?: SidebarItem[];
   filters?: QueryFilter;
 }
@@ -63,7 +63,7 @@ export interface SidebarItem {
   name: string;
   route: string;
   schemaName?: string;
-  hidden?: () => boolean;
+  hidden?: boolean;
   filters?: QueryFilter;
 }
 
@@ -106,10 +106,19 @@ export type UIGroupedFields = Map<string, Map<string, Field[]>>;
 export type ExportFormat = 'csv' | 'json';
 export type PeriodKey = 'This Year' | 'This Quarter' | 'This Month' | 'YTD';
 
-export type PrintValues = {
+export interface PrintDocumentValues extends Record<string, unknown> {
+  links?: Record<string, unknown>;
+  party?: string;
+  customerName?: string;
+  email?: string;
+  outstandingAmount?: string;
+  dueDate?: string;
+}
+
+export interface PrintValues {
   print: Record<string, unknown>;
-  doc: Record<string, unknown>;
-};
+  doc: PrintDocumentValues;
+}
 
 export interface DialogOptions {
   title: string;
