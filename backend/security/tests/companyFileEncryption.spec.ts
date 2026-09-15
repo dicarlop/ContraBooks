@@ -4,9 +4,26 @@ import {
   encryptCompanyFile,
 } from '../companyFileEncryption';
 
+async function expectFailure(
+  action: () => Promise<unknown>,
+  pattern: RegExp,
+  message: string,
+  t: test.Test
+): Promise<void> {
+  try {
+    await action();
+    t.fail(message);
+  } catch (error) {
+    t.match(error, pattern, message);
+  }
+}
+
 test('company file encryption: round trip', async (t) => {
   const plaintext = Buffer.from('ContraBooks confidential company data');
-  const encrypted = await encryptCompanyFile(plaintext, 'correct horse battery staple');
+  const encrypted = await encryptCompanyFile(
+    plaintext,
+    'correct horse battery staple'
+  );
   const decrypted = await decryptCompanyFile(
     encrypted,
     'correct horse battery staple'
@@ -23,28 +40,37 @@ test('company file encryption: wrong password fails', async (t) => {
     'right-password'
   );
 
-  await t.rejects(
-    decryptCompanyFile(encrypted, 'wrong-password'),
-    /incorrect password or corrupted file/
+  await expectFailure(
+    () => decryptCompanyFile(encrypted, 'wrong-password'),
+    /incorrect password or corrupted file/,
+    'wrong password should be rejected',
+    t
   );
   t.end();
 });
 
 test('company file encryption: tampering fails authentication', async (t) => {
-  const encrypted = await encryptCompanyFile(Buffer.from('private data'), 'password');
+  const encrypted = await encryptCompanyFile(
+    Buffer.from('private data'),
+    'password'
+  );
   encrypted[encrypted.length - 1] ^= 1;
 
-  await t.rejects(
-    decryptCompanyFile(encrypted, 'password'),
-    /incorrect password or corrupted file/
+  await expectFailure(
+    () => decryptCompanyFile(encrypted, 'password'),
+    /incorrect password or corrupted file/,
+    'tampered ciphertext should be rejected',
+    t
   );
   t.end();
 });
 
 test('company file encryption: missing password is rejected', async (t) => {
-  await t.rejects(
-    encryptCompanyFile(Buffer.from('private data'), ''),
-    /password is required/
+  await expectFailure(
+    () => encryptCompanyFile(Buffer.from('private data'), ''),
+    /password is required/,
+    'missing password should be rejected',
+    t
   );
   t.end();
 });
