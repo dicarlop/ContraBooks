@@ -224,6 +224,14 @@ const ipc = {
   },
 
   async sendDocumentEmail(message: {
+    documentType:
+      | 'Invoice'
+      | 'Quote'
+      | 'Receipt'
+      | 'Payment Reminder'
+      | 'Statement'
+      | 'Credit Note';
+    documentNumber: string;
     to: string[];
     cc?: string[];
     bcc?: string[];
