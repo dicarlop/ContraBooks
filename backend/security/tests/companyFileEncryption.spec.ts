@@ -30,7 +30,7 @@ test('company file encryption: wrong password fails', async (t) => {
     await decryptCompanyFile(encrypted, 'wrong-password');
     t.fail('wrong password should be rejected');
   } catch (error) {
-    t.match(error, /incorrect password or corrupted file/);
+    t.match(String(error), /incorrect password or corrupted file/);
   }
   t.end();
 });
@@ -46,7 +46,7 @@ test('company file encryption: tampering fails authentication', async (t) => {
     await decryptCompanyFile(encrypted, 'password');
     t.fail('tampered ciphertext should be rejected');
   } catch (error) {
-    t.match(error, /incorrect password or corrupted file/);
+    t.match(String(error), /incorrect password or corrupted file/);
   }
   t.end();
 });
@@ -56,7 +56,7 @@ test('company file encryption: missing password is rejected', async (t) => {
     await encryptCompanyFile(Buffer.from('private data'), '');
     t.fail('missing password should be rejected');
   } catch (error) {
-    t.match(error, /password is required/);
+    t.match(String(error), /password is required/);
   }
   t.end();
 });
