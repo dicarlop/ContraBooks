@@ -160,6 +160,7 @@ async function removeUserDataDir(userDataDir) {
           'new instance created, company name found in sidebar'
         );
 
+        t.equal(pageErrors.length, 0, 'renderer produced no page errors');
         t.pass('UI flow completed');
         t.end();
       })()
