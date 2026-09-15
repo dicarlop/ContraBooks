@@ -84,6 +84,7 @@ import IntegrationErrorLog from './app/IntegrationErrorLog.json';
 import ItemGroup from './app/ItemGroup.json';
 import { Schema, SchemaStub } from './types';
 import ItemEnquiry from './app/ItemEnquiry.json';
+import EmailLog from './app/EmailLog.json';
 
 export const coreSchemas: Schema[] = [
   PatchRun as Schema,
@@ -178,6 +179,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
 
   CustomForm as Schema,
   CustomField as Schema,
+  EmailLog as Schema,
 
   CashDenominations as Schema,
   ClosingAmounts as Schema,
