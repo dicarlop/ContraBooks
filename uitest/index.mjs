@@ -74,6 +74,11 @@ test('Electron UI smoke test', async (t) => {
     await bank.fill('Test Bank');
     await bank.blur();
 
+    await window.getByTestId('company-file-password').fill('test-password');
+    await window
+      .getByTestId('company-file-password-confirm')
+      .fill('test-password');
+
     await window.getByTestId('submit-button').waitFor({ state: 'visible' });
     await window.waitForFunction(
       () => !document.querySelector('[data-testid="submit-button"]')?.hasAttribute('disabled')
