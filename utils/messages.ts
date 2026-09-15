@@ -5,7 +5,7 @@ export enum IPC_MESSAGES {
   OPEN_EXTERNAL = 'open-external',
   SHOW_ITEM_IN_FOLDER = 'show-item-in-folder',
   RELOAD_MAIN_WINDOW = 'reload-main-window',
-  MINIMIZE_MAIN_WINDOW = 'minimize-main-window',
+  MINIMIZE_WINDOW = 'minimize-window',
   MAXIMIZE_MAIN_WINDOW = 'maximize-main-window',
   ISMAXIMIZED_MAIN_WINDOW = 'ismaximized-main-window',
   ISMAXIMIZED_RESULT = 'ismaximized-result',
@@ -36,6 +36,7 @@ export enum IPC_ACTIONS {
   DELETE_FILE = 'delete-file',
   GET_DB_DEFAULT_PATH = 'get-db-default-path',
   SEND_API_REQUEST = 'send-api-request',
+  SEND_DOCUMENT_EMAIL = 'send-document-email',
   // Database messages
   DB_CREATE = 'db-create',
   DB_CONNECT = 'db-connect',
