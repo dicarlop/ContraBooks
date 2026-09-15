@@ -37,6 +37,7 @@ export enum IPC_ACTIONS {
   GET_DB_DEFAULT_PATH = 'get-db-default-path',
   SEND_API_REQUEST = 'send-api-request',
   SEND_DOCUMENT_EMAIL = 'send-document-email',
+  CREATE_PDF_FROM_HTML = 'create-pdf-from-html',
   GET_EMAIL_SETTINGS = 'get-email-settings',
   SET_EMAIL_SETTINGS = 'set-email-settings',
   // Database messages
