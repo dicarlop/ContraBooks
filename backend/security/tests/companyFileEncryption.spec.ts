@@ -4,20 +4,6 @@ import {
   encryptCompanyFile,
 } from '../companyFileEncryption';
 
-async function expectFailure(
-  action: () => Promise<unknown>,
-  pattern: RegExp,
-  message: string,
-  t: test.Test
-): Promise<void> {
-  try {
-    await action();
-    t.fail(message);
-  } catch (error) {
-    t.match(error, pattern, message);
-  }
-}
-
 test('company file encryption: round trip', async (t) => {
   const plaintext = Buffer.from('ContraBooks confidential company data');
   const encrypted = await encryptCompanyFile(
@@ -40,12 +26,12 @@ test('company file encryption: wrong password fails', async (t) => {
     'right-password'
   );
 
-  await expectFailure(
-    () => decryptCompanyFile(encrypted, 'wrong-password'),
-    /incorrect password or corrupted file/,
-    'wrong password should be rejected',
-    t
-  );
+  try {
+    await decryptCompanyFile(encrypted, 'wrong-password');
+    t.fail('wrong password should be rejected');
+  } catch (error) {
+    t.match(error, /incorrect password or corrupted file/);
+  }
   t.end();
 });
 
@@ -56,21 +42,21 @@ test('company file encryption: tampering fails authentication', async (t) => {
   );
   encrypted[encrypted.length - 1] ^= 1;
 
-  await expectFailure(
-    () => decryptCompanyFile(encrypted, 'password'),
-    /incorrect password or corrupted file/,
-    'tampered ciphertext should be rejected',
-    t
-  );
+  try {
+    await decryptCompanyFile(encrypted, 'password');
+    t.fail('tampered ciphertext should be rejected');
+  } catch (error) {
+    t.match(error, /incorrect password or corrupted file/);
+  }
   t.end();
 });
 
 test('company file encryption: missing password is rejected', async (t) => {
-  await expectFailure(
-    () => encryptCompanyFile(Buffer.from('private data'), ''),
-    /password is required/,
-    'missing password should be rejected',
-    t
-  );
+  try {
+    await encryptCompanyFile(Buffer.from('private data'), '');
+    t.fail('missing password should be rejected');
+  } catch (error) {
+    t.match(error, /password is required/);
+  }
   t.end();
 });
