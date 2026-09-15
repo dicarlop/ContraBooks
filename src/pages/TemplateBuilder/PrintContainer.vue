@@ -114,7 +114,7 @@ export default defineComponent({
             return '';
           },
         },
-      } as {};
+      };
     },
   },
   watch: {
