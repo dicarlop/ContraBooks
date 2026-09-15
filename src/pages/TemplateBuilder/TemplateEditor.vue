@@ -4,7 +4,7 @@
     class="bg-white dark:bg-gray-875 text-gray-900 dark:text-gray-100"
   >
     <div
-      v-if="!disabled && quickInsertOptions.length"
+      v-if="!disabled && (quickInsertOptions.length || fieldOptions.length)"
       class="sticky top-0 z-10 flex flex-wrap items-center gap-2 p-2 border-b dark:border-gray-800 bg-gray-50 dark:bg-gray-850"
     >
       <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">
@@ -20,6 +20,23 @@
       >
         {{ option.label }}
       </button>
+      <select
+        v-if="fieldOptions.length"
+        v-model="selectedField"
+        class="px-2 py-1 text-xs rounded border bg-white dark:bg-gray-900 dark:border-gray-700"
+        aria-label="Insert Field"
+        @mousedown.stop
+        @change="insertSelectedField"
+      >
+        <option value="">{{ t`Insert Field...` }}</option>
+        <option
+          v-for="option in fieldOptions"
+          :key="option.value"
+          :value="option.value"
+        >
+          {{ option.label }}
+        </option>
+      </select>
     </div>
   </div>
 </template>
@@ -49,6 +66,11 @@ const quickInsertCandidates = [
   { label: 'Entry Type', value: 'doc.entryLabel' },
 ] as const;
 
+type FieldOption = {
+  label: string;
+  value: string;
+};
+
 export default defineComponent({
   props: {
     initialValue: { type: String, required: true },
@@ -57,10 +79,11 @@ export default defineComponent({
   },
   emits: ['input', 'blur'],
   data() {
-    return { state: null, view: null, compartments: {} } as {
+    return { state: null, view: null, compartments: {}, selectedField: '' } as {
       state: EditorState | null;
       view: EditorView | null;
       compartments: Record<string, Compartment>;
+      selectedField: string;
     };
   },
   computed: {
@@ -76,6 +99,9 @@ export default defineComponent({
       return quickInsertCandidates.filter(({ value }) =>
         hasHintPath(this.hints, value)
       );
+    },
+    fieldOptions(): FieldOption[] {
+      return flattenHintPaths(this.hints);
     },
   },
   watch: {
@@ -137,6 +163,15 @@ export default defineComponent({
         this.$emit('blur', this.view?.state.doc.toString() ?? '');
       }
     },
+    insertSelectedField() {
+      if (!this.selectedField) {
+        return;
+      }
+
+      const value = this.selectedField;
+      this.selectedField = '';
+      this.insertPlaceholder(value);
+    },
     insertPlaceholder(value: string) {
       if (this.disabled || !this.view) {
         return;
@@ -187,6 +222,34 @@ function hasHintPath(hints: object | undefined, path: string): boolean {
   }
 
   return true;
+}
+
+function flattenHintPaths(
+  hints: object | undefined,
+  prefix = ''
+): FieldOption[] {
+  if (!hints) {
+    return [];
+  }
+
+  const fields: FieldOption[] = [];
+  for (const [key, value] of Object.entries(hints)) {
+    const path = prefix ? `${prefix}.${key}` : key;
+
+    if (Array.isArray(value)) {
+      fields.push({ label: path, value: path });
+      continue;
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      fields.push(...flattenHintPaths(value, path));
+      continue;
+    }
+
+    fields.push({ label: path, value: path });
+  }
+
+  return fields.sort((a, b) => a.label.localeCompare(b.label));
 }
 
 function getCompletionsFromHints(hints: Record<string, unknown>) {
