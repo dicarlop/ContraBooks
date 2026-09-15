@@ -364,7 +364,7 @@ export default defineComponent({
         this.emailOpen = false;
         showToast({ message: this.t`Email sent successfully`, type: 'success' });
       } catch (error) {
-        await handleErrorWithDialog(error, this.doc ?? undefined);
+        await handleErrorWithDialog(error);
       } finally {
         this.emailSending = false;
       }
