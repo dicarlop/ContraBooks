@@ -38,7 +38,8 @@
 import { ModelNameEnum } from 'models/types';
 import { fyo } from 'src/initFyo';
 import { routeTo } from 'src/utils/ui';
-import { getTemplatePreset, templatePresetNames, TemplatePresetName } from 'src/utils/templatePresets';
+import { getTemplatePreset, templatePresetNames } from 'src/utils/templatePresets';
+import type { TemplatePresetName } from 'src/utils/templatePresets';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
