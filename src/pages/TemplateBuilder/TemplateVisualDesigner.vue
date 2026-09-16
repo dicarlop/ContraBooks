@@ -13,7 +13,7 @@
       <div class="toolbar-group move"><label>Position</label><div><button type="button" :disabled="!selectedId" title="Move up" @click="moveElement(-1)">↑</button><button type="button" :disabled="!selectedId" title="Move down" @click="moveElement(1)">↓</button><button type="button" :disabled="!selectedId" title="Move left" @click="nudge(-1)">←</button><button type="button" :disabled="!selectedId" title="Move right" @click="nudge(1)">→</button></div></div>
       <button type="button" class="logo-button" @click="$emit('insert-logo')">＋ Insert Logo</button>
     </div>
-    <div class="designer-help">Select any preview element, then change text, typography, color, fill, padding or position. Logo insertion opens the company-logo control. No HTML editing is required.</div>
+    <div class="designer-help">Select any preview element, then change text, typography, color, fill, padding or position. Logo insertion uses the company-logo control. No HTML editing is required.</div>
   </div>
 </template>
 <script lang="ts">
@@ -25,7 +25,7 @@ export default defineComponent({
   emits:['update:template','insert-logo','select'],
   data(){return{selectedId:this.selectedElementId,fontSize:'14px',fontWeight:'400',fontStyle:'normal',textColor:'#14202B',backgroundColor:'#FFFFFF',textAlign:'left',padding:'0',textValue:'',fontSizes:['10px','12px','14px','16px','18px','20px','24px','28px','32px']};},
   computed:{
-    elements():VisualElement[]{const doc=this.sourceDocument();let changed=false;return Array.from(doc.body.querySelectorAll('*')).filter(el=>el.tagName!=='SCRIPT'&&el.tagName!=='STYLE').map((node,index)=>{const el=node as HTMLElement;let id=el.getAttribute('data-cb-id');if(!id){id=`cb-${index}`;el.setAttribute('data-cb-id',id);changed=true;}const text=(el.textContent??'').trim().replace(/\s+/g,' ');return{id,label:`${el.tagName.toLowerCase()}${text?` — ${text.slice(0,42)}`:''}`,tag:el.tagName.toLowerCase(),text,style:el.style};});},
+    elements():VisualElement[]{const doc=this.sourceDocument();return Array.from(doc.body.querySelectorAll('*')).filter(el=>el.tagName!=='SCRIPT'&&el.tagName!=='STYLE').map((node,index)=>{const el=node as HTMLElement;const id=el.getAttribute('data-cb-id')??`cb-${index}`;const text=(el.textContent??'').trim().replace(/\s+/g,' ');return{id,label:`${el.tagName.toLowerCase()}${text?` — ${text.slice(0,42)}`:''}`,tag:el.tagName.toLowerCase(),text,style:el.style};});},
     canEditText():boolean{const el=this.findElement();return !!el&&!el.innerHTML.includes('{{');},
   },
   watch:{selectedElementId(value:string){this.selectedId=value;this.syncControls();},template(){this.syncControls();}},
