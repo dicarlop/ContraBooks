@@ -3,6 +3,7 @@ import CommonForm from 'src/pages/CommonForm/CommonForm.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
 import GetStarted from 'src/pages/GetStarted.vue';
 import ImportWizard from 'src/pages/ImportWizard.vue';
+import BackupWizard from 'src/pages/BackupWizard.vue';
 import ListView from 'src/pages/ListView/ListView.vue';
 import PrintView from 'src/pages/PrintView/PrintView.vue';
 import ReportPrintView from 'src/pages/PrintView/ReportPrintView.vue';
@@ -103,6 +104,11 @@ const routes: RouteRecordRaw[] = [
     component: ImportWizard,
   },
   {
+    path: '/backup-wizard',
+    name: 'Backup & Export',
+    component: BackupWizard,
+  },
+  {
     path: '/template-builder/:name',
     name: 'Template Builder',
     component: TemplateBuilder,
@@ -128,14 +134,8 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/pos',
     name: 'Point of Sale',
-    components: {
-      default: POS,
-      edit: QuickEditForm,
-    },
-    props: {
-      default: true,
-      edit: (route) => route.query,
-    },
+    component: POS,
+    props: true,
   },
 ];
 
