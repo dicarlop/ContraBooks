@@ -40,6 +40,8 @@ export enum ModelNameEnum {
   Payment = 'Payment',
   PaymentMethod = 'PaymentMethod',
   PaymentFor = 'PaymentFor',
+  BankStatementEntry = 'BankStatementEntry',
+  BankReconciliation = 'BankReconciliation',
   PriceList = 'PriceList',
   PriceListItem = 'PriceListItem',
   PricingRule = 'PricingRule',
