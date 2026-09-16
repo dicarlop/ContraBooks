@@ -57,9 +57,12 @@
     </div>
 
     <div class="sidebar-footer window-no-drag shrink-0 px-5 pb-5 pt-3">
-      <div class="flex items-center gap-2">
-        <img :src="logoUrl" alt="" class="h-auto w-[120px] opacity-90" draggable="false" />
-      </div>
+      <img
+        :src="logoUrl"
+        alt=""
+        class="h-auto w-[120px] opacity-90"
+        draggable="false"
+      />
       <div class="mt-2 text-[10px] font-medium text-[#8EAFC7]">ContraBooks Desktop Pro</div>
       <div class="mt-0.5 text-[10px] text-[#6F91AB]">v2026.9.1</div>
     </div>
@@ -76,11 +79,11 @@
 </template>
 
 <script lang="ts">
+import { t } from 'fyo';
 import logoUrl from 'src/assets/img/contrabooks-logo.svg';
 import { languageDirectionKey, shortcutsKey } from 'src/utils/injectionKeys';
 import { routeTo, toggleSidebar } from 'src/utils/ui';
 import { defineComponent, inject } from 'vue';
-import router from '../router';
 
 const COMPONENT_NAME = 'Sidebar';
 
@@ -115,7 +118,7 @@ export default defineComponent({
         { label: t`Apps`, icon: 'grid', route: '/settings' },
       ] as SidebarLink[],
       quickLinks: [
-        { label: t`Create Invoice`, icon: 'file-plus', route: '/edit/SalesInvoice/New Sales Invoice' },
+        { label: t`Create Invoice`, icon: 'file-plus', route: '/list/SalesInvoice' },
         { label: t`Receive Payment`, icon: 'credit-card', route: '/list/Payment' },
         { label: t`Make Deposit`, icon: 'download', route: '/list/Payment' },
         { label: t`Write Check`, icon: 'edit-3', route: '/list/Payment' },
