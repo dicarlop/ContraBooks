@@ -38,6 +38,9 @@ import { ERPNextSyncSettings } from 'models/baseModels/ERPNextSyncSettings/ERPNe
 import { ErrorLogEnum } from 'fyo/telemetry/types';
 
 enum Screen { Desk = 'Desk', DatabaseSelector = 'DatabaseSelector', SetupWizard = 'SetupWizard' }
+const THEME_CHANGE_EVENT = 'contrabooks:theme-change';
+
+type ThemeChangeEvent = CustomEvent<{ dark?: boolean }>;
 
 export default defineComponent({
   name: 'App',
@@ -60,12 +63,22 @@ export default defineComponent({
   computed: { language(): string { return systemLanguageRef.value; } },
   watch: { language(value: string) { this.languageDirection = getLanguageDirection(value); } },
   async mounted() {
+    window.addEventListener(THEME_CHANGE_EVENT, this.handleThemeChange as EventListener);
     await this.setInitialScreen();
-    const darkMode = !!fyo.singles.SystemSettings?.darkMode;
+    const storedTheme = localStorage.getItem('contrabooks-theme');
+    const darkMode = storedTheme === 'dark' || (storedTheme === null && !!fyo.singles.SystemSettings?.darkMode);
     setDarkMode(darkMode);
     this.darkMode = darkMode;
   },
+  beforeUnmount() {
+    window.removeEventListener(THEME_CHANGE_EVENT, this.handleThemeChange as EventListener);
+  },
   methods: {
+    handleThemeChange(event: ThemeChangeEvent) {
+      const dark = !!event.detail?.dark;
+      this.darkMode = dark;
+      setDarkMode(dark);
+    },
     async setInitialScreen(): Promise<void> {
       const lastSelectedFilePath = fyo.config.get('lastSelectedFilePath', null);
       if (typeof lastSelectedFilePath !== 'string' || !lastSelectedFilePath.length) { this.activeScreen = Screen.DatabaseSelector; return; }
@@ -132,7 +145,10 @@ export default defineComponent({
       if (hideGetStarted || onboardingComplete) route = localStorage.getItem('lastRoute') || '/'; await routeTo(route);
     },
     async showDbSelector(): Promise<void> {
-      localStorage.clear(); fyo.config.set('lastSelectedFilePath', null); fyo.telemetry.stop(); await fyo.purgeCache(); this.activeScreen = Screen.DatabaseSelector; this.dbPath = ''; this.searcher = null; this.companyName = '';
+      const theme = localStorage.getItem('contrabooks-theme');
+      localStorage.clear();
+      if (theme) localStorage.setItem('contrabooks-theme', theme);
+      fyo.config.set('lastSelectedFilePath', null); fyo.telemetry.stop(); await fyo.purgeCache(); this.activeScreen = Screen.DatabaseSelector; this.dbPath = ''; this.searcher = null; this.companyName = '';
     },
   },
 });
