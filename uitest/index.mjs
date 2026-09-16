@@ -79,17 +79,18 @@ test('Electron UI smoke test', async (t) => {
       .getByTestId('company-file-password-confirm')
       .fill('test-password');
 
-    await window.getByTestId('submit-button').waitFor({ state: 'visible' });
+    const submitButton = window.getByTestId('submit-button');
+    await submitButton.waitFor({ state: 'visible' });
     await window.waitForFunction(
-      () => !document.querySelector('[data-testid="submit-button"]')?.hasAttribute('disabled')
+      () => document.querySelector('[data-testid="submit-button"]')?.disabled === false
     );
     t.equal(
-      await window.getByTestId('submit-button').isDisabled(),
+      await submitButton.isDisabled(),
       false,
       'submit button enabled after form fill'
     );
 
-    await window.getByTestId('submit-button').click();
+    await submitButton.click();
     await window.waitForTimeout(1000);
     t.pass('setup wizard submitted');
   } finally {
