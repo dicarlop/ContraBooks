@@ -11,7 +11,8 @@ export interface BackupSnapshot {
 export async function createBackupSnapshot(): Promise<BackupSnapshot> {
   const records: Record<string, unknown[]> = {};
   const schemas = Object.values(fyo.schemaMap).filter(
-    (schema) => schema !== undefined && !schema.isChild && !schema.isSingle
+    (schema): schema is NonNullable<typeof schema> =>
+      schema !== undefined && !schema.isChild && !schema.isSingle
   );
 
   for (const schema of schemas) {
