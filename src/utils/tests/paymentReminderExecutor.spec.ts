@@ -38,7 +38,7 @@ test('payment reminder plan includes eligible invoices', (t) => {
   t.equal(plan[0].invoiceName, 'INV-001');
   t.equal(plan[0].recipient, 'billing@example.com');
   t.equal(plan[0].message.subject, 'Payment reminder: INV-001 from ContraBooks Demo');
-  t.match(plan[0].message.text, /Amount due: 125\\.00/);
+  t.match(plan[0].message.text, /Amount due: 125\.00/);
   t.end();
 });
 
