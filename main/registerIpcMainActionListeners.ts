@@ -35,10 +35,19 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
     try {
       await fs.access(filePath, constants.W_OK | constants.R_OK);
+      return true;
     } catch {
-      return false;
+      // Windows can preserve the read-only attribute on older company files.
+      // Clear that attribute when possible, then retry before reporting that
+      // the company is inaccessible.
+      try {
+        await fs.chmod(filePath, 0o666);
+        await fs.access(filePath, constants.W_OK | constants.R_OK);
+        return true;
+      } catch {
+        return false;
+      }
     }
-    return true;
   });
 
   ipcMain.handle(IPC_ACTIONS.GET_DB_DEFAULT_PATH, async (_, companyName: string) => {
