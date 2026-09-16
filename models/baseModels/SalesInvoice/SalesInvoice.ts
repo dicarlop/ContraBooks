@@ -8,6 +8,7 @@ import {
   getReturnLoyaltyPoints,
   getTransactionStatusColumn,
 } from '../../helpers';
+import { getViewPaymentsAction } from '../Invoice/getViewPaymentsAction';
 import { Invoice } from '../Invoice/Invoice';
 import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
 import { LoyaltyProgram } from '../LoyaltyProgram/LoyaltyProgram';
@@ -170,6 +171,9 @@ export class SalesInvoice extends Invoice {
   }
 
   static getActions(fyo: Fyo): Action[] {
-    return getInvoiceActions(fyo, ModelNameEnum.SalesInvoice);
+    return [
+      ...getInvoiceActions(fyo, ModelNameEnum.SalesInvoice),
+      getViewPaymentsAction(fyo),
+    ];
   }
 }
