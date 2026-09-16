@@ -85,9 +85,9 @@ import { basicSetup } from 'codemirror';
 import { Doc } from 'fyo/model/doc';
 import { ModelNameEnum } from 'models/types';
 import { Field } from 'schemas/types';
+import AttachImage from 'src/components/Controls/AttachImage.vue';
 import { uicolors } from 'src/utils/colors';
 import { defineComponent, markRaw } from 'vue';
-import AttachImage from 'src/components/Controls/AttachImage.vue';
 
 const quickInsertCandidates = [
   { label: 'Document #', value: 'doc.name' },
@@ -211,6 +211,9 @@ export default defineComponent({
       }
 
       await this.printSettings.set('logo', value);
+      if (typeof value === 'string' && value.length) {
+        await this.printSettings.set('displayLogo', true);
+      }
       await this.printSettings.sync();
       this.$emit('input', this.view?.state.doc.toString() ?? '');
     },
