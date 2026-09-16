@@ -11,6 +11,7 @@ import QuickEditForm from 'src/pages/QuickEditForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
 import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
+import TemplateGallery from 'src/pages/TemplateGallery.vue';
 import CustomizeForm from 'src/pages/CustomizeForm/CustomizeForm.vue';
 import POS from 'src/pages/POS/POS.vue';
 import type { HistoryState } from 'vue-router';
@@ -56,6 +57,7 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/import-wizard', name: 'Import Wizard', component: ImportWizard },
   { path: '/backup-wizard', name: 'Backup & Export', component: BackupWizard },
+  { path: '/template-builder', name: 'Template Gallery', component: TemplateGallery },
   { path: '/template-builder/:name', name: 'Template Builder', component: TemplateBuilder, props: true },
   { path: '/customize-form', name: 'Customize Form', component: CustomizeForm },
   {
