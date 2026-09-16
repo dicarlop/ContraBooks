@@ -4,7 +4,7 @@
     class="bg-white dark:bg-gray-875 text-gray-900 dark:text-gray-100"
   >
     <div
-      v-if="!disabled && (quickInsertOptions.length || fieldGroups.length)"
+      v-if="!disabled && (quickInsertOptions.length || fieldGroups.length || printSettings)"
       class="sticky top-0 z-10 flex flex-wrap items-center gap-2 p-2 border-b dark:border-gray-800 bg-gray-50 dark:bg-gray-850"
     >
       <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">
@@ -43,6 +43,30 @@
           </option>
         </optgroup>
       </select>
+      <div
+        v-if="printSettings"
+        class="ml-auto flex items-center gap-2 pl-2 border-l dark:border-gray-700"
+      >
+        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">
+          {{ t`Company Logo` }}
+        </span>
+        <AttachImage
+          :df="logoField"
+          :value="logoValue"
+          size="small"
+          class="flex-shrink-0"
+          @change="setLogo"
+        />
+        <button
+          type="button"
+          class="px-2 py-1 text-xs rounded border bg-white dark:bg-gray-900 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+          :disabled="!logoValue"
+          @mousedown.prevent
+          @click="insertLogo"
+        >
+          {{ t`Insert Logo` }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -58,8 +82,12 @@ import { Compartment, EditorState } from '@codemirror/state';
 import { EditorView, ViewUpdate } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
 import { basicSetup } from 'codemirror';
+import { Doc } from 'fyo/model/doc';
+import { ModelNameEnum } from 'models/types';
+import { Field } from 'schemas/types';
 import { uicolors } from 'src/utils/colors';
 import { defineComponent, markRaw } from 'vue';
+import AttachImage from 'src/components/Controls/AttachImage.vue';
 
 const quickInsertCandidates = [
   { label: 'Document #', value: 'doc.name' },
@@ -83,6 +111,7 @@ type FieldGroup = {
 };
 
 export default defineComponent({
+  components: { AttachImage },
   props: {
     initialValue: { type: String, required: true },
     disabled: { type: Boolean, default: false },
@@ -90,11 +119,18 @@ export default defineComponent({
   },
   emits: ['input', 'blur'],
   data() {
-    return { state: null, view: null, compartments: {}, selectedField: '' } as {
+    return {
+      state: null,
+      view: null,
+      compartments: {},
+      selectedField: '',
+      printSettings: null,
+    } as {
       state: EditorState | null;
       view: EditorView | null;
       compartments: Record<string, Compartment>;
       selectedField: string;
+      printSettings: Doc | null;
     };
   },
   computed: {
@@ -133,13 +169,25 @@ export default defineComponent({
           options: options.sort((a, b) => a.label.localeCompare(b.label)),
         }));
     },
+    logoField(): Field {
+      return {
+        fieldname: 'logo',
+        label: this.t`Company Logo`,
+        fieldtype: 'AttachImage',
+      } as Field;
+    },
+    logoValue(): string {
+      return (this.printSettings?.get('logo') as string | null) ?? '';
+    },
   },
   watch: {
     disabled(value: boolean) {
       this.setDisabled(value);
     },
   },
-  mounted() {
+  async mounted() {
+    await this.loadPrintSettings();
+
     if (!this.view) {
       this.init();
     }
@@ -150,6 +198,42 @@ export default defineComponent({
     }
   },
   methods: {
+    async loadPrintSettings() {
+      try {
+        this.printSettings = await this.fyo.doc.getDoc(ModelNameEnum.PrintSettings);
+      } catch {
+        this.printSettings = null;
+      }
+    },
+    async setLogo(value: unknown) {
+      if (!this.printSettings || (typeof value !== 'string' && value !== null)) {
+        return;
+      }
+
+      await this.printSettings.set('logo', value);
+      await this.printSettings.sync();
+      this.$emit('input', this.view?.state.doc.toString() ?? '');
+    },
+    insertLogo() {
+      if (this.disabled || !this.view || !this.logoValue) {
+        return;
+      }
+
+      const logo =
+        '<img v-if="print.logo" :src="print.logo" alt="Company Logo" style="max-height: 80px; max-width: 240px; object-fit: contain;" />';
+      const selection = this.view.state.selection.main;
+      this.view.dispatch({
+        changes: {
+          from: selection.from,
+          to: selection.to,
+          insert: logo,
+        },
+        selection: {
+          anchor: selection.from + logo.length,
+        },
+      });
+      this.view.focus();
+    },
     init() {
       const readOnly = new Compartment();
       const editable = new Compartment();
