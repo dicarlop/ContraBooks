@@ -282,6 +282,28 @@ function getListConfig(schemaName: string) {
     };
   }
 
+  if (
+    schemaName === ModelNameEnum.SalesInvoice ||
+    schemaName === ModelNameEnum.PurchaseInvoice
+  ) {
+    return {
+      columns: ['name', 'party', 'date', 'grandTotal', 'outstandingAmount'],
+    };
+  }
+
+  if (schemaName === ModelNameEnum.Payment) {
+    return {
+      columns: [
+        'name',
+        'date',
+        'party',
+        'paymentType',
+        'paymentMethod',
+        'amount',
+      ],
+    };
+  }
+
   const listConfig = fyo.models[schemaName]?.getListViewSettings?.(fyo);
   if (listConfig?.columns === undefined) {
     return {
