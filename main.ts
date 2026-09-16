@@ -20,156 +20,32 @@ import registerProcessListeners from './main/registerProcessListeners';
 export class Main {
   title = 'ContraBooks';
   icon: string;
-
   winURL = '';
   checkedForUpdate = false;
   mainWindow: BrowserWindow | null = null;
-
   WIDTH = 1200;
   HEIGHT = process.platform === 'win32' ? 826 : 800;
 
   constructor() {
     this.icon = this.isDevelopment
       ? path.resolve('./build/icon.png')
-      : this.isWindows
-        ? path.join(process.resourcesPath, 'icon.ico')
-        : path.join(__dirname, 'icons', '512x512.png');
-
-    if (this.isDevelopment) {
-      autoUpdater.logger = console;
-    }
-
-    // https://github.com/electron-userland/electron-builder/issues/4987
+      : path.join(process.resourcesPath, 'icon.png');
+    if (this.isDevelopment) autoUpdater.logger = console;
     app.commandLine.appendSwitch('disable-http2');
-    autoUpdater.requestHeaders = {
-      'Cache-Control':
-        'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-    };
-
+    autoUpdater.requestHeaders = {'Cache-Control':'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0'};
     this.registerListeners();
-    if (this.isMac && this.isDevelopment) {
-      app.dock?.setIcon(this.icon);
-    }
+    if (this.isMac && this.isDevelopment) app.dock?.setIcon(this.icon);
   }
-
-  get isDevelopment() {
-    return process.env.NODE_ENV === 'development';
-  }
-
-  get isTest() {
-    return !!process.env.IS_TEST;
-  }
-
-  get isMac() {
-    return process.platform === 'darwin';
-  }
-
-  get isLinux() {
-    return process.platform === 'linux';
-  }
-
-  get isWindows() {
-    return process.platform === 'win32';
-  }
-
-  registerListeners() {
-    registerIpcMainMessageListeners(this);
-    registerIpcMainActionListeners(this);
-    registerIpcMainEmailListener();
-    registerAutoUpdaterListeners(this);
-    registerAppLifecycleListeners(this);
-    registerProcessListeners(this);
-  }
-
-  getOptions(): BrowserWindowConstructorOptions {
-    const preload = path.join(__dirname, 'main', 'preload.js');
-    const options: BrowserWindowConstructorOptions = {
-      width: this.WIDTH,
-      height: this.HEIGHT,
-      minWidth: 960,
-      minHeight: 640,
-      title: this.title,
-      titleBarStyle: 'hidden',
-      trafficLightPosition: { x: 16, y: 16 },
-      webPreferences: {
-        contextIsolation: true,
-        nodeIntegration: false,
-        sandbox: false,
-        preload,
-      },
-      autoHideMenuBar: true,
-      frame: !this.isMac,
-      resizable: true,
-      icon: this.icon,
-    };
-
-    if (this.isLinux) {
-      Object.assign(options, {
-        icon: path.join(__dirname, 'icons', '512x512.png'),
-      });
-    }
-
-    return options;
-  }
-
-  async createWindow() {
-    const options = this.getOptions();
-    this.mainWindow = new BrowserWindow(options);
-    this.setMainWindowListeners();
-
-    if (this.isDevelopment) {
-      this.setViteServerURL();
-    } else {
-      this.setPackagedFileURL();
-    }
-
-    try {
-      await this.mainWindow.loadURL(this.winURL);
-    } catch (err) {
-      emitMainProcessError(err);
-      throw err;
-    }
-
-    if (this.isDevelopment && !this.isTest) {
-      this.mainWindow.webContents.openDevTools();
-    }
-  }
-
-  setViteServerURL() {
-    let port = 6969;
-    let host = '0.0.0.0';
-
-    if (process.env.VITE_PORT && process.env.VITE_HOST) {
-      port = Number(process.env.VITE_PORT);
-      host = process.env.VITE_HOST;
-    }
-
-    this.winURL = `http://${host}:${port}/`;
-  }
-
-  setPackagedFileURL() {
-    const indexPath = path.join(__dirname, 'src', 'index.html');
-    this.winURL = pathToFileURL(indexPath).toString();
-
-    if (this.isTest) {
-      try {
-        fs.accessSync(indexPath, fs.constants.R_OK);
-      } catch (err) {
-        emitMainProcessError(err);
-        throw err;
-      }
-    }
-  }
-
-  setMainWindowListeners() {
-    if (this.mainWindow === null) {
-      return;
-    }
-
-    this.mainWindow.on('closed', () => {
-      this.mainWindow = null;
-    });
-  }
+  get isDevelopment(){return process.env.NODE_ENV==='development';}
+  get isTest(){return !!process.env.IS_TEST;}
+  get isMac(){return process.platform==='darwin';}
+  get isLinux(){return process.platform==='linux';}
+  get isWindows(){return process.platform==='win32';}
+  registerListeners(){registerIpcMainMessageListeners(this);registerIpcMainActionListeners(this);registerIpcMainEmailListener();registerAutoUpdaterListeners(this);registerAppLifecycleListeners(this);registerProcessListeners(this);}
+  getOptions():BrowserWindowConstructorOptions{const preload=path.join(__dirname,'main','preload.js');const options:BrowserWindowConstructorOptions={width:this.WIDTH,height:this.HEIGHT,minWidth:960,minHeight:640,title:this.title,titleBarStyle:'hidden',trafficLightPosition:{x:16,y:16},webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:false,preload},autoHideMenuBar:true,frame:!this.isMac,resizable:true,icon:this.icon};if(this.isLinux)Object.assign(options,{icon:path.join(__dirname,'icons','512x512.png')});return options;}
+  async createWindow(){const options=this.getOptions();this.mainWindow=new BrowserWindow(options);this.setMainWindowListeners();if(this.isDevelopment)this.setViteServerURL();else this.setPackagedFileURL();try{await this.mainWindow.loadURL(this.winURL);}catch(err){emitMainProcessError(err);throw err;}if(this.isDevelopment&&!this.isTest)this.mainWindow.webContents.openDevTools();}
+  setViteServerURL(){let port=6969;let host='0.0.0.0';if(process.env.VITE_PORT&&process.env.VITE_HOST){port=Number(process.env.VITE_PORT);host=process.env.VITE_HOST;}this.winURL=`http://${host}:${port}/`;}
+  setPackagedFileURL(){const indexPath=path.join(__dirname,'src','index.html');this.winURL=pathToFileURL(indexPath).toString();if(this.isTest){try{fs.accessSync(indexPath,fs.constants.R_OK);}catch(err){emitMainProcessError(err);throw err;}}}
+  setMainWindowListeners(){if(this.mainWindow===null)return;this.mainWindow.on('closed',()=>{this.mainWindow=null;});}
 }
-
 export default new Main();
