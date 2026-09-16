@@ -1,0 +1,79 @@
+{
+  "name": "BankReconciliation",
+  "label": "Bank Reconciliation",
+  "naming": "autoincrement",
+  "isSingle": false,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "account",
+      "label": "Bank Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "required": true,
+      "section": "Statement"
+    },
+    {
+      "fieldname": "fromDate",
+      "label": "From Date",
+      "fieldtype": "Date",
+      "required": true,
+      "section": "Statement"
+    },
+    {
+      "fieldname": "toDate",
+      "label": "To Date",
+      "fieldtype": "Date",
+      "required": true,
+      "section": "Statement"
+    },
+    {
+      "fieldname": "openingBalance",
+      "label": "Opening Balance",
+      "fieldtype": "Currency",
+      "section": "Statement"
+    },
+    {
+      "fieldname": "statementEndingBalance",
+      "label": "Statement Ending Balance",
+      "fieldtype": "Currency",
+      "required": true,
+      "section": "Statement"
+    },
+    {
+      "fieldname": "reconciledAmount",
+      "label": "Reconciled Transactions",
+      "fieldtype": "Currency",
+      "computed": true,
+      "readOnly": true,
+      "section": "Reconciliation"
+    },
+    {
+      "fieldname": "calculatedEndingBalance",
+      "label": "Calculated Ending Balance",
+      "fieldtype": "Currency",
+      "computed": true,
+      "readOnly": true,
+      "section": "Reconciliation"
+    },
+    {
+      "fieldname": "difference",
+      "label": "Difference",
+      "fieldtype": "Currency",
+      "computed": true,
+      "readOnly": true,
+      "section": "Reconciliation"
+    }
+  ],
+  "quickEditFields": [
+    "account",
+    "fromDate",
+    "toDate",
+    "openingBalance",
+    "statementEndingBalance",
+    "reconciledAmount",
+    "calculatedEndingBalance",
+    "difference"
+  ],
+  "keywordFields": ["account"]
+}
