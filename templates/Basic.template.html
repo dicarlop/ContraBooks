@@ -2,29 +2,23 @@
   <!-- Invoice Header -->
   <header
     class="py-6 flex text-sm text-gray-900 border-b"
-    :class="print.templateHeaderStyle === 'compact' ? 'py-4' : ''"
+    :class="print.templateDensity === 'compact' ? 'py-4' : ''"
     :style="print.templateHeaderStyle === 'band' ? { backgroundColor: print.color, color: '#fff' } : print.templateHeaderStyle === 'boxed' ? { border: `2px solid ${print.color}`, borderRadius: '8px', padding: '20px' } : {}"
   >
-    <!-- Company Logo & Name -->
     <section class="w-1/3">
       <img v-if="print.displayLogo" class="h-12 max-w-32 object-contain" :src="print.logo" />
       <div class="text-xl text-gray-700 font-semibold" v-else>{{ print.companyName }}</div>
     </section>
-
-    <!-- Company Contacts -->
     <section class="w-1/3">
       <div>{{ print.email }}</div>
       <div class="mt-1">{{ print.phone }}</div>
     </section>
-
-    <!-- Company Address & GSTIN -->
     <section class="w-1/3">
       <div v-if="print.address">{{ print.links.address.addressDisplay }}</div>
       <div v-if="print.gstin">GSTIN: {{ print.gstin }}</div>
     </section>
   </header>
 
-  <!-- Sub Heading Section -->
   <section class="mt-8 flex justify-between">
     <section class="w-1/3">
       <h2 class="text-2xl font-semibold">{{ doc.name }}</h2>
@@ -33,7 +27,6 @@
         <p class="py-2 text-base">{{ doc?.time }}</p>
       </div>
     </section>
-
     <section class="w-1/3" v-if="doc.party">
       <h2 class="py-1 text-right text-lg font-semibold">{{ doc.party }}</h2>
       <p v-if="doc.links.party.address" class="mt-1 text-xs text-gray-600 text-right">{{ doc.links.party.links.address.addressDisplay }}</p>
@@ -41,7 +34,6 @@
     </section>
   </section>
 
-  <!-- Items Table -->
   <section class="mt-8 text-base">
     <section class="text-gray-600 w-full flex border-b">
       <div class="py-4 w-4/12">{{ t`Item` }}</div>
@@ -51,7 +43,6 @@
       <div class="py-4 text-right w-3/12">{{ t`Rate` }}</div>
       <div class="py-4 text-right w-3/12">{{ t`Amount` }}</div>
     </section>
-
     <section class="flex py-1 text-gray-900 w-full border-b" v-for="row in doc.items" :key="row.name">
       <div class="w-4/12 py-4">{{ row.item }}</div>
       <div class="w-4/12 py-4" v-if="doc.description">{{ row.description }}</div>
@@ -62,13 +53,11 @@
     </section>
   </section>
 
-  <!-- Invoice Footer -->
   <footer class="mt-8 flex justify-end text-base">
     <section class="w-1/2">
       <h3 class="text-sm tracking-widest text-gray-600 mt-2" v-if="doc.terms">{{ t`Notes` }}</h3>
       <p class="my-4 text-lg whitespace-pre-line">{{ doc.terms }}</p>
     </section>
-
     <section class="w-1/2">
       <div class="flex pl-2 justify-between py-3 border-b"><h3>{{ t`Subtotal` }}</h3><p>{{ doc.netTotal }}</p></div>
       <div class="flex pl-2 justify-between py-3 border-b" v-if="doc.totalDiscount && !doc.discountAfterTax"><h3>{{ t`Discount` }}</h3><p>{{ doc.totalDiscount }}</p></div>
