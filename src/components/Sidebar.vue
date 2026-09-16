@@ -102,8 +102,8 @@ export default defineComponent({
 
 <style scoped>
 .sidebar-shell { background: linear-gradient(180deg, #07345C 0%, #062B4A 100%); }
-.sidebar-brand { padding:20px 18px 16px; }
-.brand-logo { display:block; width:166px; height:auto; max-width:100%; opacity:.98; }
+.sidebar-brand { padding:16px 12px 14px; }
+.brand-logo { display:block; width:100%; max-width:206px; height:auto; opacity:.98; }
 .sidebar-item { display:flex; align-items:center; width:100%; height:40px; gap:12px; margin:2px 0; padding:0 12px; border:0; border-radius:9px; text-align:left; font-size:14px; font-weight:500; transition:background-color 140ms ease,color 140ms ease,box-shadow 140ms ease; }
 .nav-icon { width:18px !important; height:18px !important; min-width:18px; max-width:18px; flex:0 0 18px; stroke-width:2; }
 .sidebar-active { background:linear-gradient(90deg,#00AFC1 0%,#007FA9 100%); color:#fff; box-shadow:0 5px 14px rgba(0,0,0,.18); }
