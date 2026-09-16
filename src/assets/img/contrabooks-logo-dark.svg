@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 114" role="img" aria-labelledby="title desc">
+  <title id="title">ContraBooks</title>
+  <desc id="desc">ContraBooks — Smarter Accounting. Bigger Possibilities.</desc>
+  <defs>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0EA5E9"/><stop offset="0.52" stop-color="#06B6D4"/><stop offset="1" stop-color="#10B981"/></linearGradient>
+    <linearGradient id="blue" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#2563EB"/><stop offset="1" stop-color="#06B6D4"/></linearGradient>
+    <linearGradient id="green" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#06B6D4"/><stop offset="1" stop-color="#10B981"/></linearGradient>
+  </defs>
+  <g transform="translate(8 6)">
+    <path fill="url(#mark)" d="M103 19L83 42H61C48 42 38 51 38 63.5S48 85 61 85H84V108H61C36 108 16 88 16 63.5S36 19 61 19Z"/>
+    <path fill="url(#blue)" d="M54 63L71 53V108H54Z"/><path fill="url(#blue)" d="M77 50L94 40V108H77Z"/><path fill="url(#green)" d="M100 37L117 27V108H100Z"/>
+  </g>
+  <text x="133" y="61" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="43" font-weight="800" letter-spacing="-1.7"><tspan fill="#07345C">Contra</tspan><tspan fill="#18C6D3">Books</tspan></text>
+  <text x="135" y="94" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" letter-spacing="0.7" fill="#37698D">Smarter Accounting. Bigger Possibilities.</text>
+</svg>
