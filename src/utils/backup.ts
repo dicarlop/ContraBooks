@@ -15,6 +15,7 @@ export async function createBackupSnapshot(): Promise<BackupSnapshot> {
   );
 
   for (const schema of schemas) {
+    if (!schema) continue;
     const fields = (schema.fields ?? [])
       .filter((field) => field.fieldtype !== 'Table')
       .map((field) => field.fieldname);
