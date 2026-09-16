@@ -18,124 +18,57 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { historyState } from './utils/refs';
 
 const routes: RouteRecordRaw[] = [
-  {
-    path: '/',
-    component: Dashboard,
-  },
-  {
-    path: '/get-started',
-    component: GetStarted,
-  },
+  { path: '/', component: Dashboard },
+  { path: '/get-started', component: GetStarted },
   {
     path: `/edit/:schemaName/:name`,
     name: `CommonForm`,
-    components: {
-      default: CommonForm,
-      edit: QuickEditForm,
-    },
+    components: { default: CommonForm, edit: QuickEditForm },
     props: {
-      default: (route) => ({
-        schemaName: route.params.schemaName,
-        name: route.params.name,
-      }),
+      default: (route) => ({ schemaName: route.params.schemaName, name: route.params.name }),
       edit: (route) => route.query,
     },
   },
   {
     path: '/list/:schemaName/:pageTitle?',
     name: 'ListView',
-    components: {
-      default: ListView,
-      edit: QuickEditForm,
-    },
+    components: { default: ListView, edit: QuickEditForm },
     props: {
       default: (route) => {
         const { schemaName } = route.params;
         const pageTitle = route.params.pageTitle ?? '';
-
         const filters = {};
         const filterString = route.query.filters;
-        if (typeof filterString === 'string') {
-          Object.assign(filters, JSON.parse(filterString));
-        }
-
-        return {
-          schemaName,
-          filters,
-          pageTitle,
-        };
+        if (typeof filterString === 'string') Object.assign(filters, JSON.parse(filterString));
+        return { schemaName, filters, pageTitle };
       },
       edit: (route) => route.query,
     },
   },
-  {
-    path: '/print/:schemaName/:name',
-    name: 'PrintView',
-    component: PrintView,
-    props: true,
-  },
-  {
-    path: '/report-print/:reportName',
-    name: 'ReportPrintView',
-    component: ReportPrintView,
-    props: true,
-  },
-  {
-    path: '/report/:reportClassName',
-    name: 'Report',
-    component: Report,
-    props: true,
-  },
+  { path: '/print/:schemaName/:name', name: 'PrintView', component: PrintView, props: true },
+  { path: '/report-print/:reportName', name: 'ReportPrintView', component: ReportPrintView, props: true },
+  { path: '/report/:reportClassName', name: 'Report', component: Report, props: true },
   {
     path: '/chart-of-accounts',
     name: 'Chart Of Accounts',
-    components: {
-      default: ChartOfAccounts,
-      edit: QuickEditForm,
-    },
-    props: {
-      default: true,
-      edit: (route) => route.query,
-    },
+    components: { default: ChartOfAccounts, edit: QuickEditForm },
+    props: { default: true, edit: (route) => route.query },
   },
-  {
-    path: '/import-wizard',
-    name: 'Import Wizard',
-    component: ImportWizard,
-  },
-  {
-    path: '/backup-wizard',
-    name: 'Backup & Export',
-    component: BackupWizard,
-  },
-  {
-    path: '/template-builder/:name',
-    name: 'Template Builder',
-    component: TemplateBuilder,
-    props: true,
-  },
-  {
-    path: '/customize-form',
-    name: 'Customize Form',
-    component: CustomizeForm,
-  },
+  { path: '/import-wizard', name: 'Import Wizard', component: ImportWizard },
+  { path: '/backup-wizard', name: 'Backup & Export', component: BackupWizard },
+  { path: '/template-builder/:name', name: 'Template Builder', component: TemplateBuilder, props: true },
+  { path: '/customize-form', name: 'Customize Form', component: CustomizeForm },
   {
     path: '/settings',
     name: 'Settings',
-    components: {
-      default: Settings,
-      edit: QuickEditForm,
-    },
-    props: {
-      default: true,
-      edit: (route) => route.query,
-    },
+    components: { default: Settings, edit: QuickEditForm },
+    props: { default: true, edit: (route) => route.query },
   },
   {
     path: '/pos',
     name: 'Point of Sale',
     component: POS,
-    props: true,
+    props: { default: true, edit: (route) => route.query },
   },
 ];
 
@@ -146,10 +79,7 @@ router.afterEach(({ fullPath }) => {
   historyState.forward = !!state.forward;
   historyState.back = !!state.back;
 
-  if (fullPath.includes('index.html')) {
-    return;
-  }
-
+  if (fullPath.includes('index.html')) return;
   localStorage.setItem('lastRoute', fullPath);
 });
 
