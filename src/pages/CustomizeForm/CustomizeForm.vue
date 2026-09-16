@@ -48,9 +48,9 @@
               <div>
                 <label class="text-sm text-gray-700 dark:text-gray-300">{{ t`Font` }}</label>
                 <select v-model="customization.font" class="w-full mt-1 h-9 px-2 rounded border bg-transparent dark:border-gray-700">
-                  <option value="system">{{ t`System` }}</option>
-                  <option value="inter">Inter</option>
-                  <option value="serif">{{ t`Serif` }}</option>
+                  <option value="Arial">Arial</option>
+                  <option value="Times New Roman">Times New Roman</option>
+                  <option value="Courier">Courier</option>
                 </select>
               </div>
               <div>
@@ -90,10 +90,7 @@
               <span class="text-xs px-2 py-1 rounded-full border dark:border-gray-700">{{ t`Sample document` }}</span>
             </div>
 
-            <div
-              class="bg-white text-gray-900 shadow-sm rounded-lg overflow-hidden"
-              :class="[fontClass, customization.density === 'compact' ? 'text-sm' : 'text-base']"
-            >
+            <div class="bg-white text-gray-900 shadow-sm rounded-lg overflow-hidden" :class="[fontClass, customization.density === 'compact' ? 'text-sm' : 'text-base']">
               <div
                 class="p-6 border-b"
                 :class="customization.headerStyle === 'band' ? 'text-white border-transparent' : ''"
@@ -149,7 +146,7 @@ import { ModelNameEnum } from 'models/types';
 type TemplateCustomization = {
   accent: string;
   headerStyle: 'clean' | 'band' | 'boxed';
-  font: 'system' | 'inter' | 'serif';
+  font: 'Arial' | 'Times New Roman' | 'Courier';
   density: 'comfortable' | 'compact';
   showLogo: boolean;
   showAddress: boolean;
@@ -160,7 +157,7 @@ type TemplateCustomization = {
 const DEFAULT_CUSTOMIZATION: TemplateCustomization = {
   accent: '#16a085',
   headerStyle: 'clean',
-  font: 'system',
+  font: 'Arial',
   density: 'comfortable',
   showLogo: true,
   showAddress: true,
@@ -193,8 +190,8 @@ export default defineComponent({
       return schemaNames.map((sn) => ({ value: sn, label: this.fyo.schemaMap[sn]?.label ?? sn }));
     },
     fontClass() {
-      if (this.customization.font === 'serif') return 'font-serif';
-      if (this.customization.font === 'inter') return 'font-sans';
+      if (this.customization.font === 'Times New Roman') return 'font-serif';
+      if (this.customization.font === 'Courier') return 'font-mono';
       return 'font-sans';
     },
   },
@@ -219,15 +216,27 @@ export default defineComponent({
         this.customization = { ...DEFAULT_CUSTOMIZATION };
       }
     },
-    saveCustomizations(): void {
-      if (!this.formType || typeof window === 'undefined') return;
+    async saveCustomizations(): Promise<void> {
+      if (!this.formType) return;
       try {
-        window.localStorage.setItem(this.storageKey(), JSON.stringify(this.customization));
+        const printSettings = this.fyo.singles[ModelNameEnum.PrintSettings];
+        if (!printSettings) throw new Error('PrintSettings is unavailable');
+        await printSettings.set('color', this.customization.accent);
+        await printSettings.set('font', this.customization.font);
+        await printSettings.set('displayLogo', this.customization.showLogo);
+        await printSettings.set('displaytermsandconditions', this.customization.showPaymentTerms);
+        await printSettings.set('templateHeaderStyle', this.customization.headerStyle);
+        await printSettings.set('templateDensity', this.customization.density);
+        await printSettings.sync();
+
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(this.storageKey(), JSON.stringify(this.customization));
+        }
         this.errorMessage = '';
         this.saveMessage = this.t`Customizations saved`;
       } catch {
         this.saveMessage = '';
-        this.errorMessage = this.t`Unable to save customizations on this device`;
+        this.errorMessage = this.t`Unable to save customizations`;
       }
     },
     resetCustomizations(): void {
