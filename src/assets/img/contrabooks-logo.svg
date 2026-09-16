@@ -1,36 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 114" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 132" role="img" aria-labelledby="title desc">
   <title id="title">ContraBooks</title>
-  <desc id="desc">ContraBooks — Simple. Powerful. Yours.</desc>
+  <desc id="desc">ContraBooks — Smarter Accounting. Bigger Possibilities.</desc>
   <defs>
-    <linearGradient id="cBlueGreen" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0EA5E9"/>
-      <stop offset="0.52" stop-color="#06B6D4"/>
-      <stop offset="1" stop-color="#10B981"/>
-    </linearGradient>
-    <linearGradient id="barBlue" x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0" stop-color="#2563EB"/>
-      <stop offset="1" stop-color="#06B6D4"/>
-    </linearGradient>
-    <linearGradient id="barGreen" x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0" stop-color="#06B6D4"/>
-      <stop offset="1" stop-color="#10B981"/>
+    <linearGradient id="cbMark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00AFC1"/>
+      <stop offset="0.55" stop-color="#18C6D3"/>
+      <stop offset="1" stop-color="#1689D5"/>
     </linearGradient>
   </defs>
-
-  <!-- Canonical growth-mark geometry based on the supplied ContraBooks lockup. -->
-  <g transform="translate(8 6)">
-    <path fill="url(#cBlueGreen)" d="M103 19L83 42H61C48 42 38 51 38 63.5S48 85 61 85H84V108H61C36 108 16 88 16 63.5S36 19 61 19Z"/>
-    <!-- Deliberate clear gaps between the three bars, matching the supplied artwork. -->
-    <path fill="url(#barBlue)" d="M54 63L71 53V108H54Z"/>
-    <path fill="url(#barBlue)" d="M77 50L94 40V108H77Z"/>
-    <path fill="url(#barGreen)" d="M100 37L117 27V108H100Z"/>
-  </g>
-
-  <!-- Sidebar-safe treatment: white Contra, green Books. -->
-  <text x="133" y="61" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="43" font-weight="800" letter-spacing="-1.7">
-    <tspan fill="#FFFFFF">Contra</tspan><tspan fill="#10B981">Books</tspan>
+  <text x="4" y="91" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="92" font-weight="800" letter-spacing="-7" fill="url(#cbMark)">cb</text>
+  <text x="151" y="75" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="56" font-weight="800" letter-spacing="-2.4">
+    <tspan fill="#FFFFFF">contra</tspan><tspan fill="#18C6D3">books</tspan>
   </text>
-  <text x="135" y="94" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" letter-spacing="0.7" fill="#9DB3CC">
-    Simple. Powerful. Yours.
-  </text>
+  <text x="154" y="108" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" letter-spacing="0.5" fill="#A9C7DB">Smarter Accounting. Bigger Possibilities.</text>
 </svg>
