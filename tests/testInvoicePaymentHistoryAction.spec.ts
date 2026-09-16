@@ -2,7 +2,7 @@ import test from 'tape';
 import { Fyo } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { ModelNameEnum } from '../models/types';
-import { getInvoiceActions } from '../models/helpers';
+import { SalesInvoice } from '../models/baseModels/SalesInvoice/SalesInvoice';
 
 test('invoice payment history action: filters payments by invoice', async (t) => {
   const fyo = {
@@ -14,7 +14,7 @@ test('invoice payment history action: filters payments by invoice', async (t) =>
     },
   } as unknown as Fyo;
 
-  const action = getInvoiceActions(fyo, ModelNameEnum.SalesInvoice).find(
+  const action = SalesInvoice.getActions(fyo).find(
     ({ label }) => label === 'View Payments'
   );
   t.ok(action, 'View Payments action exists');
