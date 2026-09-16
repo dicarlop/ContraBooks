@@ -1,13 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
-    <linearGradient id="cb" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1769FF"/>
-      <stop offset="0.55" stop-color="#08BBD0"/>
-      <stop offset="1" stop-color="#12C98A"/>
+    <linearGradient id="cbMark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00AFC1"/>
+      <stop offset="0.55" stop-color="#18C6D3"/>
+      <stop offset="1" stop-color="#1689D5"/>
     </linearGradient>
   </defs>
-  <path fill="url(#cb)" d="M760 150H498C304 150 150 306 150 500s154 350 348 350h170V735H498c-130 0-235-105-235-235s105-235 235-235h190z"/>
-  <path fill="url(#cb)" d="M350 566l112-66v350H350z"/>
-  <path fill="url(#cb)" d="M470 475l116-68v443H470z"/>
-  <path fill="url(#cb)" d="M594 365l116-69v554H594z"/>
+  <rect width="1024" height="1024" rx="192" fill="#062B4A"/>
+  <text x="512" y="680" text-anchor="middle" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="650" font-weight="800" letter-spacing="-55" fill="url(#cbMark)">cb</text>
 </svg>
