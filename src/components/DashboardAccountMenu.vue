@@ -6,6 +6,12 @@
     </div>
 
     <div class="menu-section">
+      <div class="menu-section-title">Company</div>
+      <button type="button" @click="switchCompany"><feather-icon name="refresh-cw" />Switch Company Database</button>
+    </div>
+
+    <div class="menu-divider"></div>
+    <div class="menu-section">
       <div class="menu-section-title">Settings</div>
       <button type="button" @click="settings('AccountingSettings')"><feather-icon name="settings" />General Settings</button>
       <button type="button" @click="settings('PrintSettings')"><feather-icon name="printer" />Print &amp; Templates</button>
@@ -40,6 +46,9 @@ export default defineComponent({
   },
   methods: {
     routeTo,
+    async switchCompany() {
+      window.dispatchEvent(new CustomEvent('contrabooks:switch-company'));
+    },
     async settings(tab: string) {
       await routeTo(`/settings?tab=${encodeURIComponent(tab)}`);
     },
