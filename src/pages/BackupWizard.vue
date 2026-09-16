@@ -98,6 +98,7 @@ export default defineComponent({
       this.schemaCount = schemas.length;
       let count = 0;
       for (const schema of schemas) {
+        if (!schema) continue;
         count += await fyo.db.count(schema.name);
       }
       this.recordCount = count;
