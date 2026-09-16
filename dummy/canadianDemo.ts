@@ -57,7 +57,7 @@ export async function setupCanadianDemoInstance(
     ['Office Equipment', 780, 'Product'],
   ];
 
-  for (const [name, rate, itemType] of items) {
+  for (const [name, , itemType] of items) {
     const item = fyo.doc.getNewDoc(ModelNameEnum.Item, {
       name,
       for: 'Sales',
@@ -91,7 +91,8 @@ export async function setupCanadianDemoInstance(
 
     const item = salesItems[i % salesItems.length];
     await invoice.append('items', {});
-    await invoice.items!.at(-1)!.set({
+    const invoiceItem = invoice.items![invoice.items!.length - 1]!;
+    await invoiceItem.set({
       item: item.name,
       rate: fyo.pesa(item.rate),
       quantity: i % 2 === 0 ? 2 : 1,
@@ -123,7 +124,8 @@ export async function setupCanadianDemoInstance(
     await invoice.set('party', suppliers[i]);
     invoice.account = 'Creditors';
     await invoice.append('items', {});
-    await invoice.items!.at(-1)!.set({
+    const invoiceItem = invoice.items![invoice.items!.length - 1]!;
+    await invoiceItem.set({
       item: 'Office Equipment',
       rate: fyo.pesa(650 + i * 225),
       quantity: 1,
