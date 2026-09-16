@@ -58,30 +58,13 @@ import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
 import { PricingRuleItem } from '../PricingRuleItem/PricingRuleItem';
 import { getLinkedEntries } from 'src/utils/doc';
 
-export type TaxDetail = {
-  account: string;
-  payment_account?: string;
-  rate: number;
-};
-
-export type ReturnedItemData =
-  | number
-  | {
-      quantity?: number;
-      batches?: Record<string, number>;
-    };
-
-export type InvoiceTaxItem = {
-  details: TaxDetail;
-  exchangeRate?: number;
-  fullAmount: Money;
-  taxAmount: Money;
-};
+type TaxDetail = { account: string; payment_account?: string; rate: number };
+export type ReturnedItemData = number | { quantity?: number; batches?: Record<string, number> };
+export type InvoiceTaxItem = { details: TaxDetail; exchangeRate?: number; fullAmount: Money; taxAmount: Money };
 
 export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
   taxes?: TaxSummary[];
-
   items?: InvoiceItem[];
   coupons?: AppliedCouponCodes[];
   party?: string;
@@ -106,150 +89,48 @@ export abstract class Invoice extends Transactional {
   cancelled?: boolean;
   makeAutoPayment?: boolean;
   makeAutoStockTransfer?: boolean;
-
   isReturned?: boolean;
   returnAgainst?: string;
   isFullyReturned?: boolean;
-
   pricingRuleDetail?: PricingRuleDetail[];
 
-  get isSales() {
-    return (
-      this.schemaName === 'SalesInvoice' || this.schemaName == 'SalesQuote'
-    );
-  }
+  get isSales() { return this.schemaName === 'SalesInvoice' || this.schemaName == 'SalesQuote'; }
+  get isQuote() { return this.schemaName == 'SalesQuote'; }
+  get enableDiscounting() { return !!this.fyo.singles?.AccountingSettings?.enableDiscounting; }
+  get isMultiCurrency() { if (!this.currency) return false; return this.fyo.singles.SystemSettings!.currency !== this.currency; }
+  get companyCurrency() { return this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY; }
+  get stockTransferSchemaName() { return this.isSales ? ModelNameEnum.Shipment : ModelNameEnum.PurchaseReceipt; }
+  get hasLinkedTransfers() { if (!this.submitted) return false; return this.getStockTransferred() > 0; }
+  get hasLinkedPayments() { if (!this.submitted) return false; return !this.baseGrandTotal?.eq(this.outstandingAmount!); }
+  get autoPaymentAccount(): string | null { const fieldname = this.isSales ? 'salesPaymentAccount' : 'purchasePaymentAccount'; const value = this.fyo.singles.Defaults?.[fieldname]; return typeof value === 'string' && value.length ? value : null; }
+  get autoStockTransferLocation(): string | null { const fieldname = this.isSales ? 'shipmentLocation' : 'purchaseReceiptLocation'; const value = this.fyo.singles.Defaults?.[fieldname]; return typeof value === 'string' && value.length ? value : null; }
+  get isReturn(): boolean { return !!this.returnAgainst; }
 
-  get isQuote() {
-    return this.schemaName == 'SalesQuote';
-  }
+  constructor(schema: Schema, data: DocValueMap, fyo: Fyo) { super(schema, data, fyo); this._setGetCurrencies(); }
 
-  get enableDiscounting() {
-    return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
-  }
-
-  get isMultiCurrency() {
-    if (!this.currency) {
-      return false;
+  async validate() {
+    await super.validate();
+    if (this.isQuote) return;
+    if (!this.submitted && this.loyaltyProgram) {
+      const isExpiredOrMaxed = await isLoyaltyProgramExpiredAndMaxed(this.fyo, this.loyaltyProgram);
+      if (isExpiredOrMaxed) { const { showToast } = await import('src/utils/interactive'); showToast({ type: 'warning', message: t`Loyalty program has expired or reached maximum usage`, duration: 'short' }); }
     }
-
-    return this.fyo.singles.SystemSettings!.currency !== this.currency;
+    if (this.enableDiscounting && this.discountPercent && this.discountPercent > 100) throw new ValidationError(t`Discount percent cannot exceed 100`);
   }
 
-  get companyCurrency() {
-    return this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY;
-  }
-
-  get stockTransferSchemaName() {
-    return this.isSales
-      ? ModelNameEnum.Shipment
-      : ModelNameEnum.PurchaseReceipt;
-  }
-
-  get hasLinkedTransfers() {
-    if (!this.submitted) {
-      return false;
-    }
-
-    return this.getStockTransferred() > 0;
-  }
-
-  get hasLinkedPayments() {
-    if (!this.submitted) {
-      return false;
-    }
-
-    return !this.baseGrandTotal?.eq(this.outstandingAmount!);
-  }
-
-  get paymentStatus() {
-    if (!this.submitted || this.cancelled) {
-      return 'Draft';
-    }
-
+  getPaymentStatus(): 'Draft' | 'Unpaid' | 'Partially Paid' | 'Paid' {
+    if (!this.submitted || this.cancelled) return 'Draft';
     const outstanding = this.outstandingAmount ?? this.fyo.pesa(0);
     const total = this.baseGrandTotal ?? this.fyo.pesa(0);
-
-    if (outstanding.lte(0)) {
-      return 'Paid';
-    }
-
-    if (outstanding.lt(total)) {
-      return 'Partially Paid';
-    }
-
+    if (outstanding.lte(0)) return 'Paid';
+    if (outstanding.lt(total)) return 'Partially Paid';
     return 'Unpaid';
   }
 
-  get amountPaid() {
+  getAmountPaid(): Money {
     const total = this.baseGrandTotal ?? this.fyo.pesa(0);
     const outstanding = this.outstandingAmount ?? this.fyo.pesa(0);
     const paid = total.sub(outstanding);
     return paid.gt(0) ? paid : this.fyo.pesa(0);
   }
-
-  get autoPaymentAccount(): string | null {
-    const fieldname = this.isSales
-      ? 'salesPaymentAccount'
-      : 'purchasePaymentAccount';
-    const value = this.fyo.singles.Defaults?.[fieldname];
-    if (typeof value === 'string' && value.length) {
-      return value;
-    }
-
-    return null;
-  }
-
-  get autoStockTransferLocation(): string | null {
-    const fieldname = this.isSales
-      ? 'shipmentLocation'
-      : 'purchaseReceiptLocation';
-    const value = this.fyo.singles.Defaults?.[fieldname];
-    if (typeof value === 'string' && value.length) {
-      return value;
-    }
-
-    return null;
-  }
-
-  get isReturn(): boolean {
-    return !!this.returnAgainst;
-  }
-
-  constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
-    super(schema, data, fyo);
-    this._setGetCurrencies();
-  }
-
-  async validate() {
-    await super.validate();
-    if (this.isQuote) {
-      return;
-    }
-    if (!this.submitted && this.loyaltyProgram) {
-      const isExpiredOrMaxed = await isLoyaltyProgramExpiredAndMaxed(
-        this.fyo,
-        this.loyaltyProgram
-      );
-
-      if (isExpiredOrMaxed) {
-        const { showToast } = await import('src/utils/interactive');
-
-        showToast({
-          type: 'warning',
-          message: t`Loyalty program has expired or reached maximum usage`,
-          duration: 'short',
-        });
-      }
-    }
-
-    if (
-      this.enableDiscounting &&
-      this.discountPercent &&
-      this.discountPercent > 100
-    ) {
-      throw new ValidationError(t`Discount percent cannot exceed 100`);
-    }
-  }
-
-  // The remainder of this model is unchanged.
 }
