@@ -1,5 +1,6 @@
 import { Fyo } from 'fyo';
 import { DateTime } from 'luxon';
+import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { ModelNameEnum } from 'models/types';
 import setupInstance from 'src/setup/setupInstance';
 import { getFiscalYear } from 'utils/misc';
@@ -85,7 +86,7 @@ export async function setupCanadianDemoInstance(
       ModelNameEnum.SalesInvoice,
       { date: invoiceDates[i].toJSDate() },
       false
-    );
+    ) as Invoice;
     await invoice.set('party', customerNames[i % customerNames.length]);
     invoice.account = 'Debtors';
 
@@ -117,7 +118,7 @@ export async function setupCanadianDemoInstance(
       ModelNameEnum.PurchaseInvoice,
       { date: DateTime.now().minus({ days: 18 - i * 8 }).toJSDate() },
       false
-    );
+    ) as Invoice;
     await invoice.set('party', suppliers[i]);
     invoice.account = 'Creditors';
     await invoice.append('items', {});
