@@ -31,7 +31,9 @@ export class Main {
   constructor() {
     this.icon = this.isDevelopment
       ? path.resolve('./build/icon.png')
-      : path.join(__dirname, 'icons', '512x512.png');
+      : this.isWindows
+        ? path.join(process.resourcesPath, 'icon.ico')
+        : path.join(__dirname, 'icons', '512x512.png');
 
     if (this.isDevelopment) {
       autoUpdater.logger = console;
@@ -66,6 +68,10 @@ export class Main {
     return process.platform === 'linux';
   }
 
+  get isWindows() {
+    return process.platform === 'win32';
+  }
+
   registerListeners() {
     registerIpcMainMessageListeners(this);
     registerIpcMainActionListeners(this);
@@ -94,15 +100,12 @@ export class Main {
       autoHideMenuBar: true,
       frame: !this.isMac,
       resizable: true,
+      icon: this.icon,
     };
-
-    if (this.isDevelopment || this.isLinux) {
-      Object.assign(options, { icon: this.icon });
-    }
 
     if (this.isLinux) {
       Object.assign(options, {
-        icon: path.join(__dirname, '/icons/512x512.png'),
+        icon: path.join(__dirname, 'icons', '512x512.png'),
       });
     }
 
