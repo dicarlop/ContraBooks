@@ -1,113 +1,181 @@
 <template>
-  <div class="relative flex h-full min-h-0 flex-col overflow-hidden text-white" style="background-color: #0F2D5B" :class="{ 'window-drag': platform !== 'Windows' }">
-    <div class="flex min-h-0 flex-1 flex-col overflow-hidden" style="background-color: #0F2D5B">
-      <div class="window-no-drag shrink-0 px-5 pb-5 pt-5" :class="platform === 'Mac' && languageDirection === 'ltr' ? 'pt-10' : ''">
-        <img :src="logoUrl" alt="ContraBooks — Simple. Powerful. Yours." class="block h-auto w-[210px] max-w-full select-none" draggable="false" />
-        <div data-testid="company-name" class="mt-4 truncate text-xs font-medium uppercase tracking-[0.16em] text-slate-300">{{ companyName }}</div>
-        <button class="sidebar-search window-no-drag mt-4 flex h-10 w-full items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 text-left text-xs text-slate-200" type="button" aria-label="Open global search" @click="openSearch">
-          <feather-icon name="search" class="h-4 w-4 flex-shrink-0" />
-          <span class="flex-1 truncate">Search customers, vendors, transactions...</span>
-          <kbd>Ctrl K</kbd>
-        </button>
-        <SearchBar ref="searchBar" class="hidden" />
+  <aside
+    class="relative flex h-full min-h-0 w-full flex-col overflow-hidden text-white"
+    :class="{ 'window-drag': platform !== 'Windows' }"
+  >
+    <div class="sidebar-body flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div
+        class="window-no-drag shrink-0 px-5 pb-4 pt-5"
+        :class="platform === 'Mac' && languageDirection === 'ltr' ? 'pt-10' : ''"
+      >
+        <img
+          :src="logoUrl"
+          alt="ContraBooks — Smarter Accounting. Bigger Possibilities."
+          class="block h-auto w-[210px] max-w-full select-none"
+          draggable="false"
+        />
       </div>
 
-      <nav class="window-no-drag min-h-0 flex-1 overflow-y-auto px-3 pb-4 no-scrollbar" style="background-color: #0F2D5B">
-        <div v-for="group in groups" :key="group.name || group.label" class="mb-1.5">
-          <button class="sidebar-item flex h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium" :class="isGroupActive(group) && !group.items ? 'sidebar-active' : 'sidebar-inactive'" @click="routeToSidebarItem(group)">
-            <Icon class="flex-shrink-0" :name="group.icon" :size="group.iconSize || '18'" :height="group.iconHeight ?? 0" :active="!!isGroupActive(group)" :darkMode="true" />
-            <span class="flex-1 truncate">{{ group.label }}</span>
-            <feather-icon v-if="group.items" :name="isGroupActive(group) ? 'chevron-up' : 'chevron-down'" class="h-4 w-4 flex-shrink-0 opacity-70" />
-          </button>
-          <div v-if="group.items && isGroupActive(group)" class="mt-1 space-y-0.5 ps-3">
-            <button v-for="item in group.items" :key="item.name || item.label" class="sidebar-subitem flex h-8.5 w-full items-center rounded-lg px-3 text-left text-sm font-medium" :class="isItemActive(item) ? 'sidebar-active' : 'sidebar-subinactive'" @click="routeToSidebarItem(item)">
-              <span class="truncate">{{ item.label }}</span>
-            </button>
-            <template v-if="group.name === 'settings'">
-              <button class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-medium" @click="openDocumentation"><feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" /><span>{{ t`Help & Support` }}</span></button>
-              <button data-testid="change-db" class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-medium" @click="$emit('change-db-file')"><feather-icon name="database" class="h-4 w-4 flex-shrink-0" /><span>{{ t`Change Database` }}</span></button>
-              <button class="sidebar-subitem flex h-8.5 w-full items-center gap-2 rounded-lg px-3 text-left text-sm font-medium" @click="() => reportIssue()"><feather-icon name="flag" class="h-4 w-4 flex-shrink-0" /><span>{{ t`Report Issue` }}</span></button>
-            </template>
-          </div>
-        </div>
-        <button class="backup-link sidebar-item mt-3 flex h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium" :class="$route.path === '/backup-wizard' ? 'sidebar-active' : 'sidebar-inactive'" @click="routeTo('/backup-wizard')">
-          <feather-icon name="shield" class="h-[18px] w-[18px] flex-shrink-0" />
+      <nav class="window-no-drag min-h-0 flex-1 overflow-y-auto px-3 pb-4 no-scrollbar">
+        <button
+          v-for="item in navigation"
+          :key="item.label"
+          class="sidebar-item flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-medium"
+          :class="isActive(item.route) ? 'sidebar-active' : 'sidebar-inactive'"
+          type="button"
+          @click="routeTo(item.route)"
+        >
+          <feather-icon :name="item.icon" class="h-[18px] w-[18px] flex-shrink-0" />
+          <span class="truncate">{{ item.label }}</span>
+        </button>
+
+        <div class="sidebar-divider mx-2 my-4"></div>
+        <div class="px-3 pb-2 text-xs font-semibold text-[#9FC3DB]">{{ t`Quick Links` }}</div>
+
+        <button
+          v-for="item in quickLinks"
+          :key="item.label"
+          class="sidebar-item flex h-9.5 w-full items-center gap-3 rounded-lg px-3 text-left text-sm"
+          :class="isActive(item.route) ? 'sidebar-active' : 'sidebar-inactive'"
+          type="button"
+          @click="routeTo(item.route)"
+        >
+          <feather-icon :name="item.icon" class="h-4 w-4 flex-shrink-0" />
+          <span class="truncate">{{ item.label }}</span>
+        </button>
+
+        <button
+          class="sidebar-item mt-1 flex h-9.5 w-full items-center gap-3 rounded-lg px-3 text-left text-sm"
+          :class="$route.path === '/backup-wizard' ? 'sidebar-active' : 'sidebar-inactive'"
+          type="button"
+          @click="routeTo('/backup-wizard')"
+        >
+          <feather-icon name="shield" class="h-4 w-4 flex-shrink-0" />
           <span class="truncate">{{ t`Backup & Export` }}</span>
         </button>
       </nav>
     </div>
 
-    <div class="window-no-drag shrink-0 px-4 pb-4 pt-3" style="background-color: #0F2D5B">
-      <div class="flex items-center justify-center px-2 pt-1 text-[11px] font-medium" style="background-color: #0F2D5B">
-        <span class="text-white">ContraBooks</span><span class="mx-1 text-[#10B981]">·</span><span class="text-[#10B981]">v1.0.0</span>
+    <div class="sidebar-footer window-no-drag shrink-0 px-5 pb-5 pt-3">
+      <div class="flex items-center gap-2">
+        <img :src="logoUrl" alt="" class="h-auto w-[120px] opacity-90" draggable="false" />
       </div>
+      <div class="mt-2 text-[10px] font-medium text-[#8EAFC7]">ContraBooks Desktop Pro</div>
+      <div class="mt-0.5 text-[10px] text-[#6F91AB]">v2026.9.1</div>
     </div>
-    <button class="absolute bottom-3 end-3 rounded-md p-1 text-slate-400 hover:bg-white/10 hover:text-white" @click="() => toggleSidebar()"><feather-icon name="chevrons-left" class="h-4 w-4" /></button>
-  </div>
+
+    <button
+      class="absolute bottom-3 end-2 rounded-md p-1 text-slate-400 opacity-0 transition-opacity hover:bg-white/10 hover:text-white focus:opacity-100"
+      aria-label="Collapse sidebar"
+      type="button"
+      @click="() => toggleSidebar()"
+    >
+      <feather-icon name="chevrons-left" class="h-4 w-4" />
+    </button>
+  </aside>
 </template>
+
 <script lang="ts">
 import logoUrl from 'src/assets/img/contrabooks-logo.svg';
-import { reportIssue } from 'src/errorHandling';
-import { fyo } from 'src/initFyo';
 import { languageDirectionKey, shortcutsKey } from 'src/utils/injectionKeys';
-import { getSidebarConfig } from 'src/utils/sidebarConfig';
-import { SidebarConfig, SidebarItem, SidebarRoot } from 'src/utils/types';
 import { routeTo, toggleSidebar } from 'src/utils/ui';
 import { defineComponent, inject } from 'vue';
 import router from '../router';
-import Icon from './Icon.vue';
-import SearchBar from './SearchBar.vue';
 
 const COMPONENT_NAME = 'Sidebar';
 
+type SidebarLink = { label: string; icon: string; route: string };
+
 export default defineComponent({
-  components: { Icon, SearchBar },
+  name: 'Sidebar',
   props: { darkMode: { type: Boolean, default: false } },
   emits: ['change-db-file', 'toggle-darkmode'],
-  setup() { return { logoUrl, languageDirection: inject(languageDirectionKey), shortcuts: inject(shortcutsKey) }; },
-  data() { return { companyName: '', groups: [], activeGroup: null, showDevMode: false } as { companyName: string; groups: SidebarConfig; activeGroup: null | SidebarRoot; showDevMode: boolean; }; },
-  async mounted() {
-    const { companyName } = await fyo.doc.getDoc('AccountingSettings');
-    this.companyName = companyName as string;
-    this.groups = await getSidebarConfig();
-    this.setActiveGroup();
-    router.afterEach(() => this.setActiveGroup());
-    this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyH'], () => { if (document.body === document.activeElement) this.toggleSidebar(); });
-    this.shortcuts?.set(COMPONENT_NAME, ['F1'], () => this.openDocumentation());
-    this.showDevMode = this.fyo.store.isDevelopment;
+  setup() {
+    return {
+      logoUrl,
+      languageDirection: inject(languageDirectionKey),
+      shortcuts: inject(shortcutsKey),
+    };
   },
-  unmounted() { this.shortcuts?.delete(COMPONENT_NAME); },
+  data() {
+    return {
+      navigation: [
+        { label: t`Dashboard`, icon: 'home', route: '/' },
+        { label: t`Banking`, icon: 'home', route: '/list/Account' },
+        { label: t`Sales`, icon: 'shopping-cart', route: '/list/SalesInvoice' },
+        { label: t`Customers`, icon: 'users', route: '/list/Party/Customers' },
+        { label: t`Vendors`, icon: 'truck', route: '/list/Party/Suppliers' },
+        { label: t`Employees`, icon: 'user', route: '/list/Party/Employees' },
+        { label: t`Transactions`, icon: 'credit-card', route: '/list/Payment' },
+        { label: t`Reports`, icon: 'bar-chart-2', route: '/report/ProfitAndLoss' },
+        { label: t`Accounting`, icon: 'book-open', route: '/list/JournalEntry' },
+        { label: t`Projects`, icon: 'briefcase', route: '/settings' },
+        { label: t`Inventory`, icon: 'package', route: '/list/StockMovement' },
+        { label: t`Taxes`, icon: 'percent', route: '/list/Tax' },
+        { label: t`Apps`, icon: 'grid', route: '/settings' },
+      ] as SidebarLink[],
+      quickLinks: [
+        { label: t`Create Invoice`, icon: 'file-plus', route: '/edit/SalesInvoice/New Sales Invoice' },
+        { label: t`Receive Payment`, icon: 'credit-card', route: '/list/Payment' },
+        { label: t`Make Deposit`, icon: 'download', route: '/list/Payment' },
+        { label: t`Write Check`, icon: 'edit-3', route: '/list/Payment' },
+        { label: t`Reconcile`, icon: 'refresh-cw', route: '/list/BankReconciliation' },
+        { label: t`Journal Entry`, icon: 'book-open', route: '/list/JournalEntry' },
+      ] as SidebarLink[],
+    };
+  },
+  mounted() {
+    this.shortcuts?.shift.set(COMPONENT_NAME, ['KeyH'], () => {
+      if (document.body === document.activeElement) this.toggleSidebar();
+    });
+    this.shortcuts?.set(COMPONENT_NAME, ['F1'], () => this.openDocumentation());
+  },
+  unmounted() {
+    this.shortcuts?.delete(COMPONENT_NAME);
+  },
   methods: {
-    routeTo, reportIssue, toggleSidebar,
-    openSearch() { (this.$refs.searchBar as InstanceType<typeof SearchBar>)?.open(); },
-    openDocumentation() { ipc.openLink('https://github.com/dicarlop/ContraBooks'); },
-    setActiveGroup() {
-      const { fullPath } = this.$router.currentRoute.value;
-      const fallBackGroup = this.activeGroup;
-      this.activeGroup = this.groups.find((g) => { if (fullPath.startsWith(g.route) && g.route !== '/') return true; if (g.route === fullPath) return true; if (g.items) return g.items.some(({ route }) => route === fullPath || fullPath.startsWith(route)); return false; }) ?? fallBackGroup ?? this.groups[0];
+    routeTo,
+    toggleSidebar,
+    isActive(route: string) {
+      const current = this.$route.path;
+      if (route === '/') return current === '/';
+      return current === route || current.startsWith(`${route}/`);
     },
-    isItemActive(item: SidebarItem) {
-      const { path: currentRoute, params } = this.$route;
-      const routeMatch = currentRoute === item.route;
-      const schemaNameMatch = item.schemaName && params.schemaName === item.schemaName;
-      const isMatch = routeMatch || schemaNameMatch;
-      if (params.name && item.schemaName && !isMatch) return currentRoute.includes(`${item.schemaName}/${params.name}`);
-      return isMatch;
+    openDocumentation() {
+      ipc.openLink('https://github.com/dicarlop/ContraBooks');
     },
-    isGroupActive(group: SidebarRoot) { return this.activeGroup && group.name === this.activeGroup.name; },
-    routeToSidebarItem(item: SidebarItem | SidebarRoot) { routeTo(this.getPath(item)); },
-    getPath(item: SidebarItem | SidebarRoot) { const { route: path, filters } = item; if (!filters) return path; return { path, query: { filters: JSON.stringify(filters) } }; },
   },
 });
 </script>
+
 <style scoped>
-.sidebar-item,.sidebar-subitem{transition:background-color 140ms ease,color 140ms ease,box-shadow 140ms ease}
-.sidebar-active{background:#2563EB;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.22)}
-.sidebar-inactive{color:#D7E5F4}
-.sidebar-inactive:hover,.sidebar-subinactive:hover{background:rgba(255,255,255,.09);color:#fff}
-.sidebar-subinactive{color:#A9BFD5}
-.sidebar-search{border-color:rgba(255,255,255,.14);transition:background-color 140ms ease,border-color 140ms ease}
-.sidebar-search:hover{background:rgba(255,255,255,.15);border-color:rgba(24,198,211,.5)}
-.sidebar-search kbd{border:1px solid rgba(255,255,255,.16);border-radius:5px;padding:2px 5px;color:#9FB5CC;background:rgba(0,0,0,.12);font-size:9px;white-space:nowrap}
-.backup-link{border:1px solid rgba(255,255,255,.08)}
+.sidebar-body,
+.sidebar-footer {
+  background: linear-gradient(180deg, #07345C 0%, #062B4A 100%);
+}
+.sidebar-body {
+  background-color: #07345C;
+}
+.sidebar-item {
+  transition: background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+.sidebar-active {
+  background: linear-gradient(90deg, #00AFC1 0%, #007FA9 100%);
+  color: #FFFFFF;
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.18);
+}
+.sidebar-inactive {
+  color: #E1EEF7;
+}
+.sidebar-inactive:hover {
+  background: rgba(24, 198, 211, 0.12);
+  color: #FFFFFF;
+}
+.sidebar-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
 </style>
