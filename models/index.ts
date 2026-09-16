@@ -3,6 +3,8 @@ import { Account } from './baseModels/Account/Account';
 import { AccountingLedgerEntry } from './baseModels/AccountingLedgerEntry/AccountingLedgerEntry';
 import { AccountingSettings } from './baseModels/AccountingSettings/AccountingSettings';
 import { Address } from './baseModels/Address/Address';
+import { BankReconciliation } from './baseModels/BankReconciliation/BankReconciliation';
+import { BankStatementEntry } from './baseModels/BankStatementEntry/BankStatementEntry';
 import { Defaults } from './baseModels/Defaults/Defaults';
 import { Item } from './baseModels/Item/Item';
 import { JournalEntry } from './baseModels/JournalEntry/JournalEntry';
@@ -64,6 +66,8 @@ export const models = {
   AccountingLedgerEntry,
   AccountingSettings,
   Address,
+  BankReconciliation,
+  BankStatementEntry,
   Batch,
   Defaults,
   Item,
@@ -98,7 +102,6 @@ export const models = {
   PrintTemplate,
   Tax,
   TaxSummary,
-  // Inventory Models
   InventorySettings,
   StockMovement,
   StockMovementItem,
@@ -108,7 +111,6 @@ export const models = {
   ShipmentItem,
   PurchaseReceipt,
   PurchaseReceiptItem,
-  // POS Models
   ClosingAmounts,
   ClosingCash,
   OpeningAmounts,
@@ -117,11 +119,9 @@ export const models = {
   POSProfile,
   POSOpeningShift,
   POSClosingShift,
-  // ERPNext Sync
   ERPNextSyncSettings,
   ERPNextSyncQueue,
   FetchFromERPNextQueue,
-  // Error Log
   IntegrationErrorLog,
 } as ModelMap;
 
