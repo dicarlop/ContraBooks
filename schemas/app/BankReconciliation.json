@@ -49,6 +49,22 @@
       "section": "Reconciliation"
     },
     {
+      "fieldname": "reconciledCount",
+      "label": "Reconciled Entries",
+      "fieldtype": "Int",
+      "computed": true,
+      "readOnly": true,
+      "section": "Reconciliation"
+    },
+    {
+      "fieldname": "unreconciledCount",
+      "label": "Unreconciled Entries",
+      "fieldtype": "Int",
+      "computed": true,
+      "readOnly": true,
+      "section": "Reconciliation"
+    },
+    {
       "fieldname": "calculatedEndingBalance",
       "label": "Calculated Ending Balance",
       "fieldtype": "Currency",
@@ -72,6 +88,8 @@
     "openingBalance",
     "statementEndingBalance",
     "reconciledAmount",
+    "reconciledCount",
+    "unreconciledCount",
     "calculatedEndingBalance",
     "difference"
   ],
