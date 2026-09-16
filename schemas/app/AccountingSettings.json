@@ -164,6 +164,34 @@
       "section": "Features"
     },
     {
+      "fieldname": "enablePaymentReminders",
+      "label": "Enable Automated Payment Reminders",
+      "fieldtype": "Check",
+      "default": false,
+      "section": "Payment Reminders"
+    },
+    {
+      "fieldname": "paymentReminderDaysBeforeDue",
+      "label": "Days Before Due",
+      "fieldtype": "Int",
+      "default": 3,
+      "section": "Payment Reminders"
+    },
+    {
+      "fieldname": "paymentReminderDaysAfterDue",
+      "label": "Days After Due",
+      "fieldtype": "Int",
+      "default": 1,
+      "section": "Payment Reminders"
+    },
+    {
+      "fieldname": "paymentReminderRepeatEveryDays",
+      "label": "Repeat Every (Days)",
+      "fieldtype": "Int",
+      "default": 7,
+      "section": "Payment Reminders"
+    },
+    {
       "fieldname": "fiscalYearStart",
       "label": "Fiscal Year Start Date",
       "fieldtype": "Date",
