@@ -33,7 +33,7 @@ export class BankReconciliation extends Doc {
     const rows = (await this.fyo.db.getAllRaw(ModelNameEnum.BankStatementEntry, {
       fields: ['date', 'amount', 'reconciled'],
       filters: {
-        account: this.account,
+        account: this.account as string,
         reconciled: true,
       },
     })) as { date: string | Date; amount: number | Money; reconciled: boolean }[];
