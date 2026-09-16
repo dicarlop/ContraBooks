@@ -6,6 +6,12 @@ export default {
     output: 'dist_electron',
     buildResources: 'build',
   },
+  extraResources: [
+    {
+      from: 'build/icon.ico',
+      to: 'icon.ico',
+    },
+  ],
   win: {
     artifactName: '${productName}-v${version}-windows-${arch}.${ext}',
     icon: 'build/icon.svg',
