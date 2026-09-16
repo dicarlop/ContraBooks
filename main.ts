@@ -6,7 +6,7 @@ require('source-map-support').install({
 
 import { emitMainProcessError } from 'backend/helpers';
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
-import autoUpdater from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
@@ -17,7 +17,7 @@ import registerIpcMainEmailListener from './main/registerIpcMainEmailListener';
 import registerIpcMainMessageListeners from './main/registerIpcMainMessageListeners';
 import registerProcessListeners from './main/registerProcessListeners';
 
-const WINDOWS_CB_ICON = 'AAABAAEAEBAAAAAAIAAuAQAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH/P/YQAAAPVJREFUeJxjZNP2+s9AAWCi';
+const WINDOWS_CB_ICON = 'AAABAAEAEBAAAAAAIAAuAQAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH/P/YQAAAPVJREFUeJxjZNP2+s9AAWCiRPNIMIBZQpRBaHYnA3dM0AC5gBjAAmNwOFoysDtZMzCLCjEwMDMzfO6bw/Dv/QcGBgYGBnZ7cwZ2e3OG/7//MPy+eI3h6/xVDP9//UYYwKqvycAVFcDw69QFhk+tkxn+//jJwMAACQMGBgaGvy9eM3zqnM7AZqLLwB0dyPD38XOG79v2IbzAoijLwMDAwPDzxHm4ZmTw595Dhv9fvjL8vnwTYrCsJGoY/L3/BOJUcwMGRg52TH8qyjEw8nAxsOqoQVz0+DlcjhGWFzicrRnYnawYmIUFUcKAv7kErhhbGDAO/cwEAPBlU5/VnODyAAAAAElFTkSuQmCC';
 
 export class Main {
   title = 'ContraBooks';
