@@ -11,11 +11,10 @@ export interface BackupSnapshot {
 export async function createBackupSnapshot(): Promise<BackupSnapshot> {
   const records: Record<string, unknown[]> = {};
   const schemas = Object.values(fyo.schemaMap).filter(
-    (schema) => !schema.isChild && !schema.isSingle
+    (schema) => schema !== undefined && !schema.isChild && !schema.isSingle
   );
 
   for (const schema of schemas) {
-    if (!schema) continue;
     const fields = (schema.fields ?? [])
       .filter((field) => field.fieldtype !== 'Table')
       .map((field) => field.fieldname);
