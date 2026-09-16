@@ -6,6 +6,7 @@ test('bank reconciliation: totals reconciled statement entries in date range', a
   const fyo = {
     pesa: (value: number) => ({
       value,
+      float: value,
       add(other: { value: number }) {
         return fyo.pesa(value + other.value);
       },
@@ -38,6 +39,6 @@ test('bank reconciliation: totals reconciled statement entries in date range', a
   } as unknown as BankReconciliation;
 
   const result = await doc.getReconciledAmount();
-  t.equal(result.value, 75, 'only in-range reconciled transactions are included');
+  t.equal(result.float, 75, 'only in-range reconciled transactions are included');
   t.end();
 });
