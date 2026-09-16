@@ -24,7 +24,7 @@
           :title="t`Copy this template field path`"
           @click.stop="copyField(getKey(r))"
         >
-          {{ t`Copy` }}
+          {{ copiedField === getKey(r) ? t`Copied` : t`Copy` }}
         </button>
 
         <feather-icon
@@ -64,8 +64,9 @@ export default defineComponent({
     level: { type: Number, default: 0 },
   },
   data() {
-    return { rows: [] } as {
+    return { rows: [], copiedField: '' } as {
       rows: HintRow[];
+      copiedField: string;
     };
   },
   mounted() {
@@ -93,6 +94,12 @@ export default defineComponent({
     },
     async copyField(value: string) {
       await navigator.clipboard.writeText(`{{ ${value} }}`);
+      this.copiedField = value;
+      window.setTimeout(() => {
+        if (this.copiedField === value) {
+          this.copiedField = '';
+        }
+      }, 1200);
     },
   },
 });
