@@ -18,7 +18,26 @@ import { toggleSidebar } from 'src/utils/ui';
 <script lang="ts">
 import { defineComponent } from 'vue';
 import Sidebar from '../components/Sidebar.vue';
-export default defineComponent({ name: 'Desk', components: { Sidebar }, props: { darkMode: { type: Boolean, default: false } }, emits: ['change-db-file'] });
+
+const SWITCH_COMPANY_EVENT = 'contrabooks:switch-company';
+
+export default defineComponent({
+  name: 'Desk',
+  components: { Sidebar },
+  props: { darkMode: { type: Boolean, default: false } },
+  emits: ['change-db-file'],
+  mounted() {
+    window.addEventListener(SWITCH_COMPANY_EVENT, this.handleSwitchCompany);
+  },
+  beforeUnmount() {
+    window.removeEventListener(SWITCH_COMPANY_EVENT, this.handleSwitchCompany);
+  },
+  methods: {
+    handleSwitchCompany() {
+      this.$emit('change-db-file');
+    },
+  },
+});
 </script>
 <style scoped>
 .desk-sidebar { width:230px; }
