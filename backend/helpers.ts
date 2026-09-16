@@ -16,6 +16,7 @@ export const sqliteTypeMap: Record<string, KnexColumnType> = {
   Datetime: 'datetime',
   Time: 'time',
   Text: 'text',
+  'Small Text': 'text',
   Data: 'text',
   Secret: 'text',
   Link: 'text',
