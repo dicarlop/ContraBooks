@@ -11,15 +11,15 @@ export class BankReconciliation extends Doc {
     },
     calculatedEndingBalance: {
       formula: () =>
-        (this.fyo.pesa(this.openingBalance ?? 0) as Money).add(
-          this.reconciledAmount ?? 0
+        (this.fyo.pesa(this.openingBalance as number) as Money).add(
+          this.reconciledAmount as Money
         ),
       dependsOn: ['openingBalance', 'reconciledAmount'],
     },
     difference: {
       formula: () =>
-        (this.fyo.pesa(this.statementEndingBalance ?? 0) as Money).sub(
-          this.calculatedEndingBalance ?? 0
+        (this.fyo.pesa(this.statementEndingBalance as number) as Money).sub(
+          this.calculatedEndingBalance as Money
         ),
       dependsOn: ['statementEndingBalance', 'calculatedEndingBalance'],
     },
@@ -47,7 +47,9 @@ export class BankReconciliation extends Doc {
         const value = new Date(date);
         return value >= from && value <= to;
       })
-      .map(({ amount }) => this.fyo.pesa(amount as number))
+      .map(({ amount }) =>
+        typeof amount === 'number' ? this.fyo.pesa(amount) : amount
+      )
       .reduce((total, amount) => total.add(amount), this.fyo.pesa(0));
   }
 
