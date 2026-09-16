@@ -38,7 +38,7 @@ test('payment reminder plan includes eligible invoices', (t) => {
   t.equal(plan[0].invoiceName, 'INV-001');
   t.equal(plan[0].recipient, 'billing@example.com');
   t.equal(plan[0].message.subject, 'Payment reminder: INV-001 from ContraBooks Demo');
-  t.match(plan[0].message.text, /Amount due: 125\.00/);
+  t.match(plan[0].message.text, /Amount due: 125\\.00/);
   t.end();
 });
 
@@ -50,7 +50,7 @@ test('payment reminder plan respects repeat interval', (t) => {
   };
   const invoice = {
     name: 'INV-004',
-    dueDate: '2026-09-10',
+    dueDate: '2026-09-15',
     outstandingAmount: 50,
     customerEmail: 'billing@example.com',
   };
