@@ -9,6 +9,14 @@ export class BankReconciliation extends Doc {
       formula: async () => this.getReconciledAmount(),
       dependsOn: ['account', 'fromDate', 'toDate'],
     },
+    reconciledCount: {
+      formula: async () => this.getStatementEntryCount(true),
+      dependsOn: ['account', 'fromDate', 'toDate'],
+    },
+    unreconciledCount: {
+      formula: async () => this.getStatementEntryCount(false),
+      dependsOn: ['account', 'fromDate', 'toDate'],
+    },
     calculatedEndingBalance: {
       formula: () =>
         (this.fyo.pesa(this.openingBalance as number) as Money).add(
@@ -24,6 +32,29 @@ export class BankReconciliation extends Doc {
       dependsOn: ['statementEndingBalance', 'calculatedEndingBalance'],
     },
   };
+
+  private async getStatementEntryCount(reconciled: boolean): Promise<number> {
+    if (!this.account || !this.fromDate || !this.toDate) {
+      return 0;
+    }
+
+    const rows = (await this.fyo.db.getAllRaw(ModelNameEnum.BankStatementEntry, {
+      fields: ['date'],
+      filters: {
+        account: this.account as string,
+        reconciled,
+      },
+    })) as { date: string | Date }[];
+
+    const from = new Date(this.fromDate as string | Date);
+    const to = new Date(this.toDate as string | Date);
+    to.setHours(23, 59, 59, 999);
+
+    return rows.filter(({ date }) => {
+      const value = new Date(date);
+      return value >= from && value <= to;
+    }).length;
+  }
 
   async getReconciledAmount(): Promise<Money> {
     if (!this.account || !this.fromDate || !this.toDate) {
@@ -55,7 +86,15 @@ export class BankReconciliation extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      columns: ['name', 'account', 'fromDate', 'toDate', 'statementEndingBalance', 'difference'],
+      columns: [
+        'name',
+        'account',
+        'fromDate',
+        'toDate',
+        'statementEndingBalance',
+        'reconciledAmount',
+        'difference',
+      ],
     };
   }
 }
