@@ -93,7 +93,8 @@ export default defineComponent({
     async loadSummary() {
       this.companyName = String(fyo.singles.AccountingSettings?.companyName ?? '');
       const schemas = Object.values(fyo.schemaMap).filter(
-        (schema) => schema !== undefined && !schema.isChild && !schema.isSingle
+        (schema): schema is NonNullable<typeof schema> =>
+          schema !== undefined && !schema.isChild && !schema.isSingle
       );
       this.schemaCount = schemas.length;
       let count = 0;
