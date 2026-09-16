@@ -32,7 +32,7 @@ export async function setupCanadianDemoInstance(
   fyo.store.skipTelemetryLogging = true;
   notifier?.(fyo.t`Creating Canadian Customers and Items`, 0.2);
 
-  const customers = [
+  const customers: [string, string][] = [
     ['Northstar Design Studio', 'hello@northstardesign.ca'],
     ['Laurentian Office Supply', 'accounts@laurentianoffice.ca'],
     ['Harbourview Consulting', 'billing@harbourview.ca'],
@@ -49,7 +49,7 @@ export async function setupCanadianDemoInstance(
     await customer.sync();
   }
 
-  const items = [
+  const items: [string, number, string][] = [
     ['Business Consulting', 185, 'Service'],
     ['Implementation Services', 325, 'Service'],
     ['Monthly Support', 145, 'Service'],
@@ -69,7 +69,7 @@ export async function setupCanadianDemoInstance(
     await item.sync();
   }
 
-  const salesItems = items.map(([name, rate]) => ({ name: name as string, rate: rate as number }));
+  const salesItems = items.map(([name, rate]) => ({ name, rate }));
   const customerNames = customers.map(([name]) => name);
   const invoiceDates = [
     DateTime.now().minus({ days: 28 }),
@@ -103,10 +103,7 @@ export async function setupCanadianDemoInstance(
   }
 
   notifier?.(fyo.t`Creating Canadian Purchase Invoices`, 0.7);
-  const suppliers = [
-    'Maple Office Interiors',
-    'Northern IT Services',
-  ];
+  const suppliers = ['Maple Office Interiors', 'Northern IT Services'];
   for (let i = 0; i < suppliers.length; i++) {
     const supplier = fyo.doc.getNewDoc(ModelNameEnum.Party, {
       name: suppliers[i],
