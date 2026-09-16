@@ -33,7 +33,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-type VisualElement = { id: string; label: string; tag: string; text: string; style: CSSStyleDeclaration | null };
+type VisualElement = { id: string; label: string; tag: string; text: string; style: CSSStyleDeclaration };
 
 export default defineComponent({
   name: 'TemplateVisualDesigner',
@@ -44,10 +44,11 @@ export default defineComponent({
     elements(): VisualElement[] {
       const doc = new DOMParser().parseFromString(this.template, 'text/html');
       return Array.from(doc.body.querySelectorAll('*')).filter((el) => el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE').map((el, index) => {
-        const id = el.getAttribute('data-cb-id') ?? `cb-${index}`;
-        if (!el.getAttribute('data-cb-id')) el.setAttribute('data-cb-id', id);
-        const text = (el.textContent ?? '').trim().replace(/\s+/g, ' ');
-        return { id, label: `${el.tagName.toLowerCase()}${text ? ` — ${text.slice(0, 48)}` : ''}`, tag: el.tagName.toLowerCase(), text, style: el.style };
+        const htmlElement = el as HTMLElement;
+        const id = htmlElement.getAttribute('data-cb-id') ?? `cb-${index}`;
+        if (!htmlElement.getAttribute('data-cb-id')) htmlElement.setAttribute('data-cb-id', id);
+        const text = (htmlElement.textContent ?? '').trim().replace(/\s+/g, ' ');
+        return { id, label: `${htmlElement.tagName.toLowerCase()}${text ? ` — ${text.slice(0, 48)}` : ''}`, tag: htmlElement.tagName.toLowerCase(), text, style: htmlElement.style };
       });
     },
     canEditText(): boolean { const el = this.findElement(); return !!el && !el.innerHTML.includes('{{'); },
