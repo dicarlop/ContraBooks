@@ -299,6 +299,8 @@ function getListConfig(schemaName: string) {
         'party',
         'paymentType',
         'paymentMethod',
+        'referenceId',
+        'clearanceDate',
         'amount',
       ],
     };
