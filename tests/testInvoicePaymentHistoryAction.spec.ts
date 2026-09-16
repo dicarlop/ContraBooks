@@ -31,7 +31,11 @@ test('invoice payment history action: filters payments by invoice', async (t) =>
 
   let route: unknown;
   await action?.action?.(
-    { isSubmitted: true, name: 'SINV-001' } as Doc,
+    {
+      isSubmitted: true,
+      name: 'SINV-001',
+      schemaName: ModelNameEnum.SalesInvoice,
+    } as Doc,
     {
       push: async (value: unknown) => {
         route = value;
