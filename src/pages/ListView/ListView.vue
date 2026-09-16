@@ -282,10 +282,20 @@ function getListConfig(schemaName: string) {
     };
   }
 
-  if (
-    schemaName === ModelNameEnum.SalesInvoice ||
-    schemaName === ModelNameEnum.PurchaseInvoice
-  ) {
+  if (schemaName === ModelNameEnum.SalesInvoice) {
+    return {
+      columns: [
+        'name',
+        'party',
+        'date',
+        'grandTotal',
+        'outstandingAmount',
+        'quote',
+      ],
+    };
+  }
+
+  if (schemaName === ModelNameEnum.PurchaseInvoice) {
     return {
       columns: ['name', 'party', 'date', 'grandTotal', 'outstandingAmount'],
     };
