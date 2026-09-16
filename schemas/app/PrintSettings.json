@@ -44,46 +44,16 @@
       "fieldtype": "Color",
       "default": "#112B42",
       "options": [
-        {
-          "label": "Red",
-          "value": "#f56565"
-        },
-        {
-          "label": "Orange",
-          "value": "#ed8936"
-        },
-        {
-          "label": "Yellow",
-          "value": "#ecc94b"
-        },
-        {
-          "label": "Green",
-          "value": "#48bb78"
-        },
-        {
-          "label": "Teal",
-          "value": "#38b2ac"
-        },
-        {
-          "label": "Blue",
-          "value": "#33a1ff"
-        },
-        {
-          "label": "Indigo",
-          "value": "#667eea"
-        },
-        {
-          "label": "Purple",
-          "value": "#9f7aea"
-        },
-        {
-          "label": "Pink",
-          "value": "#ed64a6"
-        },
-        {
-          "label": "Black",
-          "value": "#112B42"
-        }
+        { "label": "Red", "value": "#f56565" },
+        { "label": "Orange", "value": "#ed8936" },
+        { "label": "Yellow", "value": "#ecc94b" },
+        { "label": "Green", "value": "#48bb78" },
+        { "label": "Teal", "value": "#38b2ac" },
+        { "label": "Blue", "value": "#33a1ff" },
+        { "label": "Indigo", "value": "#667eea" },
+        { "label": "Purple", "value": "#9f7aea" },
+        { "label": "Pink", "value": "#ed64a6" },
+        { "label": "Black", "value": "#112B42" }
       ],
       "section": "Customizations"
     },
@@ -93,18 +63,9 @@
       "placeholder": "Font",
       "fieldtype": "Select",
       "options": [
-        {
-          "value": "Arial",
-          "label": "Arial"
-        },
-        {
-          "value": "Times New Roman",
-          "label": "Times New Roman"
-        },
-        {
-          "value": "Courier",
-          "label": "Courier"
-        }
+        { "value": "Arial", "label": "Arial" },
+        { "value": "Times New Roman", "label": "Times New Roman" },
+        { "value": "Courier", "label": "Courier" }
       ],
       "default": "Arial",
       "section": "Customizations"
@@ -137,6 +98,29 @@
       "fieldname": "displaytermsandconditions",
       "label": "Display Terms and Conditions",
       "fieldtype": "Check",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "templateHeaderStyle",
+      "label": "Template Header Style",
+      "fieldtype": "Select",
+      "options": [
+        { "value": "clean", "label": "Clean" },
+        { "value": "band", "label": "Colour Band" },
+        { "value": "boxed", "label": "Boxed" }
+      ],
+      "default": "clean",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "templateDensity",
+      "label": "Template Density",
+      "fieldtype": "Select",
+      "options": [
+        { "value": "comfortable", "label": "Comfortable" },
+        { "value": "compact", "label": "Compact" }
+      ],
+      "default": "comfortable",
       "section": "Customizations"
     },
     {
