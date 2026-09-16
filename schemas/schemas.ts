@@ -2,6 +2,8 @@ import Account from './app/Account.json';
 import AccountingLedgerEntry from './app/AccountingLedgerEntry.json';
 import AccountingSettings from './app/AccountingSettings.json';
 import Address from './app/Address.json';
+import BankReconciliation from './app/BankReconciliation.json';
+import BankStatementEntry from './app/BankStatementEntry.json';
 import Batch from './app/Batch.json';
 import BatchSeries from './app/BatchSeries.json';
 import Color from './app/Color.json';
@@ -104,20 +106,16 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   SetupWizard as Schema,
   GetStarted as Schema,
   PrintTemplate as Schema,
-
   Color as Schema,
   Currency as Schema,
   Defaults as Schema,
   NumberSeries as Schema,
   SerialNumberSeries as Schema,
   BatchSeries as Schema,
-
   PrintSettings as Schema,
-
   Account as Schema,
   AccountingSettings as Schema,
   AccountingLedgerEntry as Schema,
-
   Party as Schema,
   Lead as Schema,
   Address as Schema,
@@ -125,62 +123,51 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   Item as Schema,
   UOM as Schema,
   UOMConversionItem as Schema,
-
   LoyaltyProgram as Schema,
   LoyaltyPointEntry as Schema,
   CollectionRulesItems as Schema,
-
   Payment as Schema,
   PaymentMethod as Schema,
   PaymentFor as Schema,
-
+  BankStatementEntry as Schema,
+  BankReconciliation as Schema,
   JournalEntry as Schema,
   JournalEntryAccount as Schema,
-
   Invoice as Schema,
   ItemEnquiry as Schema,
   SalesInvoice as Schema,
   PurchaseInvoice as Schema,
   SalesQuote as Schema,
-
   InvoiceItem as Schema,
   SalesInvoiceItem as SchemaStub,
   PurchaseInvoiceItem as SchemaStub,
   SalesQuoteItem as SchemaStub,
   CouponCode as Schema,
   AppliedCouponCodes as Schema,
-
   PriceList as Schema,
   PriceListItem as SchemaStub,
-
   PricingRule as Schema,
   PricingRuleItem as SchemaStub,
   PricingRuleDetail as SchemaStub,
-
   Tax as Schema,
   TaxDetail as Schema,
   TaxSummary as Schema,
-
   InventorySettings as Schema,
   Location as Schema,
   StockLedgerEntry as Schema,
   StockMovement as Schema,
   StockMovementItem as Schema,
-
   StockTransfer as Schema,
   StockTransferItem as Schema,
   Shipment as Schema,
   ShipmentItem as Schema,
   PurchaseReceipt as Schema,
   PurchaseReceiptItem as Schema,
-
   Batch as Schema,
   SerialNumber as Schema,
-
   CustomForm as Schema,
   CustomField as Schema,
   EmailLog as Schema,
-
   CashDenominations as Schema,
   ClosingAmounts as Schema,
   ClosingCash as Schema,
@@ -192,10 +179,8 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   POSOpeningShift as Schema,
   POSClosingShift as Schema,
   POSShiftAmounts as Schema,
-
   ERPNextSyncSettings as Schema,
   ERPNextSyncQueue as Schema,
   FetchFromERPNextQueue as Schema,
-
   IntegrationErrorLog as Schema,
 ];
