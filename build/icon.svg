@@ -7,5 +7,9 @@
     </linearGradient>
   </defs>
   <rect width="1024" height="1024" rx="192" fill="#062B4A"/>
-  <text x="512" y="680" text-anchor="middle" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="650" font-weight="800" letter-spacing="-55" fill="url(#cbMark)">cb</text>
+  <g fill="none" stroke="url(#cbMark)" stroke-width="82" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M425 356 A185 185 0 1 0 425 668"/>
+    <path d="M555 300 V724"/>
+    <path d="M555 510 C555 420 625 378 704 378 C796 378 842 447 842 512 C842 579 796 646 704 646 C625 646 555 600 555 510 Z"/>
+  </g>
 </svg>
