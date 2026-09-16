@@ -1,9 +1,5 @@
 <template>
-  <aside class="sidebar-shell relative flex h-full min-h-0 w-full flex-col overflow-hidden text-white" :class="{ 'window-drag': platform !== 'Windows' }">
-    <div class="sidebar-brand window-no-drag shrink-0">
-      <img :src="logoUrl" alt="ContraBooks — Simple. Powerful. Yours." class="sidebar-logo" draggable="false" />
-    </div>
-
+  <aside class="sidebar-shell relative flex h-full min-h-0 w-full flex-col overflow-hidden text-white">
     <nav class="window-no-drag min-h-0 flex-1 overflow-y-auto px-3 pb-4 no-scrollbar" aria-label="Main navigation">
       <button v-for="item in navigation" :key="item.label" class="sidebar-item" :class="isActive(item.route) ? 'sidebar-active' : 'sidebar-inactive'" type="button" @click="routeTo(item.route)">
         <feather-icon :name="item.icon" class="nav-icon" />
@@ -70,7 +66,6 @@ export default defineComponent({
         { label: t`Projects`, icon: 'briefcase', route: '/settings' },
         { label: t`Inventory`, icon: 'package', route: '/list/StockMovement' },
         { label: t`Taxes`, icon: 'percent', route: '/list/Tax' },
-        { label: t`Apps`, icon: 'grid', route: '/settings' },
       ] as SidebarLink[],
       quickLinks: [
         { label: t`Create Invoice`, icon: 'file-plus', route: '/list/SalesInvoice' },
@@ -104,8 +99,6 @@ export default defineComponent({
 
 <style scoped>
 .sidebar-shell { background: linear-gradient(180deg, #07345C 0%, #062B4A 100%); }
-.sidebar-brand { padding: 18px 18px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
-.sidebar-logo { display:block; width:214px; height:auto; max-width:100%; }
 .sidebar-item { display:flex; align-items:center; width:100%; height:40px; gap:12px; margin:2px 0; padding:0 12px; border:0; border-radius:9px; text-align:left; font-size:14px; font-weight:500; transition:background-color 140ms ease,color 140ms ease,box-shadow 140ms ease; }
 .nav-icon { width:18px !important; height:18px !important; min-width:18px; max-width:18px; flex:0 0 18px; stroke-width:2; }
 .sidebar-active { background:linear-gradient(90deg,#00AFC1 0%,#007FA9 100%); color:#fff; box-shadow:0 5px 14px rgba(0,0,0,.18); }
