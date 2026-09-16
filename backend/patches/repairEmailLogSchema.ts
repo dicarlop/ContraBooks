@@ -11,11 +11,8 @@ async function execute(dm: DatabaseManager) {
   const tableExists = await knex.schema.hasTable('EmailLog');
   if (!tableExists) return;
 
-  const rows = (await knex.raw('PRAGMA table_info(EmailLog)')) as {
-    name: string;
-  }[];
-  const columns = new Set(rows.map(({ name }) => name));
-  if (columns.has('error')) return;
+  const hasErrorColumn = await knex.schema.hasColumn('EmailLog', 'error');
+  if (hasErrorColumn) return;
 
   await knex.schema.table('EmailLog', (table) => {
     table.text('error');
