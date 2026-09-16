@@ -3,6 +3,7 @@ import { Action, ListViewSettings } from 'fyo/model/types';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { getInvoiceActions, getTransactionStatusColumn } from '../../helpers';
+import { getViewPaymentsAction } from '../Invoice/getViewPaymentsAction';
 import { Invoice } from '../Invoice/Invoice';
 import { PurchaseInvoiceItem } from '../PurchaseInvoiceItem/PurchaseInvoiceItem';
 import { createBatch } from 'models/inventory/helpers';
@@ -99,6 +100,9 @@ export class PurchaseInvoice extends Invoice {
   }
 
   static getActions(fyo: Fyo): Action[] {
-    return getInvoiceActions(fyo, ModelNameEnum.PurchaseInvoice);
+    return [
+      ...getInvoiceActions(fyo, ModelNameEnum.PurchaseInvoice),
+      getViewPaymentsAction(fyo),
+    ];
   }
 }
