@@ -262,6 +262,16 @@ export class Party extends Doc {
           });
         },
       },
+      {
+        label: fyo.t`View Payments`,
+        condition: (doc: Doc) => !doc.notInserted && !!doc.name,
+        action: async (partyDoc, router) => {
+          await router.push({
+            path: '/list/Payment',
+            query: { filters: JSON.stringify({ party: partyDoc.name }) },
+          });
+        },
+      },
     ];
   }
 }
