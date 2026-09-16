@@ -42,9 +42,10 @@ export default defineComponent({
 <style scoped>
 .desk-sidebar { width:230px; }
 .sidebar-enter-from,.sidebar-leave-to { opacity:0; transform:translateX(-230px); width:0; }
-[dir='rtl'] .sidebar-leave-to { opacity:0; transform:translateX(230px); width:0; }
+[dir='rtl'] .sidebar-leave-to { opacity:0; transform:translateX(230px); }
 .sidebar-enter-to,.sidebar-leave-from { opacity:1; transform:translateX(0); width:230px; }
 .sidebar-enter-active,.sidebar-leave-active { transition:all 150ms ease-out; }
+:deep(.dashboard-page .dashboard-topbar .dashboard-logo){display:none}
 :deep(.dashboard-page){zoom:1;overflow:hidden}
 :deep(.dashboard-page .dashboard-scroll){overflow:auto}
 :deep(.dashboard-page .dashboard-shell){width:100%;max-width:none;min-height:100%;box-sizing:border-box;padding:clamp(14px,1.5vw,24px) clamp(14px,1.6vw,24px) 18px;grid-template-columns:minmax(0,1fr) clamp(210px,18vw,238px);gap:clamp(12px,1.2vw,18px)}
