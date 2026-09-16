@@ -15,6 +15,17 @@
         <div data-testid="company-name" class="mt-4 truncate text-xs font-medium uppercase tracking-[0.16em] text-slate-300">
           {{ companyName }}
         </div>
+        <button
+          class="sidebar-search window-no-drag mt-4 flex h-10 w-full items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 text-left text-xs text-slate-200"
+          type="button"
+          aria-label="Open global search"
+          @click="openSearch"
+        >
+          <feather-icon name="search" class="h-4 w-4 flex-shrink-0" />
+          <span class="flex-1 truncate">Search customers, vendors, transactions...</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+        <SearchBar ref="searchBar" class="hidden" />
       </div>
 
       <nav class="window-no-drag min-h-0 flex-1 overflow-y-auto px-3 pb-4 no-scrollbar" style="background-color: #0F2D5B">
@@ -94,11 +105,12 @@ import { routeTo, toggleSidebar } from 'src/utils/ui';
 import { defineComponent, inject } from 'vue';
 import router from '../router';
 import Icon from './Icon.vue';
+import SearchBar from './SearchBar.vue';
 
 const COMPONENT_NAME = 'Sidebar';
 
 export default defineComponent({
-  components: { Icon },
+  components: { Icon, SearchBar },
   props: { darkMode: { type: Boolean, default: false } },
   emits: ['change-db-file', 'toggle-darkmode'],
   setup() { return { logoUrl, languageDirection: inject(languageDirectionKey), shortcuts: inject(shortcutsKey) }; },
@@ -120,6 +132,9 @@ export default defineComponent({
   unmounted() { this.shortcuts?.delete(COMPONENT_NAME); },
   methods: {
     routeTo, reportIssue, toggleSidebar,
+    openSearch() {
+      (this.$refs.searchBar as InstanceType<typeof SearchBar>)?.open();
+    },
     openDocumentation() { ipc.openLink('https://github.com/dicarlop/ContraBooks'); },
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute.value;
@@ -155,4 +170,7 @@ export default defineComponent({
 .sidebar-inactive{color:#D7E5F4}
 .sidebar-inactive:hover,.sidebar-subinactive:hover{background:rgba(255,255,255,.09);color:#fff}
 .sidebar-subinactive{color:#A9BFD5}
+.sidebar-search{border-color:rgba(255,255,255,.14);transition:background-color 140ms ease,border-color 140ms ease}
+.sidebar-search:hover{background:rgba(255,255,255,.15);border-color:rgba(24,198,211,.5)}
+.sidebar-search kbd{border:1px solid rgba(255,255,255,.16);border-radius:5px;padding:2px 5px;color:#9FB5CC;background:rgba(0,0,0,.12);font-size:9px;white-space:nowrap}
 </style>
