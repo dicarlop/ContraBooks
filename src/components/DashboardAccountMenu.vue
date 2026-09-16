@@ -26,9 +26,8 @@
 </template>
 
 <script lang="ts">
-import { ModelNameEnum } from 'models/types';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
-import { routeTo, openSettings } from 'src/utils/ui';
+import { routeTo } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -42,7 +41,7 @@ export default defineComponent({
   methods: {
     routeTo,
     async settings(tab: string) {
-      await openSettings(tab as ModelNameEnum);
+      await routeTo(`/settings?tab=${encodeURIComponent(tab)}`);
     },
     async settingsTab(tab: string) {
       await routeTo(`/settings?tab=${encodeURIComponent(tab)}`);
