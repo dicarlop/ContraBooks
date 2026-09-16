@@ -1,4 +1,3 @@
-import assert from 'assert';
 import test from 'tape';
 import { buildPaymentReminderPlan } from '../paymentReminderExecutor';
 import { getDefaultPaymentReminderSettings } from '../paymentReminders';
@@ -71,6 +70,5 @@ test('payment reminder plan respects repeat interval', (t) => {
 
   t.equal(recentPlan.length, 0, 'recent reminder is suppressed');
   t.equal(repeatPlan.length, 1, 'old reminder is eligible again');
-  t.ok(assert.ok, 'keeps tape assertion import available for strict linting');
   t.end();
 });
