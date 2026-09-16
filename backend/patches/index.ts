@@ -9,6 +9,7 @@ import fixLedgerDateTime from './v0_21_0/fixLedgerDateTime';
 import fixItemHSNField from './fixItemHSNField';
 import createPaymentMethods from './createPaymentMethods';
 import repairBankStatementEntrySchema from './repairBankStatementEntrySchema';
+import repairEmailLogSchema from './repairEmailLogSchema';
 
 export default [
   { name: 'testPatch', version: '0.5.0-beta.0', patch: testPatch },
@@ -53,5 +54,10 @@ export default [
     name: 'repairBankStatementEntrySchema',
     version: '1.0.1',
     patch: repairBankStatementEntrySchema,
+  },
+  {
+    name: 'repairEmailLogSchema',
+    version: '1.0.2',
+    patch: repairEmailLogSchema,
   },
 ] as Patch[];
