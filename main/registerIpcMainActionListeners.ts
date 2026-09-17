@@ -1,4 +1,4 @@
-import { MessageBoxOptions, OpenDialogOptions, SaveDialogOptions, app, dialog, ipcMain } from 'electron';
+import { BrowserWindow, MessageBoxOptions, OpenDialogOptions, SaveDialogOptions, app, dialog, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { constants } from 'fs';
 import fs from 'fs-extra';
@@ -35,9 +35,9 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.GET_CREDS,()=>getUrlAndTokenString()); ipcMain.handle(IPC_ACTIONS.DELETE_FILE,async(_,filePath:string)=>getErrorHandledReponse(async()=>await fs.unlink(filePath))); ipcMain.handle(IPC_ACTIONS.GET_DB_LIST,async()=>{const files=await setAndGetCleanedConfigFiles();return await getConfigFilesWithModified(files);});
   ipcMain.handle(IPC_ACTIONS.GET_ENV,async()=>{let version=app.getVersion();if(main.isDevelopment){const packageJson=await fs.readFile('package.json','utf-8');version=(JSON.parse(packageJson) as {version:string}).version;}return{isDevelopment:main.isDevelopment,platform:process.platform,version};});
   ipcMain.handle(IPC_ACTIONS.GET_TEMPLATES,async(_,posPrintWidth?:number)=>getTemplates(posPrintWidth)); ipcMain.handle(IPC_ACTIONS.INIT_SHEDULER,async(_,interval:string)=>initScheduler(interval)); ipcMain.handle(IPC_ACTIONS.SEND_API_REQUEST,async(_,endpoint:string,options:RequestInit|undefined)=>sendAPIRequest(endpoint,options as NodeFetchRequestInit|undefined));
-  ipcMain.handle(IPC_ACTIONS.OPEN_TEMPLATE_DESIGNER,async(event, name:string)=>{if(!name)return;await main.createTemplateDesignerWindow(name);});
+  ipcMain.handle(IPC_ACTIONS.OPEN_TEMPLATE_DESIGNER,async(_event, name:string)=>{if(!name)return;await main.createTemplateDesignerWindow(name);});
   ipcMain.handle(IPC_ACTIONS.DB_CREATE,async(_,dbPath:string,countryCode:string,unlockKey?:string)=>await getErrorHandledReponse(async()=>databaseManager.createNewDatabase(dbPath,countryCode,unlockKey)));
   ipcMain.handle(IPC_ACTIONS.DB_CONNECT,async(_,dbPath:string,countryCode?:string,unlockKey?:string)=>await getErrorHandledReponse(async()=>databaseManager.connectToDatabase(dbPath,countryCode,unlockKey)));
   ipcMain.handle(IPC_ACTIONS.DB_CALL,async(_,method:DatabaseMethod,...args:unknown[])=>await getErrorHandledReponse(async()=>databaseManager.call(method,...args))); ipcMain.handle(IPC_ACTIONS.DB_BESPOKE,async(_,method:string,...args:unknown[])=>await getErrorHandledReponse(async()=>databaseManager.callBespoke(method,...args))); ipcMain.handle(IPC_ACTIONS.DB_SCHEMA,async()=>getErrorHandledReponse(()=>databaseManager.getSchemaMap()));
 }
-function BrowserWindowFromEvent(event: Electron.IpcMainInvokeEvent){return event.sender?.isDestroyed()?null:require('electron').BrowserWindow.fromWebContents(event.sender);}
+function BrowserWindowFromEvent(event: Electron.IpcMainInvokeEvent){return event.sender?.isDestroyed()?null:BrowserWindow.fromWebContents(event.sender) ?? null;}
