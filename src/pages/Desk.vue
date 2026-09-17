@@ -35,28 +35,5 @@ export default defineComponent({
 [dir='rtl'] .sidebar-leave-to { opacity:0; transform:translateX(230px); }
 .sidebar-enter-to,.sidebar-leave-from { opacity:1; transform:translateX(0); width:230px; }
 .sidebar-enter-active,.sidebar-leave-active { transition:all 150ms ease-out; }
-:deep(.dashboard-page .dashboard-topbar .dashboard-logo){display:none}
-:deep(.dashboard-page){zoom:1;overflow:hidden}
-:deep(.dashboard-page .dashboard-scroll){overflow:hidden}
-:deep(.dashboard-page .dashboard-content){grid-template-rows:64px 154px 176px minmax(215px,1fr) 174px;gap:4px;padding:6px 20px 7px}
-:deep(.dashboard-page .workflow-card){padding:9px 14px}
-:deep(.dashboard-page .workflow-title){height:34px}
-:deep(.dashboard-page .workflow){height:110px}
-:deep(.dashboard-page .workflow-step){height:110px}
-:deep(.dashboard-page .panel){padding-top:8px}
-:deep(.dashboard-page .panel-title){height:28px}
-:deep(.dashboard-page .table-head){height:24px}
-:deep(.dashboard-page .table-row){height:24px}
-:deep(.dashboard-page .bottom .table-row){height:24px}
-:deep(.dashboard-page .dashboard-content > .middle){min-height:0}
-:deep(.dashboard-page .dashboard-content > .bottom){min-height:0}
-@media(max-height:850px){
-  :deep(.dashboard-page .dashboard-content){grid-template-rows:60px 142px 166px minmax(200px,1fr) 162px;gap:3px;padding:5px 16px 6px}
-  :deep(.dashboard-page .workflow-card){padding:7px 12px}
-  :deep(.dashboard-page .workflow-title){height:31px}
-  :deep(.dashboard-page .workflow),:deep(.dashboard-page .workflow-step){height:103px}
-  :deep(.dashboard-page .panel-title){height:26px}
-  :deep(.dashboard-page .table-head),:deep(.dashboard-page .table-row){height:23px}
-}
 @media(max-width:1000px){.desk-sidebar{width:210px}.sidebar-enter-to,.sidebar-leave-from{width:210px}.sidebar-enter-from,.sidebar-leave-to{transform:translateX(-210px)}}
 </style>
