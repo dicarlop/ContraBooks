@@ -22,9 +22,8 @@
       </div>
       <HorizontalResizer :initial-x="panelWidth" :min-x="22*16" :max-x="maxWidth" style="z-index:5" @resize="(x:number)=>panelWidth=x" />
       <div class="border-l dark:border-gray-800 bg-white dark:bg-gray-890 flex flex-col min-h-0" :style="templateDisplayStyles">
-        <TemplateVisualDesigner v-if="doc.isCustom && typeof doc.template==='string'" :template="doc.template" :selected-element-id="selectedElementId" @select="selectedElementId=$event" @update:template="setTemplate($event)" @insert-logo="insertLogo" />
-        <div class="designer-mode-bar"><b>Visual Designer</b><button type="button" @click="showAdvancedHtml=!showAdvancedHtml"><feather-icon :name="showAdvancedHtml?'chevron-up':'chevron-down'" class="w-4 h-4"/>{{ showAdvancedHtml ? 'Hide Advanced HTML' : 'Advanced HTML' }}</button></div>
-        <div v-if="showAdvancedHtml" class="min-h-0 flex-1">
+        <TemplateVisualDesigner v-if="doc.isCustom && typeof doc.template==='string'" :template="doc.template" :selected-element-id="selectedElementId" @select="selectedElementId=$event" @update:template="setTemplate($event)" @insert-logo="insertLogo" @toggle-advanced="showAdvancedHtml=!showAdvancedHtml" />
+        <div v-if="showAdvancedHtml" class="advanced-html-panel min-h-0 flex-1">
           <TemplateEditor v-if="typeof doc.template==='string' && hints" ref="templateEditor" class="overflow-auto custom-scroll custom-scroll-thumb1 h-full" :initial-value="doc.template" :disabled="!doc.isCustom" :hints="hints" @input="()=>templateChanged=true" @blur="(value:string)=>setTemplate(value)" />
         </div>
         <div v-if="templateChanged" class="flex gap-2 p-2 text-sm text-gray-600 dark:text-gray-400 items-center border-t dark:border-gray-800"><ShortcutKeys :keys="applyChangesShortcut" :simple="true" />{{ t` to apply changes` }}</div>
@@ -68,7 +67,7 @@ import TemplateBuilderHint from './TemplateBuilderHint.vue';
 import TemplateEditor from './TemplateEditor.vue';
 import TemplateVisualDesigner from './TemplateVisualDesigner.vue';
 export default defineComponent({
-  components:{PageHeader,Button,DropdownWithActions,PrintContainer,HorizontalResizer,TemplateEditor,TemplateVisualDesigner,FormControl,TemplateBuilderHint,ShortcutKeys,Link,Modal,SetPrintSize,SetType},
+  components:{PageHeader,Button,DropdownWithActions,PrintContainer,HorizontalResizer,TemplateEditor,TemplateVisualDesigner,FormControl,TemplateBuilderHint,ShortcutKeys,Link,Modal,SetPrintSize},
   provide(){return{doc:computed(()=>this.doc)};},
   props:{name:{type:String,required:true}},
   setup(){const doc=ref(null) as DocRef<PrintTemplate>;const shortcuts=inject(shortcutsKey);let context='TemplateBuilder';if(shortcuts)context=useDocShortcuts(shortcuts,doc,context,false);return{doc,context,shortcuts};},
@@ -114,5 +113,5 @@ export default defineComponent({
 });
 </script>
 <style scoped>
-.designer-mode-bar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 9px;border-bottom:1px solid #DCE7EF;background:#F8FCFE;color:#07345C;font-size:10px;flex-shrink:0}.designer-mode-bar button{display:flex;align-items:center;gap:5px;border:0;background:transparent;color:#0072CE;font-size:9px;cursor:pointer}.hints-enter-from,.hints-leave-to{opacity:0;height:0}.hints-enter-to,.hints-leave-from{opacity:1;height:30vh}.hints-enter-active,.hints-leave-active{transition:all 150ms ease-out}
+.designer-mode-bar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 9px;border-bottom:1px solid #DCE7EF;background:#F8FCFE;color:#07345C;font-size:10px;flex-shrink:0}.designer-mode-bar button{display:flex;align-items:center;gap:5px;border:0;background:transparent;color:#0072CE;font-size:9px;cursor:pointer}.advanced-html-panel{border-top:1px solid #DCE7EF;background:#F8FCFE;min-height:180px}.hints-enter-from,.hints-leave-to{opacity:0;height:0}.hints-enter-to,.hints-leave-from{opacity:1;height:30vh}.hints-enter-active,.hints-leave-active{transition:all 150ms ease-out}
 </style>
