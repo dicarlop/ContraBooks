@@ -121,4 +121,7 @@ export default defineComponent({
 :global(html.dark) .report-tile small{color:#8EB3C8}
 :global(html.dark) .dashboard-footer{color:#9FC5D8}
 :global(html.dark) .dashboard-footer button{color:#BFE8F7}
+
+/* Company switching and theme are intentionally kept inside the account menu. */
+:global(.dashboard-page .company-button),:global(.dashboard-page .theme-button){display:none!important}
 </style>
