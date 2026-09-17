@@ -35,5 +35,10 @@ export default defineComponent({
 [dir='rtl'] .sidebar-leave-to { opacity:0; transform:translateX(230px); }
 .sidebar-enter-to,.sidebar-leave-from { opacity:1; transform:translateX(0); width:230px; }
 .sidebar-enter-active,.sidebar-leave-active { transition:all 150ms ease-out; }
+/* Full-height windows get a fixed, dense dashboard instead of stretching rows and creating blank panels. */
+@media(min-height:851px){
+  :deep(.dashboard-page .dashboard-scroll){overflow:hidden}
+  :deep(.dashboard-page .dashboard-content){height:auto;min-height:0;grid-template-rows:74px 164px 185px 220px 190px;gap:8px;padding:10px 20px 12px;align-content:start}
+}
 @media(max-width:1000px){.desk-sidebar{width:210px}.sidebar-enter-to,.sidebar-leave-from{width:210px}.sidebar-enter-from,.sidebar-leave-to{transform:translateX(-210px)}}
 </style>
