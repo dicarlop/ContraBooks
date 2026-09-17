@@ -22,7 +22,7 @@
       </div>
       <HorizontalResizer :initial-x="panelWidth" :min-x="22*16" :max-x="maxWidth" style="z-index:5" @resize="(x:number)=>panelWidth=x" />
       <div class="border-l dark:border-gray-800 bg-white dark:bg-gray-890 flex flex-col min-h-0" :style="templateDisplayStyles">
-        <TemplateVisualDesigner v-if="doc.isCustom && typeof doc.template==='string'" :template="doc.template" :selected-element-id="selectedElementId" @select="selectedElementId=$event" @update:template="setTemplate($event)" @insert-logo="insertLogo" @toggle-advanced="showAdvancedHtml=!showAdvancedHtml" />
+        <TemplateVisualDesigner v-if="typeof doc.template==='string'" :template="doc.template" :selected-element-id="selectedElementId" @select="selectedElementId=$event" @update:template="setTemplate($event)" @insert-logo="insertLogo" @toggle-advanced="showAdvancedHtml=!showAdvancedHtml" />
         <div v-if="showAdvancedHtml" class="advanced-html-panel min-h-0 flex-1">
           <TemplateEditor v-if="typeof doc.template==='string' && hints" ref="templateEditor" class="overflow-auto custom-scroll custom-scroll-thumb1 h-full" :initial-value="doc.template" :disabled="!doc.isCustom" :hints="hints" @input="()=>templateChanged=true" @blur="(value:string)=>setTemplate(value)" />
         </div>
@@ -90,10 +90,10 @@ export default defineComponent({
   deactivated(){docsPathRef.value='';if(this.editMode)this.disableEditMode();if(this.doc?.dirty)return;this.reset();},
   methods:{
     setShortcuts(){if(!this.shortcuts)return;this.shortcuts.ctrl.set(this.context,['Enter'],this.setTemplate.bind(this));this.shortcuts.ctrl.set(this.context,['KeyE'],this.toggleEditMode.bind(this));this.shortcuts.ctrl.set(this.context,['KeyH'],this.toggleShowHints.bind(this));this.shortcuts.ctrl.set(this.context,['Equal'],()=>this.setScale(this.scale+.1));this.shortcuts.ctrl.set(this.context,['Minus'],()=>this.setScale(this.scale-.1));},
-    async initialize(){await this.setDoc();if(this.doc?.type)this.hints=getPrintTemplatePropHints(this.doc.type,this.fyo);focusOrSelectFormControl(this.doc as Doc,this.$refs.nameField,false);if(!this.doc?.template)await this.doc?.set('template',baseTemplate);await this.setDisplayInitialDoc();},
+    async initialize(){await this.setDoc();if(this.doc&&!this.doc.type)await this.doc.set('type',ModelNameEnum.SalesInvoice);if(this.doc?.type)this.hints=getPrintTemplatePropHints(this.doc.type,this.fyo);focusOrSelectFormControl(this.doc as Doc,this.$refs.nameField,false);if(!this.doc?.template)await this.doc?.set('template',baseTemplate);await this.setDisplayInitialDoc();},
     reset(){this.doc=null;this.displayDoc=null;this.selectedElementId='';},
     getTemplateEditorState(){return this.view?this.view.state.doc.toString():this.doc?.template??'';},
-    async setTemplate(value?:string){this.templateChanged=false;if(!this.doc?.isCustom)return;value??=this.getTemplateEditorState();await this.doc.set('template',value);},
+    async setTemplate(value?:string){this.templateChanged=false;if(!this.doc)return;value??=this.getTemplateEditorState();await this.doc.set('template',value);},
     async insertLogo(){const editor=this.$refs.templateEditor as {insertLogo?:()=>void}|undefined;if(editor?.insertLogo){editor.insertLogo();return;}if(!this.doc?.template)return;const marker='<div style="text-align:center"><img v-if="print.logo" :src="print.logo" alt="Company Logo" style="max-height:80px;max-width:240px;object-fit:contain;" /></div>';await this.doc.set('template',`${marker}\n${this.doc.template}`);},
     setScale(e:Event|number){let value=this.scale;if(typeof e==='number')value=Number(e.toFixed(2));else if(e instanceof Event&&e.target instanceof HTMLInputElement)value=Number(e.target.value);this.scale=Math.max(Math.min(value,10),.15);},
     toggleShowHints(){this.showHints=!this.showHints;},
