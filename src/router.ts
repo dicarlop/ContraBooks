@@ -57,7 +57,8 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/import-wizard', name: 'Import Wizard', component: ImportWizard },
   { path: '/backup-wizard', name: 'Backup & Export', component: BackupWizard },
-  { path: '/template-builder', name: 'Template Gallery', component: TemplateGallery },
+  { path: '/template-builder', name: 'Template Builder', component: TemplateBuilder, props: { name: 'Professional Invoice' } },
+  { path: '/template-builder/manage', name: 'Template Gallery', component: TemplateGallery },
   { path: '/template-builder/:name', name: 'Template Builder', component: TemplateBuilder, props: true },
   { path: '/customize-form', name: 'Customize Form', component: CustomizeForm },
   {
