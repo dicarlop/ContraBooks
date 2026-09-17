@@ -30,9 +30,15 @@ body {
 }
 
 html.dark {
-  color: theme('colors.black');
-  background-color: theme('colors.gray.900');
+  color: #e6f4ff;
+  background-color: #061a2a;
   color-scheme: dark;
+}
+
+html.dark body,
+html.dark #app {
+  background: #061a2a;
+  color: #e6f4ff;
 }
 
 html.dark input[type='date']::-webkit-calendar-picker-indicator {
@@ -258,39 +264,87 @@ input[type='number']::-webkit-inner-spin-button {
 
 /* ContraBooks dashboard fit: keep the approved desktop layout inside one viewport. */
 .dashboard-page .dashboard-scroll { overflow: hidden !important; }
-.dashboard-page .dashboard-content {
-  height: 100% !important;
-  max-height: 100% !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
-  padding: 8px 12px 9px !important;
-  gap: 7px !important;
-  align-content: space-between !important;
-  grid-template-rows: auto auto auto minmax(180px, 260px) auto auto !important;
-}
-.dashboard-page .dashboard-welcome { min-height: 46px !important; margin: 0 !important; }
-.dashboard-page .kpi-grid { margin: 0 !important; }
-.dashboard-page .workflow-card { min-height: 0 !important; }
-.dashboard-page .dashboard-grid-middle {
-  min-height: 180px !important;
-  height: 260px !important;
-  max-height: 260px !important;
-}
-.dashboard-page .transactions-card,
-.dashboard-page .cashflow-card { height: 100% !important; }
-.dashboard-page .cashflow-chart { min-height: 110px !important; }
-.dashboard-page .reports-card { margin: 0 !important; }
-.dashboard-page .dashboard-footer { min-height: 30px !important; }
 
-@media (max-height: 760px) {
-  .dashboard-page .dashboard-content {
-    grid-template-rows: auto auto auto minmax(150px, 1fr) auto auto !important;
-    gap: 5px !important;
-    padding: 6px 9px !important;
-  }
-  .dashboard-page .dashboard-grid-middle {
-    height: auto !important;
-    max-height: none !important;
-    min-height: 150px !important;
-  }
+/* Global ContraBooks dark theme. Component-scoped dashboard CSS cannot reliably
+   override its own light declarations from another component, so the application
+   theme is applied here at the root. */
+html.dark .dashboard-page {
+  background: #061a2a !important;
+  color: #d9edf9 !important;
+}
+html.dark .dashboard-topbar {
+  background: #071f32 !important;
+  border-bottom-color: #173b57 !important;
+}
+html.dark .dashboard-search {
+  background: #09243a !important;
+  border-color: #1b4968 !important;
+  color: #6fdce5 !important;
+}
+html.dark .dashboard-search input {
+  background: transparent !important;
+  color: #e6f4ff !important;
+}
+html.dark .title-greeting strong,
+html.dark .title-greeting span,
+html.dark .top-actions,
+html.dark .user-copy b,
+html.dark .user-copy small {
+  color: #e6f4ff !important;
+}
+html.dark .card,
+html.dark .workflow-card,
+html.dark .panel {
+  background: #08243a !important;
+  border-color: #1b4968 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22) !important;
+}
+html.dark .kpi-copy b,
+html.dark .kpi-copy strong,
+html.dark .panel-title h2,
+html.dark .table-row,
+html.dark .table-head,
+html.dark .workflow-title h2,
+html.dark .workflow-step b {
+  color: #eaf7ff !important;
+}
+html.dark .kpi-copy small,
+html.dark .panel-title button,
+html.dark .workflow-title p,
+html.dark .table-head,
+html.dark .workflow-step small,
+html.dark .panel-title select {
+  color: #8eb3c8 !important;
+}
+html.dark .table-head,
+html.dark .table-row {
+  border-color: #173b57 !important;
+}
+html.dark .table-row:hover,
+html.dark .workflow-step:hover {
+  background: #103550 !important;
+}
+html.dark .cashflow select,
+html.dark select {
+  background-color: #0b2d45 !important;
+  border-color: #28536c !important;
+  color: #ddf3fc !important;
+}
+html.dark .chart-area,
+html.dark .chart {
+  color: #8eb3c8 !important;
+}
+html.dark .divider {
+  background: #173b57 !important;
+}
+html.dark .top-icon {
+  color: #bfe8f7 !important;
+}
+html.dark .avatar {
+  background: #0b3c59 !important;
+  color: #e6f4ff !important;
+}
+html.dark input,
+html.dark textarea {
+  color-scheme: dark;
 }
