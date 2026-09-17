@@ -57,9 +57,11 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/import-wizard', name: 'Import Wizard', component: ImportWizard },
   { path: '/backup-wizard', name: 'Backup & Export', component: BackupWizard },
-  { path: '/template-builder', name: 'Template Builder', component: TemplateBuilder, props: { name: 'Professional Invoice' } },
+  // Open the visible template manager from the main Template Builder entry.
+  // It creates a real PrintTemplate before opening the document editor route.
+  { path: '/template-builder', name: 'Template Builder', component: TemplateGallery },
   { path: '/template-builder/manage', name: 'Template Gallery', component: TemplateGallery },
-  { path: '/template-builder/:name', name: 'Template Builder', component: TemplateBuilder, props: true },
+  { path: '/template-builder/:name', name: 'Template Builder Editor', component: TemplateBuilder, props: true },
   { path: '/customize-form', name: 'Customize Form', component: CustomizeForm },
   {
     path: '/settings',
