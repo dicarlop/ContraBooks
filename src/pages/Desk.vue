@@ -36,20 +36,21 @@ export default defineComponent({
 .sidebar-enter-to,.sidebar-leave-from { opacity:1; transform:translateX(0); width:230px; }
 .sidebar-enter-active,.sidebar-leave-active { transition:all 150ms ease-out; }
 
-/* The dashboard owns its responsive layout. Keep the shell from forcing a second grid. */
-@media(min-height:851px){
-  :deep(.dashboard-page .dashboard-scroll){overflow:hidden}
-  :deep(.dashboard-page .dashboard-content){height:auto;min-height:0;grid-template-rows:max-content max-content max-content max-content max-content;gap:8px;padding:10px 20px 12px;align-content:start}
-  :deep(.dashboard-page .middle){min-height:170px}
+/* Dashboard owns the layout; use viewport-relative grid tracks rather than fixed rows. */
+:deep(.dashboard-page .dashboard-content) {
+  height: 100% !important;
+  min-height: 0 !important;
+  grid-template-rows: minmax(108px, .9fr) minmax(155px, 1.1fr) minmax(205px, 2fr) minmax(145px, 1.2fr) !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+  align-content: stretch !important;
 }
+:deep(.dashboard-page .dashboard-scroll) { min-height:0 !important; height:auto !important; overflow:hidden !important; }
+:deep(.dashboard-page .workflow-card),:deep(.dashboard-page .workflow) { min-height:0 !important; }
 
-/* Keep the six-step Desktop Pro workflow on one line at normal desktop widths. */
-@media(min-width:901px){
-  :deep(.dashboard-page .workflow){grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr);height:116px;gap:0}
-  :deep(.dashboard-page .workflow-step){height:116px;display:flex;padding:10px 12px;text-align:center}
-  :deep(.dashboard-page .workflow-step .number){position:absolute}
-  :deep(.dashboard-page .workflow-step>svg){width:28px!important;height:28px!important;margin-bottom:7px}
-  :deep(.dashboard-page .workflow-step b),:deep(.dashboard-page .workflow-step small){text-align:center;max-width:180px;white-space:normal}
+@media(max-width:850px){
+  :deep(.dashboard-page .dashboard-content) { height:100% !important; grid-template-rows:auto auto auto auto !important; overflow:auto !important; }
+  :deep(.dashboard-page .dashboard-scroll) { overflow:auto !important; }
 }
 
 @media(max-width:1000px){.desk-sidebar{width:210px}.sidebar-enter-to,.sidebar-leave-from{width:210px}.sidebar-enter-from,.sidebar-leave-to{transform:translateX(-210px)}}
