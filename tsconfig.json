@@ -62,5 +62,5 @@
     "dummy/**/*.ts",
     "jobs/**/*.ts"
   ],
-  "exclude": ["node_modules", "src/pages/TemplateDesignerWindow.vue"]
+  "exclude": ["src/pages/TemplateDesignerWindow.vue", "node_modules"]
 }
