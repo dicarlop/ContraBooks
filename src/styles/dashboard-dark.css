@@ -1,0 +1,88 @@
+/* ContraBooks dashboard dark-mode overrides. This is loaded as a global stylesheet so it wins over scoped dashboard component styles. */
+html.dark .dashboard-page,
+html.dark .dashboard-page * {
+  color-scheme: dark;
+}
+
+html.dark .dashboard-page .workflow-step {
+  color: #EAF7FF !important;
+  background: #0B2D45 !important;
+  border-color: #1B4968 !important;
+  box-shadow: none !important;
+}
+html.dark .dashboard-page .workflow-step.blue {
+  background: #0A2942 !important;
+  border-color: #1689D5 !important;
+}
+html.dark .dashboard-page .workflow-step.teal {
+  background: #073B43 !important;
+  border-color: #00AFC1 !important;
+}
+html.dark .dashboard-page .workflow-step.purple {
+  background: #241D4A !important;
+  border-color: #635BDB !important;
+}
+html.dark .dashboard-page .workflow-step.orange {
+  background: #3A2D13 !important;
+  border-color: #F59E0B !important;
+}
+html.dark .dashboard-page .workflow-step.blue > svg,
+html.dark .dashboard-page .workflow-step.blue > .number { color: #1689D5 !important; }
+html.dark .dashboard-page .workflow-step.teal > svg,
+html.dark .dashboard-page .workflow-step.teal > .number { color: #18C6D3 !important; }
+html.dark .dashboard-page .workflow-step.purple > svg,
+html.dark .dashboard-page .workflow-step.purple > .number { color: #8B7FF0 !important; }
+html.dark .dashboard-page .workflow-step.orange > svg,
+html.dark .dashboard-page .workflow-step.orange > .number { color: #F59E0B !important; }
+html.dark .dashboard-page .workflow-step b { color: #F1FAFF !important; }
+html.dark .dashboard-page .workflow-step small { color: #9FC5D8 !important; }
+html.dark .dashboard-page .workflow-arrow { color: #79AFC8 !important; }
+
+/* Buttons have native white backgrounds in the renderer. Explicitly reset the table rows. */
+html.dark .dashboard-page button.table-row,
+html.dark .dashboard-page .table-row {
+  background: #08243A !important;
+  color: #CFE7F4 !important;
+  border-color: #173B57 !important;
+  box-shadow: none !important;
+}
+html.dark .dashboard-page button.table-row:hover,
+html.dark .dashboard-page .table-row:hover {
+  background: #0D3048 !important;
+}
+html.dark .dashboard-page .table-head {
+  background: transparent !important;
+  color: #8EB3C8 !important;
+  border-color: #173B57 !important;
+}
+html.dark .dashboard-page .table-row > span,
+html.dark .dashboard-page .table-row > strong {
+  color: inherit !important;
+}
+html.dark .dashboard-page .table-row .positive { color: #18C6D3 !important; }
+html.dark .dashboard-page .table-row .negative { color: #FF6670 !important; }
+
+/* Keep chart grid/labels dark; the bars and line retain their semantic colors. */
+html.dark .dashboard-page .chart-area,
+html.dark .dashboard-page .chart {
+  background: transparent !important;
+}
+html.dark .dashboard-page .chart-area .grid i {
+  border-color: #173B57 !important;
+}
+html.dark .dashboard-page .axis span,
+html.dark .dashboard-page .month span,
+html.dark .dashboard-page .legend span {
+  color: #8EB3C8 !important;
+}
+
+/* Remove any browser/default light fill leaking through dashboard controls. */
+html.dark .dashboard-page input,
+html.dark .dashboard-page select,
+html.dark .dashboard-page button {
+  color-scheme: dark;
+}
+html.dark .dashboard-page .account-button {
+  background: transparent !important;
+  color: #BFE8F7 !important;
+}
