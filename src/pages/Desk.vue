@@ -10,7 +10,10 @@
       <router-view v-slot="{ Component, route }" name="edit"><Transition name="quickedit"><div v-if="route?.query?.edit"><component :is="Component" :key="route.query.schemaName + route.query.name" :dark-mode="darkMode" /></div></Transition></router-view>
       <div v-if="isInternalWindowRoute" class="internal-window-layer">
         <div class="internal-window-shadow"></div>
-        <TemplateDesignerWindow :name="designerName" class="internal-task-window" />
+        <div class="internal-window-frame">
+          <TemplateDesignerWindow :name="designerName" class="internal-task-window" />
+          <button class="internal-window-close" aria-label="Close window" title="Close window" @click="closeInternalWindow">×</button>
+        </div>
       </div>
     </div>
     <button v-show="!showSidebar" class="absolute bottom-0 start-0 m-4 rounded p-1 text-gray-600 opacity-0 hover:bg-gray-100 hover:opacity-100 hover:shadow-md dark:text-gray-400 dark:hover:bg-gray-900 rtl-rotate-180" @click="() => toggleSidebar()"><feather-icon name="chevrons-right" class="h-4 w-4" /></button>
@@ -35,9 +38,13 @@ export default defineComponent({
     isInternalWindowRoute(): boolean { return this.$route.name === 'Template Builder' || this.$route.name === 'Visual Template Designer'; },
     designerName(): string { return typeof this.$route.params.name === 'string' ? decodeURIComponent(this.$route.params.name) : 'Professional Invoice'; },
   },
-  mounted() { window.addEventListener(SWITCH_COMPANY_EVENT, this.handleSwitchCompany); },
-  beforeUnmount() { window.removeEventListener(SWITCH_COMPANY_EVENT, this.handleSwitchCompany); },
-  methods: { handleSwitchCompany() { this.$emit('change-db-file'); } },
+  mounted() { window.addEventListener(SWITCH_COMPANY_EVENT, this.handleSwitchCompany); window.addEventListener('keydown', this.handleWindowKeydown); },
+  beforeUnmount() { window.removeEventListener(SWITCH_COMPANY_EVENT, this.handleSwitchCompany); window.removeEventListener('keydown', this.handleWindowKeydown); },
+  methods: {
+    handleSwitchCompany() { this.$emit('change-db-file'); },
+    handleWindowKeydown(event: KeyboardEvent) { if (event.key === 'Escape' && this.isInternalWindowRoute) { event.preventDefault(); this.closeInternalWindow(); } },
+    closeInternalWindow() { void this.$router.push('/'); },
+  },
 });
 </script>
 <style scoped>
@@ -47,52 +54,21 @@ export default defineComponent({
 .sidebar-enter-to,.sidebar-leave-from { opacity:1; transform:translateX(0); width:230px; }
 .sidebar-enter-active,.sidebar-leave-active { transition:all 150ms ease-out; }
 
-.internal-window-layer {
-  position:absolute;
-  inset:0;
-  z-index:80;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  pointer-events:none;
-}
-.internal-window-shadow {
-  position:absolute;
-  inset:0;
-  background:rgba(6,43,74,.08);
-  pointer-events:none;
-}
-:deep(.internal-task-window) {
-  position:relative;
-  z-index:81;
-  width:min(1480px,calc(100% - 8px));
-  height:min(900px,calc(100% - 8px));
-  min-width:0;
-  min-height:0;
-  overflow:hidden;
-  resize:both;
-  pointer-events:auto;
-  box-shadow:0 18px 55px rgba(7,52,92,.28),0 2px 8px rgba(7,52,92,.18);
-}
+.internal-window-layer { position:absolute; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:18px; pointer-events:none; }
+.internal-window-shadow { position:absolute; inset:0; background:rgba(6,43,74,.08); pointer-events:none; }
+.internal-window-frame { position:relative; z-index:81; width:min(1480px,calc(100% - 8px)); height:min(900px,calc(100% - 8px)); min-width:0; min-height:0; pointer-events:auto; }
+:deep(.internal-task-window) { position:relative; width:100%; height:100%; min-width:0; min-height:0; overflow:hidden; resize:both; box-shadow:0 18px 55px rgba(7,52,92,.28),0 2px 8px rgba(7,52,92,.18); }
+.internal-window-close { position:absolute; top:8px; right:8px; z-index:100; width:28px; height:28px; display:grid; place-items:center; padding:0; border:0; border-radius:6px; background:transparent; color:#6B8496; font-size:22px; line-height:1; cursor:pointer; }
+.internal-window-close:hover { background:#FDECEE; color:#E5484D; }
 
-/* Dashboard owns the layout; use viewport-relative grid tracks rather than fixed rows. */
-:deep(.dashboard-page .dashboard-content) {
-  height:100% !important;
-  min-height:0 !important;
-  grid-template-rows:minmax(108px,.9fr) minmax(155px,1.1fr) minmax(205px,2fr) minmax(145px,1.2fr) !important;
-  gap:10px !important;
-  overflow:hidden !important;
-  align-content:stretch !important;
-}
+:deep(.dashboard-page .dashboard-content) { height:100% !important; min-height:0 !important; grid-template-rows:minmax(108px,.9fr) minmax(155px,1.1fr) minmax(205px,2fr) minmax(145px,1.2fr) !important; gap:10px !important; overflow:hidden !important; align-content:stretch !important; }
 :deep(.dashboard-page .dashboard-scroll) { min-height:0 !important; height:auto !important; overflow:hidden !important; }
 :deep(.dashboard-page .workflow-card),:deep(.dashboard-page .workflow) { min-height:0 !important; }
 
 @media(max-width:850px){
   :deep(.dashboard-page .dashboard-content) { height:100% !important; grid-template-rows:auto auto auto auto !important; overflow:auto !important; }
   :deep(.dashboard-page .dashboard-scroll) { overflow:auto !important; }
-  :deep(.internal-task-window) { width:calc(100% - 8px); height:calc(100% - 8px); }
+  .internal-window-frame { width:calc(100% - 8px); height:calc(100% - 8px); }
 }
-
 @media(max-width:1000px){.desk-sidebar{width:210px}.sidebar-enter-to,.sidebar-leave-from{width:210px}.sidebar-enter-from,.sidebar-leave-to{transform:translateX(-210px)}}
 </style>
