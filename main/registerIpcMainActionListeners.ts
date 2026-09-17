@@ -1,11 +1,4 @@
-import {
-  MessageBoxOptions,
-  OpenDialogOptions,
-  SaveDialogOptions,
-  app,
-  dialog,
-  ipcMain,
-} from 'electron';
+import { MessageBoxOptions, OpenDialogOptions, SaveDialogOptions, app, dialog, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { constants } from 'fs';
 import fs from 'fs-extra';
@@ -20,139 +13,31 @@ import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
 import { getTemplates } from './getPrintTemplates';
 import { printHtmlDocument } from './printHtmlDocument';
-import {
-  getConfigFilesWithModified,
-  getErrorHandledReponse,
-  isNetworkError,
-  setAndGetCleanedConfigFiles,
-} from './helpers';
+import { getConfigFilesWithModified, getErrorHandledReponse, isNetworkError, setAndGetCleanedConfigFiles } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 import { sendAPIRequest } from './api';
 import { initScheduler } from './initSheduler';
 import type { RequestInit as NodeFetchRequestInit } from 'node-fetch';
-
 export default function registerIpcMainActionListeners(main: Main) {
-  ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => {
-    try {
-      await fs.access(filePath, constants.W_OK | constants.R_OK);
-      return true;
-    } catch {
-      // Windows can preserve the read-only attribute on older company files.
-      // Clear that attribute when possible, then retry before reporting that
-      // the company is inaccessible.
-      try {
-        await fs.chmod(filePath, 0o666);
-        await fs.access(filePath, constants.W_OK | constants.R_OK);
-        return true;
-      } catch {
-        return false;
-      }
-    }
-  });
-
-  ipcMain.handle(IPC_ACTIONS.GET_DB_DEFAULT_PATH, async (_, companyName: string) => {
-    let root: string;
-    try {
-      root = app.getPath('documents');
-    } catch {
-      root = app.getPath('userData');
-    }
-    if (main.isDevelopment) root = 'dbs';
-
-    const dbsPath = path.join(root, 'Frappe Books');
-    const backupPath = path.join(dbsPath, 'backups');
-    await fs.ensureDir(backupPath);
-    let dbFilePath = path.join(dbsPath, `${companyName}.books.db`);
-
-    if (await fs.pathExists(dbFilePath)) {
-      const option = await dialog.showMessageBox({
-        type: 'question',
-        title: 'File Exists',
-        message: `Filename already exists. Do you want to overwrite the existing file or create a new one?`,
-        buttons: ['Overwrite', 'New'],
-      });
-      if (option.response === 1) {
-        const timestamp = new Date().toISOString().replace(/[-T:.Z]/g, '');
-        dbFilePath = path.join(dbsPath, `${companyName}_${timestamp}.books.db`);
-        await dialog.showMessageBox({ type: 'info', message: `New file: ${path.basename(dbFilePath)}` });
-      }
-    }
-    return dbFilePath;
-  });
-
-  ipcMain.handle(IPC_ACTIONS.GET_OPEN_FILEPATH, async (_, options: OpenDialogOptions) => await dialog.showOpenDialog(main.mainWindow!, options));
-  ipcMain.handle(IPC_ACTIONS.GET_SAVE_FILEPATH, async (_, options: SaveDialogOptions) => await dialog.showSaveDialog(main.mainWindow!, options));
-  ipcMain.handle(IPC_ACTIONS.GET_DIALOG_RESPONSE, async (_, options: MessageBoxOptions) => {
-    if (main.isDevelopment || main.isLinux) Object.assign(options, { icon: main.icon });
-    return await dialog.showMessageBox(main.mainWindow!, options);
-  });
-  ipcMain.handle(IPC_ACTIONS.SHOW_ERROR, (_, { title, content }: { title: string; content: string }) => dialog.showErrorBox(title, content));
-  ipcMain.handle(IPC_ACTIONS.SAVE_HTML_AS_PDF, async (_, html: string, savePath: string, width: number, height: number) => await saveHtmlAsPdf(html, savePath, app, width, height));
-  ipcMain.handle(IPC_ACTIONS.PRINT_HTML_DOCUMENT, async (_, html: string, width: number, height: number) => await printHtmlDocument(html, app, width, height));
-  ipcMain.handle(IPC_ACTIONS.SAVE_DATA, async (_, data: string, savePath: string) => await fs.writeFile(savePath, data, { encoding: 'utf-8' }));
-  ipcMain.handle(IPC_ACTIONS.SEND_ERROR, async (_, bodyJson: string) => await sendError(bodyJson, main));
-  ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, async () => {
-    if (main.isDevelopment || main.checkedForUpdate) return;
-    try {
-      await autoUpdater.checkForUpdates();
-    } catch (error) {
-      if (!isNetworkError(error as Error)) emitMainProcessError(error);
-    }
-    main.checkedForUpdate = true;
-  });
-  ipcMain.handle(IPC_ACTIONS.GET_LANGUAGE_MAP, async (_, code: string) => {
-    const obj = { languageMap: {}, success: true, message: '' };
-    try {
-      obj.languageMap = await getLanguageMap(code);
-    } catch (err) {
-      obj.success = false;
-      obj.message = (err as Error).message;
-    }
-    return obj;
-  });
-  ipcMain.handle(IPC_ACTIONS.SELECT_FILE, async (_, options: SelectFileOptions): Promise<SelectFileReturn> => {
-    const response: SelectFileReturn = { name: '', filePath: '', success: false, data: Buffer.from('', 'utf-8'), canceled: false };
-    const { filePaths, canceled } = await dialog.showOpenDialog(main.mainWindow!, { ...options, properties: ['openFile'] });
-    response.filePath = filePaths?.[0];
-    response.canceled = canceled;
-    if (!response.filePath) return response;
-    response.success = true;
-    if (canceled) return response;
-    response.name = path.basename(response.filePath);
-    response.data = await fs.readFile(response.filePath);
-    return response;
-  });
-  ipcMain.handle(IPC_ACTIONS.GET_CREDS, () => getUrlAndTokenString());
-  ipcMain.handle(IPC_ACTIONS.DELETE_FILE, async (_, filePath: string) => getErrorHandledReponse(async () => await fs.unlink(filePath)));
-  ipcMain.handle(IPC_ACTIONS.GET_DB_LIST, async () => {
-    const files = await setAndGetCleanedConfigFiles();
-    return await getConfigFilesWithModified(files);
-  });
-  ipcMain.handle(IPC_ACTIONS.GET_ENV, async () => {
-    let version = app.getVersion();
-    if (main.isDevelopment) {
-      const packageJson = await fs.readFile('package.json', 'utf-8');
-      version = (JSON.parse(packageJson) as { version: string }).version;
-    }
-    return { isDevelopment: main.isDevelopment, platform: process.platform, version };
-  });
-  ipcMain.handle(IPC_ACTIONS.GET_TEMPLATES, async (_, posPrintWidth?: number) => getTemplates(posPrintWidth));
-  ipcMain.handle(IPC_ACTIONS.INIT_SHEDULER, async (_, interval: string) => initScheduler(interval));
-  ipcMain.handle(IPC_ACTIONS.SEND_API_REQUEST, async (_, endpoint: string, options: RequestInit | undefined) => sendAPIRequest(endpoint, options as NodeFetchRequestInit | undefined));
-
-  ipcMain.handle(IPC_ACTIONS.DB_CREATE, async (_, dbPath: string, countryCode: string, unlockKey?: string) => {
-    return await getErrorHandledReponse(async () => databaseManager.createNewDatabase(dbPath, countryCode, unlockKey));
-  });
-
-  ipcMain.handle(IPC_ACTIONS.DB_CONNECT, async (_, dbPath: string, countryCode?: string, unlockKey?: string) => {
-    return await getErrorHandledReponse(async () => databaseManager.connectToDatabase(dbPath, countryCode, unlockKey));
-  });
-
-  ipcMain.handle(IPC_ACTIONS.DB_CALL, async (_, method: DatabaseMethod, ...args: unknown[]) => {
-    return await getErrorHandledReponse(async () => databaseManager.call(method, ...args));
-  });
-  ipcMain.handle(IPC_ACTIONS.DB_BESPOKE, async (_, method: string, ...args: unknown[]) => {
-    return await getErrorHandledReponse(async () => databaseManager.callBespoke(method, ...args));
-  });
-  ipcMain.handle(IPC_ACTIONS.DB_SCHEMA, async () => getErrorHandledReponse(() => databaseManager.getSchemaMap()));
+  ipcMain.handle(IPC_ACTIONS.CHECK_DB_ACCESS, async (_, filePath: string) => { try { await fs.access(filePath, constants.W_OK | constants.R_OK); return true; } catch { try { await fs.chmod(filePath, 0o666); await fs.access(filePath, constants.W_OK | constants.R_OK); return true; } catch { return false; } } });
+  ipcMain.handle(IPC_ACTIONS.GET_DB_DEFAULT_PATH, async (_, companyName: string) => { let root:string; try { root=app.getPath('documents'); } catch { root=app.getPath('userData'); } if(main.isDevelopment)root='dbs'; const dbsPath=path.join(root,'Frappe Books'); const backupPath=path.join(dbsPath,'backups'); await fs.ensureDir(backupPath); let dbFilePath=path.join(dbsPath,`${companyName}.books.db`); if(await fs.pathExists(dbFilePath)){const option=await dialog.showMessageBox({type:'question',title:'File Exists',message:'Filename already exists. Do you want to overwrite the existing file or create a new one?',buttons:['Overwrite','New']});if(option.response===1){const timestamp=new Date().toISOString().replace(/[-T:.Z]/g,'');dbFilePath=path.join(dbsPath,`${companyName}_${timestamp}.books.db`);await dialog.showMessageBox({type:'info',message:`New file: ${path.basename(dbFilePath)}`});}} return dbFilePath; });
+  ipcMain.handle(IPC_ACTIONS.GET_OPEN_FILEPATH, async (_, options:OpenDialogOptions)=>await dialog.showOpenDialog(main.mainWindow!,options));
+  ipcMain.handle(IPC_ACTIONS.GET_SAVE_FILEPATH, async (_, options:SaveDialogOptions)=>await dialog.showSaveDialog(main.mainWindow!,options));
+  ipcMain.handle(IPC_ACTIONS.GET_DIALOG_RESPONSE, async (_, options:MessageBoxOptions)=>{if(main.isDevelopment||main.isLinux)Object.assign(options,{icon:main.icon});return await dialog.showMessageBox(main.mainWindow!,options);});
+  ipcMain.handle(IPC_ACTIONS.SHOW_ERROR, (_, {title,content}:{title:string;content:string})=>dialog.showErrorBox(title,content));
+  ipcMain.handle(IPC_ACTIONS.SAVE_HTML_AS_PDF, async (_,html:string,savePath:string,width:number,height:number)=>await saveHtmlAsPdf(html,savePath,app,width,height));
+  ipcMain.handle(IPC_ACTIONS.PRINT_HTML_DOCUMENT, async (_,html:string,width:number,height:number)=>await printHtmlDocument(html,app,width,height));
+  ipcMain.handle(IPC_ACTIONS.SAVE_DATA, async (_,data:string,savePath:string)=>await fs.writeFile(savePath,data,{encoding:'utf-8'}));
+  ipcMain.handle(IPC_ACTIONS.SEND_ERROR, async (_,bodyJson:string)=>await sendError(bodyJson,main));
+  ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, async ()=>{if(main.isDevelopment||main.checkedForUpdate)return;try{await autoUpdater.checkForUpdates();}catch(error){if(!isNetworkError(error as Error))emitMainProcessError(error);}main.checkedForUpdate=true;});
+  ipcMain.handle(IPC_ACTIONS.GET_LANGUAGE_MAP, async (_,code:string)=>{const obj={languageMap:{},success:true,message:''};try{obj.languageMap=await getLanguageMap(code);}catch(err){obj.success=false;obj.message=(err as Error).message;}return obj;});
+  ipcMain.handle(IPC_ACTIONS.SELECT_FILE, async (_,options:SelectFileOptions):Promise<SelectFileReturn>=>{const response:SelectFileReturn={name:'',filePath:'',success:false,data:Buffer.from('','utf-8'),canceled:false};const owner=BrowserWindowFromEvent(_);const {filePaths,canceled}=await dialog.showOpenDialog(owner??main.mainWindow!,{...options,properties:['openFile']});response.filePath=filePaths?.[0];response.canceled=canceled;if(!response.filePath)return response;response.success=true;if(canceled)return response;response.name=path.basename(response.filePath);response.data=await fs.readFile(response.filePath);return response;});
+  ipcMain.handle(IPC_ACTIONS.GET_CREDS,()=>getUrlAndTokenString()); ipcMain.handle(IPC_ACTIONS.DELETE_FILE,async(_,filePath:string)=>getErrorHandledReponse(async()=>await fs.unlink(filePath))); ipcMain.handle(IPC_ACTIONS.GET_DB_LIST,async()=>{const files=await setAndGetCleanedConfigFiles();return await getConfigFilesWithModified(files);});
+  ipcMain.handle(IPC_ACTIONS.GET_ENV,async()=>{let version=app.getVersion();if(main.isDevelopment){const packageJson=await fs.readFile('package.json','utf-8');version=(JSON.parse(packageJson) as {version:string}).version;}return{isDevelopment:main.isDevelopment,platform:process.platform,version};});
+  ipcMain.handle(IPC_ACTIONS.GET_TEMPLATES,async(_,posPrintWidth?:number)=>getTemplates(posPrintWidth)); ipcMain.handle(IPC_ACTIONS.INIT_SHEDULER,async(_,interval:string)=>initScheduler(interval)); ipcMain.handle(IPC_ACTIONS.SEND_API_REQUEST,async(_,endpoint:string,options:RequestInit|undefined)=>sendAPIRequest(endpoint,options as NodeFetchRequestInit|undefined));
+  ipcMain.handle(IPC_ACTIONS.OPEN_TEMPLATE_DESIGNER,async(event, name:string)=>{if(!name)return;await main.createTemplateDesignerWindow(name);});
+  ipcMain.handle(IPC_ACTIONS.DB_CREATE,async(_,dbPath:string,countryCode:string,unlockKey?:string)=>await getErrorHandledReponse(async()=>databaseManager.createNewDatabase(dbPath,countryCode,unlockKey)));
+  ipcMain.handle(IPC_ACTIONS.DB_CONNECT,async(_,dbPath:string,countryCode?:string,unlockKey?:string)=>await getErrorHandledReponse(async()=>databaseManager.connectToDatabase(dbPath,countryCode,unlockKey)));
+  ipcMain.handle(IPC_ACTIONS.DB_CALL,async(_,method:DatabaseMethod,...args:unknown[])=>await getErrorHandledReponse(async()=>databaseManager.call(method,...args))); ipcMain.handle(IPC_ACTIONS.DB_BESPOKE,async(_,method:string,...args:unknown[])=>await getErrorHandledReponse(async()=>databaseManager.callBespoke(method,...args))); ipcMain.handle(IPC_ACTIONS.DB_SCHEMA,async()=>getErrorHandledReponse(()=>databaseManager.getSchemaMap()));
 }
+function BrowserWindowFromEvent(event: Electron.IpcMainInvokeEvent){return event.sender?.isDestroyed()?null:require('electron').BrowserWindow.fromWebContents(event.sender);}
