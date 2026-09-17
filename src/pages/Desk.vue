@@ -35,10 +35,22 @@ export default defineComponent({
 [dir='rtl'] .sidebar-leave-to { opacity:0; transform:translateX(230px); }
 .sidebar-enter-to,.sidebar-leave-from { opacity:1; transform:translateX(0); width:230px; }
 .sidebar-enter-active,.sidebar-leave-active { transition:all 150ms ease-out; }
-/* Full-height windows get a fixed, dense dashboard instead of stretching rows and creating blank panels. */
+
+/* The dashboard owns its responsive layout. Keep the shell from forcing a second grid. */
 @media(min-height:851px){
   :deep(.dashboard-page .dashboard-scroll){overflow:hidden}
-  :deep(.dashboard-page .dashboard-content){height:auto;min-height:0;grid-template-rows:74px 164px 185px 220px 190px;gap:8px;padding:10px 20px 12px;align-content:start}
+  :deep(.dashboard-page .dashboard-content){height:auto;min-height:0;grid-template-rows:max-content max-content max-content max-content max-content;gap:8px;padding:10px 20px 12px;align-content:start}
+  :deep(.dashboard-page .middle){min-height:170px}
 }
+
+/* Keep the six-step Desktop Pro workflow on one line at normal desktop widths. */
+@media(min-width:901px){
+  :deep(.dashboard-page .workflow){grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr);height:116px;gap:0}
+  :deep(.dashboard-page .workflow-step){height:116px;display:flex;padding:10px 12px;text-align:center}
+  :deep(.dashboard-page .workflow-step .number){position:absolute}
+  :deep(.dashboard-page .workflow-step>svg){width:28px!important;height:28px!important;margin-bottom:7px}
+  :deep(.dashboard-page .workflow-step b),:deep(.dashboard-page .workflow-step small){text-align:center;max-width:180px;white-space:normal}
+}
+
 @media(max-width:1000px){.desk-sidebar{width:210px}.sidebar-enter-to,.sidebar-leave-from{width:210px}.sidebar-enter-from,.sidebar-leave-to{transform:translateX(-210px)}}
 </style>
