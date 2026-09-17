@@ -13,6 +13,7 @@ import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
 import { getTemplates } from './getPrintTemplates';
 import { getConfigFilesWithModified, getErrorHandledReponse, isNetworkError, setAndGetCleanedConfigFiles } from './helpers';
+import { printHtmlDocument } from './printHtmlDocument';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 import { sendAPIRequest } from './api';
 import { initScheduler } from './initSheduler';
