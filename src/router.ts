@@ -57,9 +57,14 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/import-wizard', name: 'Import Wizard', component: ImportWizard },
   { path: '/backup-wizard', name: 'Backup & Export', component: BackupWizard },
-  // Open the visible template manager from the main Template Builder entry.
-  // It creates a real PrintTemplate before opening the document editor route.
-  { path: '/template-builder', name: 'Template Builder', component: TemplateGallery },
+  // The main Template Builder entry opens the actual visual editor, not the
+  // management/gallery screen. The gallery remains available under /manage.
+  {
+    path: '/template-builder',
+    name: 'Template Builder',
+    component: TemplateBuilder,
+    props: { name: 'Professional Invoice' },
+  },
   { path: '/template-builder/manage', name: 'Template Gallery', component: TemplateGallery },
   { path: '/template-builder/:name', name: 'Template Builder Editor', component: TemplateBuilder, props: true },
   { path: '/customize-form', name: 'Customize Form', component: CustomizeForm },
@@ -72,7 +77,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/pos',
     name: 'Point of Sale',
-    components: { default: POS, edit: QuickEditForm },
+    component: POS,
     props: { default: true, edit: (route) => route.query },
   },
 ];
