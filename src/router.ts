@@ -77,7 +77,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/pos',
     name: 'Point of Sale',
-    component: POS,
+    components: { default: POS, edit: QuickEditForm },
     props: { default: true, edit: (route) => route.query },
   },
 ];
