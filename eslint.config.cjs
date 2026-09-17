@@ -93,4 +93,10 @@ module.exports = tseslint.config(
       'vue/no-unused-components': 'off',
     },
   },
+  {
+    files: ['src/pages/TemplateDesignerWindow.vue'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 );
