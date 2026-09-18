@@ -460,12 +460,15 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
   return values;
 }
 
+export type PrintOptions = { repeatHeader?: boolean; fitWidth?: boolean };
+
 export async function getPathAndMakePDF(
   name: string,
   innerHTML: string,
   width: number,
   height: number,
-  shouldPrint?: boolean
+  shouldPrint?: boolean,
+  options: PrintOptions = {}
 ) {
   if (!shouldPrint) {
     const { filePath: savePath } = await getSavePath(name, 'pdf');
@@ -473,7 +476,7 @@ export async function getPathAndMakePDF(
       return;
     }
 
-    const html = constructPrintDocument(innerHTML);
+    const html = constructPrintDocument(innerHTML, options);
     const success = await ipc.makePDF(html, savePath, width, height);
     if (success) {
       showExportInFolder(t`Save as PDF Successful`, savePath);
@@ -491,7 +494,7 @@ export async function getPathAndMakePDF(
   }
 }
 
-function constructPrintDocument(innerHTML: string) {
+function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
   const html = document.createElement('html');
   const head = document.createElement('head');
   const body = document.createElement('body');
@@ -515,6 +518,9 @@ function constructPrintDocument(innerHTML: string) {
         margin: 0;
         padding: 0;
       }
+
+      ${options.repeatHeader === false ? '' : 'table thead { display: table-header-group !important; }'}
+      ${options.fitWidth === false ? '' : 'body > div { width: 100% !important; max-width: 100% !important; } [data-cb-items-table] { width: 100% !important; max-width: 100% !important; table-layout: fixed !important; }'}
     }
   `;
 
