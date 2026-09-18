@@ -1,5 +1,5 @@
 import type { ContraBooksApp } from '../../app/types';
-import TemplateDesignerWindow from '../../pages/TemplateDesignerWindow.vue';
+import TemplateDesignerWindow from './pages/TemplateDesignerWindow.vue';
 
 export const templateBuilderApp: ContraBooksApp = {
   manifest: {
