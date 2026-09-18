@@ -107,7 +107,7 @@ export default defineComponent({
 .sidebar-enter-to,.sidebar-leave-from { opacity:1; transform:translateX(0); width:230px; }
 .sidebar-enter-active,.sidebar-leave-active { transition:all 150ms ease-out; }
 
-.internal-window-layer { position:absolute; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:18px; pointer-events:none; }
+.internal-window-layer { position:absolute; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:18px; pointer-events:auto; }
 .internal-window-shadow { position:absolute; inset:0; background:rgba(6,43,74,.08); pointer-events:none; }
 .internal-window-frame { position:relative; pointer-events:auto; z-index:81; width:min(1480px,calc(100% - 8px)); height:min(900px,calc(100% - 8px)); min-width:0; min-height:0; pointer-events:auto; display:flex; flex-direction:column; }
 .internal-window-frame-fullscreen { width:100%; height:100%; }
