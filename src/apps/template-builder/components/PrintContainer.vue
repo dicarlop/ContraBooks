@@ -12,7 +12,7 @@
 import { compile, CompilerError, generateCodeFrame, SourceLocation } from '@vue/compiler-dom';
 import { Verb } from 'fyo/telemetry/types';
 import ErrorBoundary from 'src/components/ErrorBoundary.vue';
-import { getPathAndMakePDF } from 'src/utils/printTemplates';
+import { printTemplate } from '../services/printing';
 import { PrintValues } from 'src/utils/types';
 import { defineComponent, PropType } from 'vue';
 import ScaledContainer from './ScaledContainer.vue';
@@ -35,7 +35,7 @@ export default defineComponent({
     getInnerHTML():string|null{const innerHTML=(this.$refs.scaledContainer as {$el?:HTMLElement}|undefined)?.$el?.children?.[0]?.innerHTML;return typeof innerHTML==='string'?innerHTML:null;},
     getPDFHtml():string|null{const innerHTML=this.getInnerHTML();if(!innerHTML)return null;const html=document.createElement('html');const head=document.createElement('head');const body=document.createElement('body');const cssTexts:string[]=[];for(const sheet of document.styleSheets){try{for(const rule of sheet.cssRules)cssTexts.push(rule.cssText);}catch{continue;}}const style=document.createElement('style');style.innerHTML=cssTexts.join('\n');const printCSS=document.createElement('style');printCSS.innerHTML=this.getPrintCSS();head.innerHTML='<meta charset="UTF-8"><title>Print Window</title>';head.append(style,printCSS);body.innerHTML=innerHTML;html.append(head,body);return html.outerHTML;},
     async getPDF():Promise<Uint8Array|null>{const html=this.getPDFHtml();return html?await ipc.createPDFFromHTML(html,this.width,this.height):null;},
-    async savePDF(name?:string,shouldPrint?:boolean){const innerHTML=this.getInnerHTML();if(!innerHTML)return;await getPathAndMakePDF(name??this.t`Entry`,innerHTML,this.width,this.height,shouldPrint,this.getPrintOptions());this.fyo.telemetry.log(Verb.Printed,this.printSchemaName);},
+    async savePDF(name?:string,shouldPrint?:boolean){const innerHTML=this.getInnerHTML();if(!innerHTML)return;if(shouldPrint!==false)await printTemplate(name??this.t`Entry`,innerHTML,this.width,this.height,this.getPrintOptions());this.fyo.telemetry.log(Verb.Printed,this.printSchemaName);},
   },
 });
 </script>
