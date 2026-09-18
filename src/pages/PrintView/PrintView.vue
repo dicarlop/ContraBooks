@@ -83,6 +83,7 @@ import { PrintValues } from 'src/utils/types';
 import { openSettings, routeTo } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import PrintContainer from 'src/apps/template-builder/components/PrintContainer.vue';
+import { setDefaultTemplateName, getDefaultTemplateName } from 'src/apps/template-builder/services';
 
 export default defineComponent({
   name: 'PrintView',
@@ -211,6 +212,19 @@ export default defineComponent({
           group: this.t`View`,
           action: async () => {
             await routeTo('/list/EmailLog');
+          },
+        },
+        {
+          label: this.t`Set as Default`,
+          group: this.t`Create`,
+          action: async () => {
+            const templateDocName = this.templateDoc?.name;
+            if (!templateDocName) {
+              return;
+            }
+
+            await setDefaultTemplateName(this.fyo, this.schemaName, templateDocName);
+            showToast({ message: this.t`Default print template updated`, type: 'success' });
           },
         },
         {
@@ -373,35 +387,11 @@ export default defineComponent({
       }
     },
     async setTemplateFromDefault() {
-      const defaultName =
-        this.schemaName[0].toLowerCase() +
-        this.schemaName.slice(1) +
-        ModelNameEnum.PrintTemplate;
-
-      let templateName;
-
-      if (
-        this.schemaName == ModelNameEnum.SalesInvoice &&
-        (this.doc as Doc).isPOS
-      ) {
-        templateName = this.fyo.singles.Defaults?.posPrintTemplate;
-
-        const posProfileName = this.fyo.singles.POSSettings
-          ?.posProfile as string;
-
-        if (posProfileName) {
-          const posProfile = await this.fyo.doc.getDoc(
-            ModelNameEnum.POSProfile,
-            posProfileName
-          );
-
-          if (posProfile.posPrintTemplate) {
-            templateName = posProfile.posPrintTemplate;
-          }
-        }
-      } else {
-        templateName = this.fyo.singles.Defaults?.get(defaultName);
-      }
+      const templateName = await getDefaultTemplateName(
+        this.fyo,
+        this.schemaName,
+        this.doc ?? undefined
+      );
 
       if (typeof templateName !== 'string') {
         return;
