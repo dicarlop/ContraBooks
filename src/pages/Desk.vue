@@ -20,7 +20,7 @@
               <button class="internal-window-close" aria-label="Close Template Builder" title="Close Template Builder" @mousedown.stop @click.stop="closeInternalWindow">×</button>
             </div>
           </div>
-          <TemplateDesignerWindow :name="designerName" class="internal-task-window" />
+          <TemplateBuilder :name="designerName" class="internal-task-window" />
         </div>
       </div>
     </div>
@@ -35,11 +35,11 @@ import { toggleSidebar } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import Sidebar from '../components/Sidebar.vue';
 import Dashboard from './Dashboard/Dashboard.vue';
-import TemplateDesignerWindow from './TemplateDesignerWindow.vue';
+import TemplateBuilder from './TemplateBuilder/TemplateBuilder.vue';
 const SWITCH_COMPANY_EVENT = 'contrabooks:switch-company';
 export default defineComponent({
   name: 'Desk',
-  components: { Sidebar, Dashboard, TemplateDesignerWindow },
+  components: { Sidebar, Dashboard, TemplateBuilder },
   props: { darkMode: { type: Boolean, default: false } },
   emits: ['change-db-file'],
   data() {
