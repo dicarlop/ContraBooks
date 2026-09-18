@@ -520,8 +520,6 @@ function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
 
       * {
         box-sizing: border-box;
-        margin: 0;
-        padding: 0;
       }
 
       table { page-break-inside: auto; }
