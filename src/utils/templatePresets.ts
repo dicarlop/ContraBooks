@@ -37,7 +37,7 @@ const shared = `
     </table>
     <div style="display:flex; justify-content:flex-end; margin-top:22px;"><div style="width:240px; font-size:12px;"><div data-cb-section="subtotal" style="display:flex; justify-content:space-between; padding:6px 0;"><span>Subtotal</span><strong>{{ doc.subTotal }}</strong></div><div data-cb-section="balance" style="display:flex; justify-content:space-between; padding:10px 0; border-top:2px solid #00AFC1; color:#07345C; font-size:15px;"><span>Total</span><strong>{{ doc.grandTotal }}</strong></div></div></div>
     <div data-cb-section="footer" style="margin-top:36px; padding-top:14px; border-top:1px solid #EAF0F5; font-size:10px; color:#7B9AB4;">Thank you for your business. {{ print.termsAndConditions }}</div>
-  </div>`;
+  <span data-cb-section="pageNumbers" class="cb-page-numbers"></span></div>`;
 
 export const templatePresets: Record<TemplatePresetName, string> = {
   Professional: `<main style="min-height:100%; background:#fff; border-top:8px solid #07345C;">${shared}</main>`,
