@@ -5,9 +5,8 @@ export {
   loadTemplate,
   normalizeTemplate,
   saveTemplate,
-  renderAndPrint,
   templatePresetNames,
 } from './templateRepository';
 export type { TemplatePresetName } from './templateRepository';
 
-export { printTemplate, exportTemplatePDF } from './printing';
+export { printTemplate, exportTemplatePDF, renderAndPrint } from './printing';
