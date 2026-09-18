@@ -15,9 +15,6 @@ jobs:
         with:
           node-version: '24.x'
 
-      - name: Set yarn version
-        run: yarn set version 1.22.18
-
       - name: Checkout Books
         uses: actions/checkout@v4
 
