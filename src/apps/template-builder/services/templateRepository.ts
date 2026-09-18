@@ -84,3 +84,4 @@ export function getPresetTemplate(name: TemplatePresetName): string {
 }
 
 export { templatePresetNames };
+export type { TemplatePresetName };
