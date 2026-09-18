@@ -17,6 +17,7 @@ const shared = `
   <div style="font-family: Inter, Arial, sans-serif; color: #14202B; padding: 34px; background: white; min-height: 100%; box-sizing: border-box;">
     <div style="display:flex; justify-content:space-between; gap:30px; border-bottom:1px solid #DCE7EF; padding-bottom:22px;">
       <div>
+        <div data-cb-section="logo" style="margin-bottom:8px;"><img src="{{ print.logo }}" alt="{{ print.companyName }}" style="max-width:180px; max-height:60px; object-fit:contain;" /></div>
         <div data-cb-section="companyName" style="font-size:24px; font-weight:800; color:#07345C;">{{ print.companyName }}</div>
         <div data-cb-section="address" style="font-size:12px; color:#64748B; margin-top:5px;">{{ print.address }}</div>
         <div data-cb-section="phone" style="font-size:12px; color:#64748B;">{{ print.phone }}</div><div data-cb-section="email" style="font-size:12px; color:#64748B;">{{ print.email }}</div>
