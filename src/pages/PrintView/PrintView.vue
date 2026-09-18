@@ -80,7 +80,7 @@ import { showToast } from 'src/utils/interactive';
 import type { DocumentEmailContext } from 'src/utils/email';
 import { showSidebar } from 'src/utils/refs';
 import { PrintValues } from 'src/utils/types';
-import { getFormRoute, openSettings, routeTo } from 'src/utils/ui';
+import { openSettings, routeTo } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import PrintContainer from 'src/apps/template-builder/components/PrintContainer.vue';
 
