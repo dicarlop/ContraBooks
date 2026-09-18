@@ -23,12 +23,13 @@ const shared = `
       </div>
       <div style="text-align:right;">
         <div data-cb-section="title" style="font-size:28px; font-weight:800; color:#07345C;">INVOICE</div>
+        <div data-cb-section="status" style="display:inline-block; margin-top:6px; padding:3px 8px; border-radius:10px; background:#E8F8F2; color:#087C58; font-size:9px; font-weight:800;">OPEN</div>
         <div data-cb-section="number" style="font-size:12px; color:#64748B; margin-top:6px;">#{{ doc.name }}</div>
-        <div style="font-size:12px; color:#64748B;">{{ doc.date }}</div>
+        <div data-cb-section="date" style="font-size:12px; color:#64748B;">{{ doc.date }}</div>
       </div>
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:24px 0;">
-      <div><div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#7B9AB4;">Bill To</div><div style="font-size:15px; font-weight:700; color:#07345C; margin-top:6px;">{{ doc.links.party.name }}</div><div style="font-size:12px; color:#64748B; margin-top:3px;">{{ doc.links.party.address }}</div></div>
+      <div data-cb-section="billTo"><div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#7B9AB4;">Bill To</div><div style="font-size:15px; font-weight:700; color:#07345C; margin-top:6px;">{{ doc.links.party.name }}</div><div style="font-size:12px; color:#64748B; margin-top:3px;">{{ doc.links.party.address }}</div></div>
       <div style="text-align:right;"><div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#7B9AB4;">Amount Due</div><div style="font-size:22px; font-weight:800; color:#07345C; margin-top:6px;">{{ doc.grandTotal }}</div></div>
     </div>
     <table data-cb-items-table style="width:100%; border-collapse:collapse; font-size:12px;">
