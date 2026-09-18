@@ -8,7 +8,7 @@
       <Dashboard v-if="isInternalWindowRoute" class="min-h-0 min-w-0 flex-1" :dark-mode="darkMode" />
       <router-view v-else v-slot="{ Component }"><keep-alive><component :is="Component" :key="$route.path" :dark-mode="darkMode" class="min-h-0 min-w-0 flex-1" /></keep-alive></router-view>
       <router-view v-slot="{ Component, route }" name="edit"><Transition name="quickedit"><div v-if="route?.query?.edit"><component :is="Component" :key="route.query.schemaName + route.query.name" :dark-mode="darkMode" /></div></Transition></router-view>
-      <div v-if="isInternalWindowRoute" class="internal-window-layer" @mousedown.stop>
+      <div v-if="isInternalWindowRoute" class="internal-window-layer">
         <div class="internal-window-shadow"></div>
         <div class="internal-window-frame" :class="{ 'internal-window-frame-fullscreen': designerFullscreen }" :style="designerFrameStyle">
           <div class="internal-window-chrome" @mousedown="beginDesignerDrag">
