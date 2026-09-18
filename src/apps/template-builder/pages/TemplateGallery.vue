@@ -245,9 +245,57 @@ export default defineComponent({
         root.style.borderColor = accent;
       }
 
+      const fields = Object.values(this.fields).flat();
+      const sectionLabels: Record<string, string> = {
+        'Default Title': 'title',
+        'Date': 'date',
+        'Invoice Number': 'number',
+        'Bill To': 'billTo',
+        'Page Numbers': 'pageNumbers',
+        'Terms & Conditions': 'terms',
+        Subtotal: 'subtotal',
+        Tax: 'tax',
+        Total: 'balance',
+        'Payments / Credits': 'payments',
+        'Balance Due': 'balance',
+      };
+
+      for (const field of fields) {
+        const section = sectionLabels[field.label];
+        if (!section) continue;
+        const node = document.body.querySelector(
+          `[data-cb-section="${section}"]`
+        ) as HTMLElement | null;
+        if (!node) continue;
+
+        node.style.display = field.print ? '' : 'none';
+
+        if (section === 'title' || section === 'number') {
+          const text = node.firstChild;
+          if (text && field.title.trim()) text.textContent = field.title;
+        } else if (section === 'subtotal' || section === 'tax' || section === 'payments') {
+          const label = node.querySelector('span');
+          if (label && field.title.trim()) label.textContent = field.title;
+        } else if (section === 'balance') {
+          const label = node.querySelector('span');
+          if (label && field.title.trim()) label.textContent = field.title;
+        }
+      }
+
       if (!this.options.status) {
         const status = document.body.querySelector('[data-cb-section="status"]');
         status?.remove();
+      }
+
+      if (this.options.pastDue) {
+        const status = document.body.querySelector(
+          '[data-cb-section="status"]'
+        ) as HTMLElement | null;
+        if (status) {
+          status.textContent = 'PAST DUE';
+          status.style.background = '#FFF1F2';
+          status.style.color = '#B42318';
+        }
       }
 
       return document.body.innerHTML;
