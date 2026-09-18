@@ -11,7 +11,7 @@
     </Transition>
 
     <div class="relative flex min-h-0 min-w-0 flex-1 overflow-hidden bg-[#F8FAFC] dark:bg-gray-875">
-      <Dashboard v-if="isInternalAppRoute" class="min-h-0 min-w-0 flex-1" :dark-mode="darkMode" />
+      <Dashboard v-if="!isInternalAppRoute" class="min-h-0 min-w-0 flex-1" :dark-mode="darkMode" />
 
       <div v-else class="internal-window-layer">
         <div class="internal-window-shadow"></div>
@@ -54,7 +54,7 @@
         </div>
       </div>
 
-      <router-view v-else v-slot="{ Component }">
+      <router-view v-if="!isInternalAppRoute" v-slot="{ Component }">
         <keep-alive>
           <component :is="Component" :dark-mode="darkMode" class="min-h-0 min-w-0 flex-1" />
         </keep-alive>
