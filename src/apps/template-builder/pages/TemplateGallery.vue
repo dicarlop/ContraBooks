@@ -351,7 +351,7 @@ export default defineComponent({
         'Bill To': 'billTo',
         'Ship To': 'shipTo',
         'P.O. No.': 'poNo',
-        Terms: 'terms',
+        Terms: 'paymentTerms',
         'Due Date': 'dueDate',
         'Page Numbers': 'pageNumbers',
         'Terms & Conditions': 'terms',
@@ -538,11 +538,14 @@ export default defineComponent({
           node.setAttribute('data-cb-print', field.print ? 'visible' : 'hidden');
           node.style.display = '';
 
-          if (section === 'title' || section === 'number' || section === 'date' || section === 'shipTo' || section === 'poNo' || section === 'terms' || section === 'dueDate') {
+          if (section === 'title' || section === 'number' || section === 'date') {
             const text = node.firstChild;
             if (text && field.title.trim()) text.textContent = field.title;
-          } else if (section === 'billTo') {
-            const label = node.querySelector('div');
+          } else if (section === 'billTo' || section === 'shipTo') {
+            const label = node.querySelector('div, small');
+            if (label && field.title.trim()) label.textContent = field.title;
+          } else if (section === 'poNo' || section === 'paymentTerms' || section === 'dueDate') {
+            const label = node.querySelector('strong');
             if (label && field.title.trim()) label.textContent = field.title;
           } else if (
             section === 'subtotal' ||
