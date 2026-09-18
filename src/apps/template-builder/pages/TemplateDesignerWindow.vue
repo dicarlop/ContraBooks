@@ -22,7 +22,7 @@
         <div class="canvas-toolbar"><div><strong>{{ doc.type === 'SalesInvoice' ? 'Invoice' : doc.type }}</strong><span>Live data preview</span></div><div class="canvas-controls"><button @click="zoom-=.1">−</button><span>{{ Math.round(zoom*100) }}%</span><button @click="zoom+=.1">+</button><button @click="fit">Fit</button></div></div>
         <div class="paper-stage" @dragover.prevent @drop="dropElement">
           <div class="paper-shell" :style="{transform:`scale(${zoom})`}">
-            <PrintContainer v-if="displayDoc && values" ref="printContainer" :print-schema-name="displayDoc.schemaName" :template="doc.template!" :values="values" :scale="1" :height="doc.height" :width="doc.width" @select-element="selectElement" />
+            <PrintContainer v-if="displayDoc && values" ref="printContainer" :print-schema-name="displayDoc.schemaName" :template="doc.template!" :values="values" :scale="1" :height="doc.height" :width="doc.width" :repeat-header="print.repeatHeader" :fit-width="print.fitWidth" @select-element="selectElement" />
           </div>
         </div>
       </main>
