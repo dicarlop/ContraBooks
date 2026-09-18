@@ -1,3 +1,4 @@
+import type { RouteRecordRaw } from 'vue-router';
 import type { ContraBooksApp } from './types';
 import { templateBuilderApp } from '../apps/template-builder';
 
@@ -32,6 +33,6 @@ export function getEnabledApps(): ContraBooksApp[] {
   return getApps().filter((app) => app.manifest.enabledByDefault !== false);
 }
 
-export function getAppRoutes(): ContraBooksApp['routes'] {
+export function getAppRoutes(): RouteRecordRaw[] {
   return getEnabledApps().flatMap((app) => app.routes ?? []);
 }
