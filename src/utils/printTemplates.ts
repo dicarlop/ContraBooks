@@ -507,6 +507,7 @@ function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
   const printCSS = document.createElement('style');
   printCSS.innerHTML = `
     @media print {
+      [data-cb-print="hidden"] { display: none !important; }
       html, body {
         margin: 0 !important;
         padding: 0 !important;
