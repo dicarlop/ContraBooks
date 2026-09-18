@@ -31,7 +31,7 @@ const shared = `
       <div><div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#7B9AB4;">Bill To</div><div style="font-size:15px; font-weight:700; color:#07345C; margin-top:6px;">{{ doc.links.party.name }}</div><div style="font-size:12px; color:#64748B; margin-top:3px;">{{ doc.links.party.address }}</div></div>
       <div style="text-align:right;"><div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#7B9AB4;">Amount Due</div><div style="font-size:22px; font-weight:800; color:#07345C; margin-top:6px;">{{ doc.grandTotal }}</div></div>
     </div>
-    <table style="width:100%; border-collapse:collapse; font-size:12px;">
+    <table data-cb-items-table style="width:100%; border-collapse:collapse; font-size:12px;">
       <thead><tr style="background:#F5F9FC; color:#375E7F;"><th data-cb-column="item" style="padding:10px; text-align:left;">Item</th><th data-cb-column="quantity" style="padding:10px; text-align:right;">Qty</th><th data-cb-column="rate" style="padding:10px; text-align:right;">Rate</th><th data-cb-column="amount" style="padding:10px; text-align:right;">Amount</th></tr></thead>
       <tbody><tr v-for="item in doc.items" style="border-bottom:1px solid #EAF0F5;"><td data-cb-column="item" style="padding:11px;">{{ item.item }}</td><td data-cb-column="quantity" style="padding:11px; text-align:right;">{{ item.quantity }}</td><td data-cb-column="rate" style="padding:11px; text-align:right;">{{ item.rate }}</td><td data-cb-column="amount" style="padding:11px; text-align:right; font-weight:600;">{{ item.amount }}</td></tr></tbody>
     </table>
