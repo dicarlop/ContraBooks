@@ -19,7 +19,7 @@ const shared = `
       <div>
         <div data-cb-section="companyName" style="font-size:24px; font-weight:800; color:#07345C;">{{ print.companyName }}</div>
         <div data-cb-section="address" style="font-size:12px; color:#64748B; margin-top:5px;">{{ print.address }}</div>
-        <div data-cb-section="phone" style="font-size:12px; color:#64748B;">{{ print.phone }} · {{ print.email }}</div><div data-cb-section="email" style="font-size:12px; color:#64748B;">{{ print.email }}</div>
+        <div data-cb-section="phone" style="font-size:12px; color:#64748B;">{{ print.phone }}</div><div data-cb-section="email" style="font-size:12px; color:#64748B;">{{ print.email }}</div>
       </div>
       <div style="text-align:right;">
         <div data-cb-section="title" style="font-size:28px; font-weight:800; color:#07345C;">INVOICE</div>
@@ -36,7 +36,7 @@ const shared = `
       <tbody><tr v-for="item in doc.items" style="border-bottom:1px solid #EAF0F5;"><td data-cb-column="item" style="padding:11px;">{{ item.item }}</td><td data-cb-column="quantity" style="padding:11px; text-align:right;">{{ item.quantity }}</td><td data-cb-column="rate" style="padding:11px; text-align:right;">{{ item.rate }}</td><td data-cb-column="amount" style="padding:11px; text-align:right; font-weight:600;">{{ item.amount }}</td></tr></tbody>
     </table>
     <div style="display:flex; justify-content:flex-end; margin-top:22px;"><div style="width:240px; font-size:12px;"><div data-cb-section="subtotal" style="display:flex; justify-content:space-between; padding:6px 0;"><span>Subtotal</span><strong>{{ doc.subTotal }}</strong></div><div data-cb-section="discount" style="display:flex; justify-content:space-between; padding:6px 0;"><span>Discount</span><strong>{{ doc.discountAmount }}</strong></div><div data-cb-section="tax" style="display:flex; justify-content:space-between; padding:6px 0;"><span>Tax</span><strong>{{ doc.taxes.reduce((sum, tax) => sum + tax.amount, 0) }}</strong></div><div data-cb-section="payments" style="display:flex; justify-content:space-between; padding:6px 0;"><span>Payments / Credits</span><strong>{{ doc.grandTotal - doc.outstandingAmount }}</strong></div><div data-cb-section="balance" style="display:flex; justify-content:space-between; padding:10px 0; border-top:2px solid #00AFC1; color:#07345C; font-size:15px;"><span>Total</span><strong>{{ doc.grandTotal }}</strong></div></div></div>
-    <div data-cb-section="footer" style="margin-top:36px; padding-top:14px; border-top:1px solid #EAF0F5; font-size:10px; color:#7B9AB4;">Thank you for your business. {{ print.termsAndConditions }} <span data-cb-section="pageNumbers" class="cb-page-numbers"></span></div>
+    <div data-cb-section="footer" style="margin-top:36px; padding-top:14px; border-top:1px solid #EAF0F5; font-size:10px; color:#7B9AB4;"><span data-cb-section="footerText">Thank you for your business.</span> <span data-cb-section="terms">{{ print.termsAndConditions }}</span> <span data-cb-section="pageNumbers" class="cb-page-numbers"></span></div>
   </div>`;
 
 export const templatePresets: Record<TemplatePresetName, string> = {
