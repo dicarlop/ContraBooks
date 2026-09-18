@@ -62,11 +62,10 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { ModelNameEnum } from 'models/types';
 import { PrintTemplate } from 'models/baseModels/PrintTemplate';
 import type { Doc } from 'fyo/model/doc';
 import type { PrintValues } from 'src/utils/types';
-import { templatePresetNames, TemplatePresetName } from 'src/utils/templatePresets';
+import { templatePresetNames, TemplatePresetName } from '../services';
 import {
   ensureTemplateDefaults,
   getPresetTemplate,
