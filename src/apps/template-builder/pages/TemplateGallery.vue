@@ -16,7 +16,7 @@
             <span class="panel-eyebrow">Selected Template</span>
             <strong>{{ selectedPreset }}</strong>
           </div>
-          <button class="small-button" type="button" @click="usePreset(selectedPreset)">Copy</button>
+          <button class="small-button" type="button" @click="copyPreset(selectedPreset)">Copy</button>
         </div>
 
         <div class="template-list">
@@ -344,6 +344,22 @@ export default defineComponent({
           field.title = header?.textContent?.trim() || field.title;
         }
       }
+    },
+    async copyPreset(name: string) {
+      const templateDoc = !templatePresetNames.includes(name as TemplatePresetName)
+        ? await fyo.doc.getDoc(ModelNameEnum.PrintTemplate, name)
+        : undefined;
+      const baseTemplate = templateDoc?.template as string | undefined;
+      const template = this.customizeTemplate(
+        baseTemplate ?? getTemplatePreset(name as TemplatePresetName)
+      );
+      const doc = fyo.doc.getNewDoc(ModelNameEnum.PrintTemplate, {
+        name: `${name} Invoice`,
+        type: ModelNameEnum.SalesInvoice,
+        template,
+        isCustom: true,
+      });
+      await routeTo(`/template-builder/${doc.name!}`);
     },
     async openEditor() {
       await this.usePreset(this.selectedPreset);
