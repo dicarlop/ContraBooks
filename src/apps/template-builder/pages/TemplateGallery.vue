@@ -220,6 +220,9 @@ export default defineComponent({
       })),
     };
   },
+  async mounted() {
+    await this.loadCustomTemplates();
+  },
   computed: {
     currentFields(): FieldOption[] {
       return this.fields[this.activeTab] ?? [];
@@ -231,6 +234,24 @@ export default defineComponent({
       return Object.values(this.fields)
         .flat()
         .find((option) => option.label === label);
+    },
+    async loadCustomTemplates() {
+      const templates = (await fyo.db.getAll(ModelNameEnum.PrintTemplate, {
+        fields: ['name', 'type', 'isCustom'],
+        filters: { isCustom: true, type: ModelNameEnum.SalesInvoice },
+      })) as { name: string; type: string; isCustom: boolean }[];
+
+      const customNames = templates
+        .map((template) => template.name)
+        .filter((name): name is string => typeof name === 'string' && !!name);
+
+      for (const name of customNames) {
+        if (this.presets.some((preset) => preset.name === name)) continue;
+        this.presets.push({
+          name: name as TemplatePresetName,
+          detail: 'Saved custom invoice template',
+        });
+      }
     },
     async openEditor() {
       await this.usePreset(this.selectedPreset);
