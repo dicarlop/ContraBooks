@@ -353,8 +353,18 @@ export default defineComponent({
       const template = this.customizeTemplate(
         baseTemplate ?? getTemplatePreset(name as TemplatePresetName)
       );
+      const baseName = `${name} Invoice`;
+      let copyName = baseName;
+      let suffix = 2;
+      while (
+        await fyo.db.exists(ModelNameEnum.PrintTemplate, copyName)
+      ) {
+        copyName = `${baseName} ${suffix}`;
+        suffix += 1;
+      }
+
       const doc = fyo.doc.getNewDoc(ModelNameEnum.PrintTemplate, {
-        name: `${name} Invoice`,
+        name: copyName,
         type: ModelNameEnum.SalesInvoice,
         template,
         isCustom: true,
