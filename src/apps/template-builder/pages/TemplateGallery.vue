@@ -287,27 +287,55 @@ export default defineComponent({
         'Payments / Credits': 'payments',
         'Balance Due': 'balance',
       };
+      const columnMap: Record<string, string> = {
+        Description: 'item',
+        Quantity: 'quantity',
+        Rate: 'rate',
+        Amount: 'amount',
+      };
 
       for (const field of fields) {
         const section = sectionLabels[field.label];
-        if (!section) continue;
-        const node = document.body.querySelector(
-          `[data-cb-section="${section}"]`
-        ) as HTMLElement | null;
-        if (!node) continue;
+        if (section) {
+          const node = document.body.querySelector(
+            `[data-cb-section="${section}"]`
+          ) as HTMLElement | null;
+          if (!node) continue;
 
-        node.style.display = field.print ? '' : 'none';
+          node.style.display = field.print ? '' : 'none';
 
-        if (section === 'title' || section === 'number') {
-          const text = node.firstChild;
-          if (text && field.title.trim()) text.textContent = field.title;
-        } else if (section === 'subtotal' || section === 'tax' || section === 'payments') {
-          const label = node.querySelector('span');
-          if (label && field.title.trim()) label.textContent = field.title;
-        } else if (section === 'balance') {
-          const label = node.querySelector('span');
-          if (label && field.title.trim()) label.textContent = field.title;
+          if (section === 'title' || section === 'number' || section === 'date') {
+            const text = node.firstChild;
+            if (text && field.title.trim()) text.textContent = field.title;
+          } else if (section === 'billTo') {
+            const label = node.querySelector('div');
+            if (label && field.title.trim()) label.textContent = field.title;
+          } else if (
+            section === 'subtotal' ||
+            section === 'tax' ||
+            section === 'payments' ||
+            section === 'balance'
+          ) {
+            const label = node.querySelector('span');
+            if (label && field.title.trim()) label.textContent = field.title;
+          }
+          continue;
         }
+
+        const column = columnMap[field.label];
+        if (column) {
+          const cells = document.body.querySelectorAll(
+            `[data-cb-column="${column}"]`
+          );
+          cells.forEach((cell) => {
+            (cell as HTMLElement).style.display = field.print ? '' : 'none';
+          });
+          const header = document.body.querySelector(
+            `thead [data-cb-column="${column}"]`
+          );
+          if (header && field.title.trim()) header.textContent = field.title;
+        }
+
       }
 
       if (!this.options.status) {
