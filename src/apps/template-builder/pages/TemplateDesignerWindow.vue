@@ -64,7 +64,7 @@
 import { defineComponent } from 'vue';
 import { ModelNameEnum } from 'models/types';
 import { PrintTemplate } from 'models/baseModels/PrintTemplate';
-import { getDocFromNameIfExistsElseNew, routeTo } from 'src/utils/ui';
+import { getDocFromNameIfExistsElseNew } from 'src/utils/ui';
 import { getPrintTemplatePropValues } from 'src/utils/printTemplates';
 import { getTemplatePreset, templatePresetNames, TemplatePresetName } from 'src/utils/templatePresets';
 import PrintContainer from '../components/PrintContainer.vue';
