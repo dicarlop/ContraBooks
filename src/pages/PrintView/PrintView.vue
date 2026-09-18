@@ -82,7 +82,7 @@ import { showSidebar } from 'src/utils/refs';
 import { PrintValues } from 'src/utils/types';
 import { getFormRoute, openSettings, routeTo } from 'src/utils/ui';
 import { defineComponent } from 'vue';
-import PrintContainer from '../TemplateBuilder/PrintContainer.vue';
+import PrintContainer from 'src/apps/template-builder/components/PrintContainer.vue';
 
 export default defineComponent({
   name: 'PrintView',
@@ -221,8 +221,7 @@ export default defineComponent({
               type: this.schemaName,
             });
 
-            const route = getFormRoute(doc.schemaName, doc.name!);
-            await routeTo(route);
+            await routeTo(`/template-builder/${doc.name!}`);
           },
         },
       ];
@@ -233,11 +232,7 @@ export default defineComponent({
           label: templateDocName,
           group: this.t`View`,
           action: async () => {
-            const route = getFormRoute(
-              ModelNameEnum.PrintTemplate,
-              templateDocName
-            );
-            await routeTo(route);
+            await routeTo(`/template-builder/${templateDocName}`);
           },
         });
 
@@ -250,8 +245,7 @@ export default defineComponent({
               template: this.templateDoc?.template,
             });
 
-            const route = getFormRoute(doc.schemaName, doc.name!);
-            await routeTo(route);
+            await routeTo(`/template-builder/${doc.name!}`);
           },
         });
       }
