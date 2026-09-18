@@ -85,3 +85,10 @@ export function getPresetTemplate(name: TemplatePresetName): string {
 
 export { templatePresetNames };
 export type { TemplatePresetName };
+
+export async function renderAndPrint(
+  container: { savePDF?: (name?: string, shouldPrint?: boolean) => Promise<unknown> },
+  name?: string
+): Promise<void> {
+  await container.savePDF?.(name, true);
+}
