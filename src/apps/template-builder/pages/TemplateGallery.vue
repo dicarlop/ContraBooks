@@ -26,7 +26,7 @@
             type="button"
             class="template-row"
             :class="selectedPreset === preset.name ? 'selected' : ''"
-            @click="selectedPreset = preset.name"
+            @click="selectTemplate(preset.name)"
           >
             <span class="template-swatch" :class="`swatch-${preset.name.toLowerCase()}`"></span>
             <span class="template-row-copy">
@@ -253,13 +253,106 @@ export default defineComponent({
         });
       }
     },
+    async selectTemplate(name: string) {
+      this.selectedPreset = name;
+      await this.loadCustomizationFromTemplate(name);
+    },
+    async loadCustomizationFromTemplate(name: string) {
+      if (templatePresetNames.includes(name as TemplatePresetName)) return;
+      const templateDoc = await fyo.doc.getDoc(ModelNameEnum.PrintTemplate, name);
+      const document = new DOMParser().parseFromString(
+        (templateDoc.template as string) || '',
+        'text/html'
+      );
+      const visible = (section: string) => {
+        const node = document.body.querySelector(
+          `[data-cb-section="${section}"]`
+        ) as HTMLElement | null;
+        return !node || node.style.display !== 'none';
+      };
+      this.options.useLogo = visible('logo');
+      this.options.companyName = visible('companyName');
+      this.options.address = visible('address');
+      this.options.phone = visible('phone');
+      this.options.email = visible('email');
+      this.options.status = visible('status');
+      const status = document.body.querySelector(
+        '[data-cb-section="status"]'
+      ) as HTMLElement | null;
+      this.options.pastDue = status?.textContent?.trim() === 'PAST DUE';
+
+      const root = document.body.firstElementChild as HTMLElement | null;
+      if (root) {
+        this.options.font =
+          root.style.fontFamily?.replace(/^[\"']|[\"']$/g, '') ||
+          this.options.font;
+        const accent = root.style.borderColor?.toLowerCase();
+        this.options.color =
+          accent === '#00afc1'
+            ? 'teal'
+            : accent === '#657986'
+              ? 'slate'
+              : 'navy';
+      }
+
+      const sectionMap: Record<string, string> = {
+        'Default Title': 'title',
+        Date: 'date',
+        'Invoice Number': 'number',
+        'Bill To': 'billTo',
+        'Page Numbers': 'pageNumbers',
+        'Terms & Conditions': 'terms',
+        Subtotal: 'subtotal',
+        Tax: 'tax',
+        Total: 'balance',
+        'Payments / Credits': 'payments',
+        'Balance Due': 'balance',
+      };
+      const columnMap: Record<string, string> = {
+        Description: 'item',
+        Quantity: 'quantity',
+        Rate: 'rate',
+        Amount: 'amount',
+      };
+
+      for (const field of Object.values(this.fields).flat()) {
+        const section = sectionMap[field.label];
+        if (section) {
+          field.print = visible(section);
+          const node = document.body.querySelector(
+            `[data-cb-section="${section}"]`
+          ) as HTMLElement | null;
+          const label = node?.querySelector('span');
+          field.title =
+            section === 'title' ||
+            section === 'number' ||
+            section === 'date'
+              ? node?.textContent?.trim() || field.title
+              : label?.textContent?.trim() || field.title;
+          continue;
+        }
+
+        const column = columnMap[field.label];
+        if (column) {
+          const cell = document.body.querySelector(
+            `[data-cb-column="${column}"]`
+          ) as HTMLElement | null;
+          field.print = !cell || cell.style.display !== 'none';
+          const header = document.body.querySelector(
+            `thead [data-cb-column="${column}"]`
+          );
+          field.title = header?.textContent?.trim() || field.title;
+        }
+      }
+    },
     async openEditor() {
       await this.usePreset(this.selectedPreset);
     },
     async usePreset(name: string) {
-      const templateDoc = !templatePresetNames.includes(name as TemplatePresetName)
-        ? await fyo.doc.getDoc(ModelNameEnum.PrintTemplate, name)
-        : undefined;
+      if (!templatePresetNames.includes(name as TemplatePresetName)) {
+        await routeTo(`/template-builder/${name}`);
+        return;
+      }
       const baseTemplate = templateDoc?.template as string | undefined;
       const template = this.customizeTemplate(
         baseTemplate ?? getTemplatePreset(name as TemplatePresetName)
