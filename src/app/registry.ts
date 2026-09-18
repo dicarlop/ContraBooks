@@ -2,10 +2,23 @@ import type { ContraBooksApp } from './types';
 import { templateBuilderApp } from '../apps/template-builder';
 
 const bundledApps: ContraBooksApp[] = [templateBuilderApp];
+const apps = new Map<string, ContraBooksApp>();
 
-const apps = new Map<string, ContraBooksApp>(
-  bundledApps.map((app) => [app.manifest.id, app]),
-);
+for (const app of bundledApps) {
+  apps.set(app.manifest.id, app);
+}
+
+export function registerApp(app: ContraBooksApp): void {
+  if (!app.manifest.id) {
+    throw new Error('ContraBooks apps must declare a manifest id.');
+  }
+
+  if (apps.has(app.manifest.id)) {
+    throw new Error(`ContraBooks app "${app.manifest.id}" is already registered.`);
+  }
+
+  apps.set(app.manifest.id, app);
+}
 
 export function getApp(id: string): ContraBooksApp | undefined {
   return apps.get(id);
