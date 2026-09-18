@@ -1,11 +1,21 @@
+<template>
+  <div id="app" class="dark:bg-gray-900 h-screen flex flex-col font-sans overflow-hidden antialiased" :dir="languageDirection" :language="language">
+    <WindowsTitleBar v-if="platform === 'Windows'" :db-path="dbPath" :company-name="companyName" />
+    <Desk v-if="activeScreen === 'Desk'" class="flex-1" :dark-mode="darkMode" @change-db-file="showDbSelector" />
+    <DatabaseSelector v-if="activeScreen === 'DatabaseSelector'" ref="databaseSelector" @new-database="newDatabase" @file-selected="fileSelected" />
+    <SetupWizard v-if="activeScreen === 'SetupWizard'" @setup-complete="setupComplete" @setup-canceled="showDbSelector" />
+    <div id="toast-container" class="absolute bottom-0 flex flex-col items-end mb-3 pe-6" style="width: 100%; pointer-events: none"></div>
+  </div>
+</template>
+<script lang="ts">
 import { RTL_LANGUAGES } from 'fyo/utils/consts';
 import { ModelNameEnum } from 'models/types';
 import { systemLanguageRef } from 'src/utils/refs';
 import { defineComponent, provide, ref, Ref } from 'vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
-import { fyo } from './initFyo';
 import { initializeApps } from './app/registry';
+import { fyo } from './initFyo';
 import DatabaseSelector from './pages/DatabaseSelector.vue';
 import Desk from './pages/Desk.vue';
 import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
@@ -145,3 +155,4 @@ export default defineComponent({
   },
 });
 function getLanguageDirection(language: string): 'rtl' | 'ltr' { return RTL_LANGUAGES.includes(language) ? 'rtl' : 'ltr'; }
+</script>
