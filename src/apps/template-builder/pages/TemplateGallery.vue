@@ -253,8 +253,51 @@ export default defineComponent({
         });
       }
     },
+    resetCustomization() {
+      this.options = {
+        useLogo: true,
+        color: 'navy',
+        font: 'Inter',
+        companyName: true,
+        address: true,
+        phone: true,
+        email: true,
+        pastDue: false,
+        status: true,
+      };
+      this.fields = {
+        Header: makeFields([
+          'Default Title',
+          'Date',
+          'Invoice Number',
+          'Bill To',
+          'Ship To',
+          'P.O. No.',
+          'Terms',
+          'Due Date',
+        ]),
+        Columns: makeFields(['Description', 'Quantity', 'Rate', 'Amount']),
+        Footer: makeFields([
+          'Subtotal',
+          'Tax',
+          'Total',
+          'Payments / Credits',
+          'Balance Due',
+        ]),
+        Print: makeFields([
+          'Page Numbers',
+          'Print Date',
+          'Notes',
+          'Terms & Conditions',
+        ]),
+      };
+    },
     async selectTemplate(name: string) {
       this.selectedPreset = name;
+      if (templatePresetNames.includes(name as TemplatePresetName)) {
+        this.resetCustomization();
+        return;
+      }
       await this.loadCustomizationFromTemplate(name);
     },
     async loadCustomizationFromTemplate(name: string) {
