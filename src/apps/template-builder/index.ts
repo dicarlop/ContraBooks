@@ -26,6 +26,12 @@ export const templateBuilderApp: ContraBooksApp = {
       props: { name: 'Professional Invoice' },
     },
     {
+      path: '/template-builder/:name',
+      name: 'Template Builder Editor',
+      component: TemplateDesignerWindow,
+      props: true,
+    },
+    {
       path: '/template-designer/:name',
       name: 'Visual Template Designer',
       component: TemplateDesignerWindow,
