@@ -48,17 +48,6 @@ export async function setDefaultTemplateName(
   schemaName: string,
   templateName: string
 ): Promise<void> {
-  if (schemaName === ModelNameEnum.SalesInvoice) {
-    const defaults = fyo.singles.Defaults;
-    if (!defaults) {
-      throw new Error('Defaults settings are unavailable');
-    }
-
-    await defaults.set(getDefaultTemplateKey(schemaName), templateName);
-    await defaults.sync();
-    return;
-  }
-
   const defaults = fyo.singles.Defaults;
   if (!defaults) {
     throw new Error('Defaults settings are unavailable');
