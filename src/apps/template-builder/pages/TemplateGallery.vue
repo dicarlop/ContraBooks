@@ -208,13 +208,49 @@ export default defineComponent({
       await this.usePreset(this.selectedPreset);
     },
     async usePreset(name: TemplatePresetName) {
+      const template = this.customizeTemplate(getTemplatePreset(name));
       const doc = fyo.doc.getNewDoc(ModelNameEnum.PrintTemplate, {
         name: `${name} Invoice`,
         type: ModelNameEnum.SalesInvoice,
-        template: getTemplatePreset(name),
+        template,
         isCustom: true,
       });
       await routeTo(`/template-builder/${doc.name!}`);
+    },
+    customizeTemplate(template: string): string {
+      const document = new DOMParser().parseFromString(template, 'text/html');
+      const sectionMap: Record<string, boolean> = {
+        companyName: this.options.companyName,
+        address: this.options.address,
+        phone: this.options.phone,
+        email: this.options.email,
+      };
+
+      for (const [section, visible] of Object.entries(sectionMap)) {
+        const node = document.body.querySelector(
+          `[data-cb-section="${section}"]`
+        ) as HTMLElement | null;
+        if (node) node.style.display = visible ? '' : 'none';
+      }
+
+      const root = document.body.firstElementChild as HTMLElement | null;
+      if (root) {
+        root.style.fontFamily = this.options.font;
+        const accent =
+          this.options.color === 'teal'
+            ? '#00AFC1'
+            : this.options.color === 'slate'
+              ? '#657986'
+              : '#07345C';
+        root.style.borderColor = accent;
+      }
+
+      if (!this.options.status) {
+        const status = document.body.querySelector('[data-cb-section="status"]');
+        status?.remove();
+      }
+
+      return document.body.innerHTML;
     },
   },
 });
