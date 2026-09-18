@@ -185,7 +185,7 @@ export default defineComponent({
   name: 'TemplateGallery',
   data() {
     return {
-      selectedPreset: 'Professional' as TemplatePresetName,
+      selectedPreset: 'Professional' as string,
       activeTab: 'Header',
       tabs: ['Header', 'Columns', 'Footer', 'Print'],
       options: {
@@ -248,7 +248,7 @@ export default defineComponent({
       for (const name of customNames) {
         if (this.presets.some((preset) => preset.name === name)) continue;
         this.presets.push({
-          name: name as TemplatePresetName,
+          name,
           detail: 'Saved custom invoice template',
         });
       }
@@ -256,8 +256,14 @@ export default defineComponent({
     async openEditor() {
       await this.usePreset(this.selectedPreset);
     },
-    async usePreset(name: TemplatePresetName) {
-      const template = this.customizeTemplate(getTemplatePreset(name));
+    async usePreset(name: string) {
+      const templateDoc = !templatePresetNames.includes(name as TemplatePresetName)
+        ? await fyo.doc.getDoc(ModelNameEnum.PrintTemplate, name)
+        : undefined;
+      const baseTemplate = templateDoc?.template as string | undefined;
+      const template = this.customizeTemplate(
+        baseTemplate ?? getTemplatePreset(name as TemplatePresetName)
+      );
       const doc = fyo.doc.getNewDoc(ModelNameEnum.PrintTemplate, {
         name: `${name} Invoice`,
         type: ModelNameEnum.SalesInvoice,
