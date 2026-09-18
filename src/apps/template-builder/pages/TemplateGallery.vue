@@ -347,7 +347,7 @@ export default defineComponent({
         'Terms & Conditions': 'terms',
         Subtotal: 'subtotal',
         Tax: 'tax',
-        Total: 'balance',
+        Total: 'total',
         'Payments / Credits': 'payments',
         'Balance Due': 'balance',
       };
@@ -488,7 +488,7 @@ export default defineComponent({
         'Terms & Conditions': 'terms',
         Subtotal: 'subtotal',
         Tax: 'tax',
-        Total: 'balance',
+        Total: 'total',
         'Payments / Credits': 'payments',
         'Balance Due': 'balance',
       };
@@ -519,6 +519,7 @@ export default defineComponent({
             section === 'subtotal' ||
             section === 'tax' ||
             section === 'payments' ||
+            section === 'total' ||
             section === 'balance'
           ) {
             const label = node.querySelector('span');
