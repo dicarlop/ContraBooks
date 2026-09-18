@@ -8,7 +8,7 @@
       <Dashboard v-if="isInternalWindowRoute" class="min-h-0 min-w-0 flex-1" :dark-mode="darkMode" />
       <router-view v-else v-slot="{ Component }"><keep-alive><component :is="Component" :key="$route.path" :dark-mode="darkMode" class="min-h-0 min-w-0 flex-1" /></keep-alive></router-view>
       <router-view v-slot="{ Component, route }" name="edit"><Transition name="quickedit"><div v-if="route?.query?.edit"><component :is="Component" :key="route.query.schemaName + route.query.name" :dark-mode="darkMode" /></div></Transition></router-view>
-      <div v-if="isInternalWindowRoute" class="internal-window-layer">
+      <div v-if="isInternalWindowRoute" class="internal-window-layer" @mousedown.stop>
         <div class="internal-window-shadow"></div>
         <div class="internal-window-frame" :class="{ 'internal-window-frame-fullscreen': designerFullscreen }" :style="designerFrameStyle">
           <div class="internal-window-chrome" @mousedown="beginDesignerDrag">
@@ -109,7 +109,7 @@ export default defineComponent({
 
 .internal-window-layer { position:absolute; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:18px; pointer-events:none; }
 .internal-window-shadow { position:absolute; inset:0; background:rgba(6,43,74,.08); pointer-events:none; }
-.internal-window-frame { position:relative; z-index:81; width:min(1480px,calc(100% - 8px)); height:min(900px,calc(100% - 8px)); min-width:0; min-height:0; pointer-events:auto; display:flex; flex-direction:column; }
+.internal-window-frame { position:relative; pointer-events:auto; z-index:81; width:min(1480px,calc(100% - 8px)); height:min(900px,calc(100% - 8px)); min-width:0; min-height:0; pointer-events:auto; display:flex; flex-direction:column; }
 .internal-window-frame-fullscreen { width:100%; height:100%; }
 .internal-window-chrome { height:32px; flex:0 0 32px; display:flex; align-items:center; justify-content:space-between; padding:0 4px 0 12px; box-sizing:border-box; background:#F8FBFD; border:1px solid #C9D6DF; border-bottom:0; color:#49697D; cursor:move; user-select:none; }
 .internal-window-title { font-size:10px; font-weight:700; color:#07345C; }
@@ -118,7 +118,7 @@ export default defineComponent({
 .internal-window-fullscreen:hover { background:#E8FAFC; color:#008E9F; }
 .internal-window-close { font-size:21px; }
 .internal-window-close:hover { background:#FDECEE; color:#E5484D; }
-:deep(.internal-task-window) { position:relative; width:100%; height:calc(100% - 32px); min-width:0; min-height:0; overflow:hidden; resize:both; box-shadow:0 18px 55px rgba(7,52,92,.28),0 2px 8px rgba(7,52,92,.18); }
+:deep(.internal-task-window) { position:relative; pointer-events:auto; width:100%; height:calc(100% - 32px); min-width:0; min-height:0; overflow:hidden; resize:both; box-shadow:0 18px 55px rgba(7,52,92,.28),0 2px 8px rgba(7,52,92,.18); }
 .internal-window-frame-fullscreen :deep(.internal-task-window) { height:calc(100% - 32px); resize:none; }
 
 :deep(.dashboard-page .dashboard-content) { height:100% !important; min-height:0 !important; grid-template-rows:minmax(108px,.9fr) minmax(155px,1.1fr) minmax(205px,2fr) minmax(145px,1.2fr) !important; gap:10px !important; overflow:hidden !important; align-content:stretch !important; }
