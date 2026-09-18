@@ -3,7 +3,7 @@ import { PrintTemplate } from 'models/baseModels/PrintTemplate';
 import type { Doc } from 'fyo/model/doc';
 import { getDocFromNameIfExistsElseNew } from 'src/utils/ui';
 import { getPrintTemplatePropValues } from 'src/utils/printTemplates';
-import { getTemplatePreset, TemplatePresetName } from 'src/utils/templatePresets';
+import { getTemplatePreset, templatePresetNames, TemplatePresetName } from 'src/utils/templatePresets';
 import type { PrintValues } from 'src/utils/types';
 
 export async function loadTemplate(name: string): Promise<PrintTemplate> {
@@ -82,3 +82,5 @@ export async function saveTemplate(template: PrintTemplate): Promise<void> {
 export function getPresetTemplate(name: TemplatePresetName): string {
   return getTemplatePreset(name);
 }
+
+export { templatePresetNames };
