@@ -489,19 +489,19 @@ export default defineComponent({
 
       }
 
-      if (!this.options.status) {
-        const status = document.body.querySelector('[data-cb-section="status"]');
-        status?.remove();
-      }
-
-      if (this.options.pastDue) {
-        const status = document.body.querySelector(
-          '[data-cb-section="status"]'
-        ) as HTMLElement | null;
-        if (status) {
+      const status = document.body.querySelector(
+        '[data-cb-section="status"]'
+      ) as HTMLElement | null;
+      if (status) {
+        status.style.display = this.options.status ? '' : 'none';
+        if (this.options.status && this.options.pastDue) {
           status.textContent = 'PAST DUE';
           status.style.background = '#FFF1F2';
           status.style.color = '#B42318';
+        } else {
+          status.textContent = 'OPEN';
+          status.style.background = '';
+          status.style.color = '';
         }
       }
 
