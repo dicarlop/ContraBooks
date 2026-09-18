@@ -248,6 +248,7 @@ export default defineComponent({
     customizeTemplate(template: string): string {
       const document = new DOMParser().parseFromString(template, 'text/html');
       const sectionMap: Record<string, boolean> = {
+        logo: this.options.useLogo,
         companyName: this.options.companyName,
         address: this.options.address,
         phone: this.options.phone,
