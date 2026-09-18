@@ -524,7 +524,7 @@ function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
       }
 
       ${options.repeatHeader === false ? '' : 'table thead { display: table-header-group !important; }'}
-      ${options.pageNumbers === false ? '' : `.cb-page-number { font-size: 0 !important; } .cb-page-number::after { content: "Page " counter(page) " of " counter(pages); font-size: 9pt !important; }`}}
+      ${options.pageNumbers === false ? '' : `.cb-page-number { font-size: 0 !important; } .cb-page-number::after { content: "Page " counter(page) " of " counter(pages); font-size: 9pt !important; }`}
       ${options.fitWidth === false ? '' : 'body > div { width: 100% !important; max-width: 100% !important; } [data-cb-items-table] { width: 100% !important; max-width: 100% !important; table-layout: fixed !important; }'}
     }
   `;
