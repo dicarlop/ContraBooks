@@ -460,7 +460,11 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
   return values;
 }
 
-export type PrintOptions = { repeatHeader?: boolean; fitWidth?: boolean };
+export type PrintOptions = {
+  repeatHeader?: boolean;
+  fitWidth?: boolean;
+  pageNumbers?: boolean;
+};
 
 export async function getPathAndMakePDF(
   name: string,
@@ -520,6 +524,7 @@ function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
       }
 
       ${options.repeatHeader === false ? '' : 'table thead { display: table-header-group !important; }'}
+      ${options.pageNumbers === false ? '' : `@page { @bottom-center { content: "Page " counter(page) " of " counter(pages); font-size: 9pt; } }`}
       ${options.fitWidth === false ? '' : 'body > div { width: 100% !important; max-width: 100% !important; } [data-cb-items-table] { width: 100% !important; max-width: 100% !important; table-layout: fixed !important; }'}
     }
   `;
