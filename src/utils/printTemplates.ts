@@ -484,7 +484,7 @@ export async function getPathAndMakePDF(
       showToast({ message: t`Export Failed`, type: 'error' });
     }
   } else {
-    const html = constructPrintDocument(innerHTML);
+    const html = constructPrintDocument(innerHTML, options);
     const success = await ipc.printDocument(html, width, height);
     if (success) {
       showToast({ message: t`Print Successful`, type: 'success' });
