@@ -19,7 +19,7 @@ import ScaledContainer from './ScaledContainer.vue';
 export const baseSafeTemplate=`<main class="h-full w-full bg-white"><p class="p-4 text-red-500"><span class="font-bold">ERROR</span>: Template failed to load due to errors.</p></main>`;
 export default defineComponent({
   components:{ScaledContainer,ErrorBoundary},
-  props:{template:{type:String,required:true},printSchemaName:{type:String,required:true},scale:{type:Number,default:.65},width:{type:Number,default:21},height:{type:Number,default:29.7},values:{type:Object as PropType<PrintValues>,required:true},repeatHeader:{type:Boolean,default:true},fitWidth:{type:Boolean,default:true}},
+  props:{template:{type:String,required:true},printSchemaName:{type:String,required:true},scale:{type:Number,default:.65},width:{type:Number,default:21},height:{type:Number,default:29.7},values:{type:Object as PropType<PrintValues>,required:true},repeatHeader:{type:Boolean,default:true},fitWidth:{type:Boolean,default:true},pageNumbers:{type:Boolean,default:true}},
   emits:['select-element','move-element'],
   data(){return{error:null} as {error:null|{name:string;message:string;detail?:string}};},
   computed:{templateComponent(){let template=this.template;if(this.error)template=baseSafeTemplate;return{template,props:['doc','print'],computed:{fyo(){return{};},platform(){return'';}}};}},
@@ -32,7 +32,7 @@ export default defineComponent({
     handleErrorCaptured(error:unknown){if(!(error instanceof Error))throw error;let name=error.name;let detail='';if(name==='TypeError'&&error.message.includes('Cannot read')){name=this.t`Invalid Key Error`;detail=this.t`Please check Key Hints for valid key names`;}this.error={name,message:error.message,detail};},
     onError({message,loc}:CompilerError){this.error={name:this.t`Template Compilation Error`,detail:loc?this.getCodeFrame(loc):'',message};},
     getCodeFrame(loc:SourceLocation){return generateCodeFrame(this.template,loc.start.offset,loc.end.offset);},
-    getPrintOptions(){return{repeatHeader:this.repeatHeader,fitWidth:this.fitWidth};},
+    getPrintOptions(){return{repeatHeader:this.repeatHeader,fitWidth:this.fitWidth,pageNumbers:this.pageNumbers};},
     getPrintCSS(){return`@media print { html,body{margin:0!important;padding:0!important;background:white} @page{margin:0} *{box-sizing:border-box;margin:0;padding:0} \${this.repeatHeader?'table thead{display:table-header-group!important}':''} \${this.fitWidth?'body>div{width:100%!important;max-width:100%!important} [data-cb-items-table]{width:100%!important;max-width:100%!important;table-layout:fixed!important}':''} }`;},
     getInnerHTML():string|null{const innerHTML=(this.$refs.scaledContainer as {$el?:HTMLElement}|undefined)?.$el?.children?.[0]?.innerHTML;return typeof innerHTML==='string'?innerHTML:null;},
     getPDFHtml():string|null{const innerHTML=this.getInnerHTML();if(!innerHTML)return null;const html=document.createElement('html');const head=document.createElement('head');const body=document.createElement('body');const cssTexts:string[]=[];for(const sheet of document.styleSheets){try{for(const rule of sheet.cssRules)cssTexts.push(rule.cssText);}catch{continue;}}const style=document.createElement('style');style.innerHTML=cssTexts.join('\n');const printCSS=document.createElement('style');printCSS.innerHTML=this.getPrintCSS();head.innerHTML='<meta charset="UTF-8"><title>Print Window</title>';head.append(style,printCSS);body.innerHTML=innerHTML;html.append(head,body);return html.outerHTML;},
