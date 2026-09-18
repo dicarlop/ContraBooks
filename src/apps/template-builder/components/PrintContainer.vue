@@ -1,7 +1,7 @@
 <template>
   <ScaledContainer ref="scaledContainer" :scale="Math.max(scale,.1)" :width="width" :height="height" :show-overflow="true" class="mx-auto shadow-lg border">
     <ErrorBoundary v-if="!error" :propagate="false" @error-captured="handleErrorCaptured">
-      <div class="template-preview" @click="selectElement">
+      <div class="template-preview" @click="selectElement" @dragstart="startDrag" @dragover.prevent @drop="dropElement">
         <component :is="templateComponent" class="flex-1 bg-white" :doc="values.doc" :print="values.print" />
       </div>
     </ErrorBoundary>
@@ -20,13 +20,15 @@ export const baseSafeTemplate=`<main class="h-full w-full bg-white"><p class="p-
 export default defineComponent({
   components:{ScaledContainer,ErrorBoundary},
   props:{template:{type:String,required:true},printSchemaName:{type:String,required:true},scale:{type:Number,default:.65},width:{type:Number,default:21},height:{type:Number,default:29.7},values:{type:Object as PropType<PrintValues>,required:true},repeatHeader:{type:Boolean,default:true},fitWidth:{type:Boolean,default:true}},
-  emits:['select-element'],
+  emits:['select-element','move-element'],
   data(){return{error:null} as {error:null|{name:string;message:string;detail?:string}};},
   computed:{templateComponent(){let template=this.template;if(this.error)template=baseSafeTemplate;return{template,props:['doc','print'],computed:{fyo(){return{};},platform(){return'';}}};}},
   watch:{template(value:string){this.compile(value);}},mounted(){this.compile(this.template);},
   methods:{
     compile(template:string){this.error=null;return compile(template,{hoistStatic:true,onWarn:this.onError.bind(this),onError:this.onError.bind(this)});},
     selectElement(event:MouseEvent){const target=event.target;if(!(target instanceof HTMLElement))return;const element=target.closest('[data-cb-id]');const id=element?.getAttribute('data-cb-id');if(id)this.$emit('select-element',id);},
+    startDrag(event:DragEvent){const target=event.target;if(!(target instanceof HTMLElement))return;const element=target.closest('[data-cb-id]');const id=element?.getAttribute('data-cb-id');if(!id||!event.dataTransfer)return;event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',id);},
+    dropElement(event:DragEvent){const target=event.target;if(!(target instanceof HTMLElement)||!event.dataTransfer)return;const draggedId=event.dataTransfer.getData('text/plain');const targetElement=target.closest('[data-cb-id]');const targetId=targetElement?.getAttribute('data-cb-id');if(draggedId&&targetId&&draggedId!==targetId)this.$emit('move-element',draggedId,targetId);},
     handleErrorCaptured(error:unknown){if(!(error instanceof Error))throw error;let name=error.name;let detail='';if(name==='TypeError'&&error.message.includes('Cannot read')){name=this.t`Invalid Key Error`;detail=this.t`Please check Key Hints for valid key names`;}this.error={name,message:error.message,detail};},
     onError({message,loc}:CompilerError){this.error={name:this.t`Template Compilation Error`,detail:loc?this.getCodeFrame(loc):'',message};},
     getCodeFrame(loc:SourceLocation){return generateCodeFrame(this.template,loc.start.offset,loc.end.offset);},
@@ -39,4 +41,4 @@ export default defineComponent({
   },
 });
 </script>
-<style scoped>.template-preview{width:100%;height:100%}.template-preview :deep([data-cb-id]){cursor:pointer}.template-preview :deep([data-cb-id]:hover){outline:1px dashed #00AFC1;outline-offset:2px}</style>
+<style scoped>.template-preview{width:100%;height:100%}.template-preview :deep([data-cb-id]){cursor:grab}.template-preview :deep([data-cb-id]:active){cursor:grabbing}.template-preview :deep([data-cb-id]:hover){outline:1px dashed #00AFC1;outline-offset:2px}</style>
