@@ -379,7 +379,7 @@ export default defineComponent({
           const node = document.body.querySelector(
             `[data-cb-section="${section}"]`
           ) as HTMLElement | null;
-          const label = node?.querySelector('span');
+          const label = node?.querySelector('span, strong, div, small');
           field.title =
             section === 'title' ||
             section === 'number' ||
