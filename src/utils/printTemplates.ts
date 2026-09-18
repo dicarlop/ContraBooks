@@ -89,10 +89,25 @@ export async function getPrintTemplatePropValues(
     );
   }
 
+  const total = (doc.grandTotal as Money) ?? (doc.amount as Money);
   (values.doc as PrintTemplateData).subTotal = doc.fyo.format(
-    ((doc.grandTotal as Money) ?? (doc.amount as Money)).sub(totalTax || 0),
+    total.sub(totalTax || 0),
     ModelNameEnum.Currency
   );
+  (values.doc as PrintTemplateData).totalTax = doc.fyo.format(
+    totalTax || 0,
+    ModelNameEnum.Currency
+  );
+  if (doc.grandTotal && doc.outstandingAmount) {
+    (values.doc as PrintTemplateData).paymentsAndCredits = doc.fyo.format(
+      (doc.grandTotal as Money).sub(doc.outstandingAmount as Money),
+      ModelNameEnum.Currency
+    );
+    (values.doc as PrintTemplateData).balanceDue = doc.fyo.format(
+      doc.outstandingAmount as Money,
+      ModelNameEnum.Currency
+    );
+  }
 
   const printSettings = await fyo.doc.getDoc(ModelNameEnum.PrintSettings);
   const printValues = await getPrintTemplateDocValues(
