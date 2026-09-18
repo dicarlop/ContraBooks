@@ -39,16 +39,16 @@
 
         <div class="section-block">
           <div class="section-heading">Basic Customization</div>
-          <label class="check-row"><input v-model="options.useLogo" type="checkbox" /><span>Use company logo</span></label>
-          <label class="field-row"><span>Color Scheme</span><select v-model="options.color"><option value="navy">ContraBooks Navy</option><option value="teal">Teal Accent</option><option value="slate">Slate</option></select></label>
-          <label class="field-row"><span>Form Font</span><select v-model="options.font"><option value="Inter">Inter</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option></select></label>
+          <label class="check-row"><input v-model="options.useLogo" type="checkbox" @change="saveGalleryCustomization" /><span>Use company logo</span></label>
+          <label class="field-row"><span>Color Scheme</span><select v-model="options.color" @change="saveGalleryCustomization"><option value="navy">ContraBooks Navy</option><option value="teal">Teal Accent</option><option value="slate">Slate</option></select></label>
+          <label class="field-row"><span>Form Font</span><select v-model="options.font" @change="saveGalleryCustomization"><option value="Inter">Inter</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option></select></label>
           <div class="field-options">
-            <label><input v-model="options.companyName" type="checkbox" /> Company Name</label>
-            <label><input v-model="options.address" type="checkbox" /> Company Address</label>
-            <label><input v-model="options.phone" type="checkbox" /> Phone</label>
-            <label><input v-model="options.email" type="checkbox" /> Email</label>
-            <label><input v-model="options.pastDue" type="checkbox" /> Past Due Stamp</label>
-            <label><input v-model="options.status" type="checkbox" /> Status Stamp</label>
+            <label><input v-model="options.companyName" type="checkbox" @change="saveGalleryCustomization" /> Company Name</label>
+            <label><input v-model="options.address" type="checkbox" @change="saveGalleryCustomization" /> Company Address</label>
+            <label><input v-model="options.phone" type="checkbox" @change="saveGalleryCustomization" /> Phone</label>
+            <label><input v-model="options.email" type="checkbox" @change="saveGalleryCustomization" /> Email</label>
+            <label><input v-model="options.pastDue" type="checkbox" @change="saveGalleryCustomization" /> Past Due Stamp</label>
+            <label><input v-model="options.status" type="checkbox" @change="saveGalleryCustomization" /> Status Stamp</label>
           </div>
         </div>
 
@@ -61,9 +61,9 @@
             <div class="field-table-head"><span>Field</span><span>Screen</span><span>Print</span><span>Title</span></div>
             <label v-for="field in currentFields" :key="field.key" class="field-table-row">
               <span>{{ field.label }}</span>
-              <input v-model="field.screen" type="checkbox" />
-              <input v-model="field.print" type="checkbox" />
-              <input v-model="field.title" class="title-input" type="text" />
+              <input v-model="field.screen" type="checkbox" @change="saveGalleryCustomization" />
+              <input v-model="field.print" type="checkbox" @change="saveGalleryCustomization" />
+              <input v-model="field.title" class="title-input" type="text" @change="saveGalleryCustomization" />
             </label>
           </div>
         </div>
@@ -361,6 +361,21 @@ export default defineComponent({
       });
       await routeTo(`/template-builder/${doc.name!}`);
     },
+    async saveGalleryCustomization() {
+      if (templatePresetNames.includes(this.selectedPreset as TemplatePresetName)) {
+        return;
+      }
+      const templateDoc = await fyo.doc.getDoc(
+        ModelNameEnum.PrintTemplate,
+        this.selectedPreset
+      );
+      if (!templateDoc.template) return;
+      await templateDoc.set(
+        'template',
+        this.customizeTemplate(templateDoc.template as string)
+      );
+      await templateDoc.sync();
+    },
     async openEditor() {
       await this.usePreset(this.selectedPreset);
     },
@@ -369,9 +384,8 @@ export default defineComponent({
         await routeTo(`/template-builder/${name}`);
         return;
       }
-      const baseTemplate = templateDoc?.template as string | undefined;
       const template = this.customizeTemplate(
-        baseTemplate ?? getTemplatePreset(name as TemplatePresetName)
+        getTemplatePreset(name as TemplatePresetName)
       );
       const doc = fyo.doc.getNewDoc(ModelNameEnum.PrintTemplate, {
         name: `${name} Invoice`,
