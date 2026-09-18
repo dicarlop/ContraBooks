@@ -524,6 +524,11 @@ function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
         padding: 0;
       }
 
+      table { page-break-inside: auto; }
+      thead { page-break-inside: avoid; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+      [data-cb-section="footer"] { break-inside: avoid; page-break-inside: avoid; }
+
       ${options.repeatHeader === false ? '' : 'table thead { display: table-header-group !important; }'}
       ${options.pageNumbers === false ? '' : `.cb-page-number, [data-cb-section="pageNumbers"] { font-size: 0 !important; } .cb-page-number::after, [data-cb-section="pageNumbers"]::after { content: "Page " counter(page) " of " counter(pages); font-size: 9pt !important; }`}
       ${options.fitWidth === false ? '' : 'body > div { width: 100% !important; max-width: 100% !important; } [data-cb-items-table] { width: 100% !important; max-width: 100% !important; table-layout: fixed !important; }'}
