@@ -4,7 +4,7 @@ import {
   normalizePrintOrientation,
   normalizePrintPaper,
   PRINT_PAPER_SIZES,
-} from 'src/utils/printTemplates';
+} from 'src/utils/printGeometry';
 
 test('print geometry: paper dimensions stay stable', (t) => {
   t.deepEqual(
