@@ -15,4 +15,9 @@ export {
   setDefaultTemplateName,
 } from './templateDefaults';
 
-export { printTemplate, exportTemplatePDF, renderAndPrint } from './printing';
+export {
+  constructPrintDocument,
+  exportTemplatePDF,
+  printTemplate,
+  renderAndPrint,
+} from './printing';
