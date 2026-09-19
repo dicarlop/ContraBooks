@@ -511,6 +511,14 @@ export async function getPathAndMakePDF(
   shouldPrint?: boolean,
   options: PrintOptions = {}
 ) {
+  const [printWidth, printHeight] =
+    options.paper || options.orientation
+      ? getPrintDimensions(
+          normalizePrintPaper(options.paper),
+          normalizePrintOrientation(options.orientation)
+        )
+      : [width, height];
+
   if (!shouldPrint) {
     const { filePath: savePath } = await getSavePath(name, 'pdf');
     if (!savePath) {
@@ -518,7 +526,7 @@ export async function getPathAndMakePDF(
     }
 
     const html = constructPrintDocument(innerHTML, options);
-    const success = await ipc.makePDF(html, savePath, width, height);
+    const success = await ipc.makePDF(html, savePath, printWidth, printHeight);
     if (success) {
       showExportInFolder(t`Save as PDF Successful`, savePath);
     } else {
@@ -526,7 +534,7 @@ export async function getPathAndMakePDF(
     }
   } else {
     const html = constructPrintDocument(innerHTML, options);
-    const success = await ipc.printDocument(html, width, height);
+    const success = await ipc.printDocument(html, printWidth, printHeight);
     if (success) {
       showToast({ message: t`Print Successful`, type: 'success' });
     } else {
