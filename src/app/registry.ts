@@ -79,7 +79,14 @@ export function getAppRoutes(): RouteRecordRaw[] {
 
       paths.add(route.path);
       if (typeof route.name === 'string') names.add(route.name);
-      routes.push(route);
+
+      routes.push({
+        ...route,
+        meta: {
+          ...(route.meta ?? {}),
+          appId: app.manifest.id,
+        },
+      });
     }
   }
 
