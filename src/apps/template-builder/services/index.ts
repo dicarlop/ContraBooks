@@ -18,6 +18,8 @@ export {
 export {
   constructPrintDocument,
   exportTemplatePDF,
+  getPathAndMakePDF,
   printTemplate,
   renderAndPrint,
 } from './printing';
+export type { PrintOptions } from 'src/utils/printOptions';
