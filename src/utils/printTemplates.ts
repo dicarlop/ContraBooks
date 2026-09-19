@@ -472,12 +472,27 @@ export const PRINT_PAPER_SIZES: Record<
   Legal: [21.59, 35.56],
 };
 
+export function normalizePrintPaper(value: unknown): PrintPaper {
+  return value === 'A4' || value === 'Legal' || value === 'Letter'
+    ? value
+    : 'Letter';
+}
+
+export function normalizePrintOrientation(value: unknown): PrintOrientation {
+  return value === 'Landscape' ? 'Landscape' : 'Portrait';
+}
+
 export function getPrintDimensions(
   paper: PrintPaper,
   orientation: PrintOrientation
 ): [number, number] {
-  const [width, height] = PRINT_PAPER_SIZES[paper];
-  return orientation === 'Landscape' ? [height, width] : [width, height];
+  const normalizedPaper = normalizePrintPaper(paper);
+  const normalizedOrientation = normalizePrintOrientation(orientation);
+  const [width, height] = PRINT_PAPER_SIZES[normalizedPaper];
+
+  return normalizedOrientation === 'Landscape'
+    ? [height, width]
+    : [width, height];
 }
 
 export type PrintOptions = {
@@ -520,8 +535,13 @@ export async function getPathAndMakePDF(
   }
 }
 
-export function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
+export function constructPrintDocument(
+  innerHTML: string,
+  options: PrintOptions = {}
+) {
   const html = document.createElement('html');
+  const paper = normalizePrintPaper(options.paper);
+  const orientation = normalizePrintOrientation(options.orientation);
   const head = document.createElement('head');
   const body = document.createElement('body');
   const style = getAllCSSAsStyleElem();
@@ -538,7 +558,7 @@ export function constructPrintDocument(innerHTML: string, options: PrintOptions 
 
       @page {
         margin: 0;
-        ${options.paper && options.orientation ? `size: ${options.paper} ${options.orientation.toLowerCase()};` : ''}
+        size: ${paper} ${orientation.toLowerCase()};
       }
 
       * {
