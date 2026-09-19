@@ -1,15 +1,9 @@
 import { Fyo, t } from 'fyo';
-import { Doc } from 'fyo/model/doc';
-import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { ModelNameEnum } from 'models/types';
 import { FieldTypeEnum, Schema, TargetField } from 'schemas/types';
 import { getValueMapFromList } from 'utils/index';
 import { TemplateFile } from 'utils/types';
-import { PrintValues } from './types';
 import { getDocFromNameIfExistsElseNew } from './ui';
-import { Money } from 'pesa';
-import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
-import { Payment } from 'models/baseModels/Payment/Payment';
 export { getPrintDimensions, normalizePrintOrientation, normalizePrintPaper } from './printGeometry';
 export type { PrintOrientation, PrintPaper } from './printGeometry';
 export { PRINT_PAPER_SIZES } from './printGeometry';
@@ -41,151 +35,6 @@ const printSettingsFields = [
 ];
 const accountingSettingsFields = ['gstin', 'taxId'];
 
-export async function getPrintTemplatePropValues(
-  doc: Doc
-): Promise<PrintValues> {
-  const fyo = doc.fyo;
-  let paymentId;
-  let sinvDoc;
-
-  const values: PrintValues = { doc: {}, print: {} };
-  values.doc = await getPrintTemplateDocValues(doc);
-
-  if (
-    values.doc.entryType === ModelNameEnum.SalesInvoice ||
-    values.doc.entryType === ModelNameEnum.PurchaseInvoice
-  ) {
-    paymentId = await (doc as SalesInvoice).getPaymentIds();
-
-    if (paymentId && paymentId.length) {
-      const paymentDetails = await getPaymentDetails(doc, paymentId);
-      (values.doc as PrintTemplateData).paymentDetails = paymentDetails;
-    }
-  }
-
-  if (doc.referenceType == ModelNameEnum.SalesInvoice) {
-    const referenceName = (doc as Payment)?.for![0]?.referenceName;
-
-    if (referenceName) {
-      sinvDoc = await fyo.doc.getDoc(ModelNameEnum.SalesInvoice, referenceName);
-
-      if (sinvDoc.taxes) {
-        (values.doc as PrintTemplateData).taxes = sinvDoc.taxes;
-      }
-    }
-  }
-
-  let totalTax;
-
-  if (values.doc.entryType !== ModelNameEnum.Shipment) {
-    totalTax = await ((sinvDoc as Invoice) ?? (doc as Payment))?.getTotalTax();
-  }
-
-  if (doc.schema.name == ModelNameEnum.Payment) {
-    (values.doc as PrintTemplateData).amountPaidInWords = getGrandTotalInWords(
-      (doc.amountPaid as Money)?.float
-    );
-  }
-
-  const total = (doc.grandTotal as Money) ?? (doc.amount as Money);
-  (values.doc as PrintTemplateData).subTotal = doc.fyo.format(
-    total.sub(totalTax || 0),
-    ModelNameEnum.Currency
-  );
-  (values.doc as PrintTemplateData).totalTax = doc.fyo.format(
-    totalTax || 0,
-    ModelNameEnum.Currency
-  );
-  if (doc.grandTotal && doc.outstandingAmount) {
-    (values.doc as PrintTemplateData).paymentsAndCredits = doc.fyo.format(
-      (doc.grandTotal as Money).sub(doc.outstandingAmount as Money),
-      ModelNameEnum.Currency
-    );
-    (values.doc as PrintTemplateData).balanceDue = doc.fyo.format(
-      doc.outstandingAmount as Money,
-      ModelNameEnum.Currency
-    );
-  }
-
-  const printSettings = await fyo.doc.getDoc(ModelNameEnum.PrintSettings);
-  const printValues = await getPrintTemplateDocValues(
-    printSettings,
-    printSettingsFields
-  );
-
-  const accountingSettings = await fyo.doc.getDoc(
-    ModelNameEnum.AccountingSettings
-  );
-  const accountingValues = await getPrintTemplateDocValues(
-    accountingSettings,
-    accountingSettingsFields
-  );
-
-  values.print = {
-    ...printValues,
-    ...accountingValues,
-  };
-  const discountSchema = ['Invoice', 'Quote'];
-  if (discountSchema.some((value) => doc.schemaName?.endsWith(value))) {
-    (values.doc as PrintTemplateData).totalDiscount =
-      formattedTotalDiscount(doc);
-  }
-  (values.doc as PrintTemplateData).showHSN = showHSN(doc);
-
-  (values.doc as PrintTemplateData).grandTotalInWords = getGrandTotalInWords(
-    ((doc.grandTotal as Money) ?? (doc.amount as Money)).float
-  );
-
-  (values.doc as PrintTemplateData).date = getDate(doc.date as string);
-
-  if (printSettings.displayTime) {
-    (values.doc as PrintTemplateData).time = getTime(doc.date as string);
-  }
-
-  if (printSettings.displayDescription) {
-    (values.doc as PrintTemplateData).description = showDescription(doc);
-  }
-
-  return values;
-}
-async function getPaymentDetails(doc: Doc, paymentId: string[]) {
-  const paymentIds = paymentId.sort();
-  const paymentDetails = [];
-  let outstandingAmount = doc.grandTotal as Money;
-
-  for (const payment of paymentIds) {
-    const paymentDoc = await doc.fyo.doc.getDoc(ModelNameEnum.Payment, payment);
-    outstandingAmount = outstandingAmount.sub(paymentDoc.amount as Money);
-
-    paymentDetails.push({
-      amount: doc.fyo.format(paymentDoc.amount, ModelNameEnum.Currency),
-      amountPaid: doc.fyo.format(paymentDoc.amountPaid, ModelNameEnum.Currency),
-      paymentMethod: paymentDoc.paymentMethod as string,
-      outstandingAmount: doc.fyo.format(
-        outstandingAmount,
-        ModelNameEnum.Currency
-      ),
-    });
-  }
-
-  return paymentDetails;
-}
-
-function getDate(dateString: string): string {
-  const date = new Date(dateString);
-  date.setMonth(date.getMonth());
-
-  return `${date.toLocaleString('default', {
-    month: 'short',
-  })} ${date.getDate()}, ${date.getFullYear()}`;
-}
-
-function getTime(dateString: string): string {
-  const date = new Date(dateString);
-
-  return date.toTimeString().split(' ')[0];
-}
-
 export function getPrintTemplatePropHints(schemaName: string, fyo: Fyo) {
   const hints: PrintTemplateHint = {};
   const schema = fyo.schemaMap[schemaName]!;
@@ -213,141 +62,6 @@ export function getPrintTemplatePropHints(schemaName: string, fyo: Fyo) {
   }
 
   return hints;
-}
-
-function getGrandTotalInWords(total: number) {
-  const formattedTotal = total.toFixed(2);
-
-  const [integerPart, decimalPart] = formattedTotal.split('.');
-
-  const ones = [
-    '',
-    t`One`,
-    t`Two`,
-    t`Three`,
-    t`Four`,
-    t`Five`,
-    t`Six`,
-    t`Seven`,
-    t`Eight`,
-    t`Nine`,
-  ];
-
-  const teens = [
-    t`Ten`,
-    t`Eleven`,
-    t`Twelve`,
-    t`Thirteen`,
-    t`Fourteen`,
-    t`Fifteen`,
-    t`Sixteen`,
-    t`Seventeen`,
-    t`Eighteen`,
-    t`Nineteen`,
-  ];
-
-  const tens = [
-    '',
-    '',
-    t`Twenty`,
-    t`Thirty`,
-    t`Forty`,
-    t`Fifty`,
-    t`Sixty`,
-    t`Seventy`,
-    t`Eighty`,
-    t`Ninety`,
-  ];
-
-  const scales = ['', t`Thousand`, t`Million`, t`Billion`];
-
-  function convertThreeDigitNumber(num: number) {
-    let result = '';
-
-    const hundredDigit = Math.floor(num / 100);
-    const remainder = num % 100;
-
-    if (hundredDigit > 0) {
-      result += ones[hundredDigit] + ` ${t`Hundred`}`;
-    }
-
-    if (remainder > 0) {
-      if (hundredDigit > 0) {
-        result += ` ${t`And`} `;
-      }
-
-      if (remainder < 10) {
-        result += ones[remainder];
-      } else if (remainder < 20) {
-        result += teens[remainder - 10];
-      } else {
-        const tensDigit = Math.floor(remainder / 10);
-        const onesDigit = remainder % 10;
-        result += tens[tensDigit];
-        if (onesDigit > 0) {
-          result += ' ' + ones[onesDigit];
-        }
-      }
-    }
-
-    return result;
-  }
-
-  let spelledOutInteger = '';
-  const integerGroups = integerPart.match(/(\d{1,3})(?=(\d{3})*$)/g) || [];
-  const groupCount = integerGroups.length;
-
-  integerGroups.forEach((group, index) => {
-    const groupValue = parseInt(group);
-
-    if (groupValue > 0) {
-      const groupText = convertThreeDigitNumber(groupValue);
-      const groupSuffix = scales[groupCount - index - 1];
-      spelledOutInteger +=
-        groupText + (groupSuffix ? ' ' + groupSuffix : '') + ' ';
-    }
-  });
-
-  spelledOutInteger = spelledOutInteger.trim() || t`Zero`;
-
-  let spelledOutDecimal = '';
-  const decimalCents = parseInt(decimalPart);
-
-  if (decimalCents !== 0) {
-    spelledOutDecimal =
-      ` ${t`and`} ` + convertThreeDigitNumber(decimalCents) + ` ${t`Paisa`}`;
-  }
-
-  return `${spelledOutInteger}${spelledOutDecimal} ${t`only`}`;
-}
-
-function showHSN(doc: Doc): boolean {
-  const items = doc.items;
-  if (!Array.isArray(items)) {
-    return false;
-  }
-
-  return items.map((i: Doc) => i.hsnCode).every(Boolean);
-}
-
-function showDescription(doc: Doc): boolean {
-  const description = Array.isArray(doc.items)
-    ? doc.items.map((item: Doc) => item.description).filter(Boolean)
-    : [];
-  return description.length > 0;
-}
-
-function formattedTotalDiscount(doc: Doc): string {
-  if (!(doc instanceof Invoice)) {
-    return '';
-  }
-
-  const totalDiscount = doc.getTotalDiscount();
-  if (!totalDiscount?.float) {
-    return '';
-  }
-
-  return doc.fyo.format(totalDiscount, ModelNameEnum.Currency);
 }
 
 function getPrintTemplateDocHints(
@@ -464,6 +178,7 @@ export {
   renderAndPrint,
 } from 'src/apps/template-builder/services/printing';
 export type { PrintOptions } from 'src/utils/printOptions';
+export { getPrintTemplatePropValues } from 'src/apps/template-builder/services/printValues';
 
 export async function updatePrintTemplates(fyo: Fyo) {
   const templateFiles = await ipc.getTemplates(
