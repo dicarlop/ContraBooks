@@ -525,7 +525,13 @@ function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
       table { page-break-inside: auto; }
       thead { page-break-inside: avoid; }
       tr { page-break-inside: avoid; page-break-after: auto; }
+      th, td { break-inside: avoid; }
+      h1, h2, h3, h4, h5, h6 { break-after: avoid; page-break-after: avoid; }
+      p, li { orphans: 2; widows: 2; }
+      img, svg, canvas { max-width: 100%; }
+      pre, code { overflow-wrap: anywhere; white-space: pre-wrap; }
       [data-cb-section="footer"] { break-inside: avoid; page-break-inside: avoid; }
+      [data-cb-section="footerText"], [data-cb-section="terms"], [data-cb-section="pageNumbers"] { break-inside: avoid; page-break-inside: avoid; }
 
       ${options.repeatHeader === false ? '' : 'table thead { display: table-header-group !important; }'}
       ${options.pageNumbers === false ? '' : `.cb-page-number, [data-cb-section="pageNumbers"] { font-size: 0 !important; } .cb-page-number::after, [data-cb-section="pageNumbers"]::after { content: "Page " counter(page) " of " counter(pages); font-size: 9pt !important; }`}
