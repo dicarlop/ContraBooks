@@ -20,6 +20,7 @@ import {
   normalizePrintOrientation,
   normalizePrintPaper,
 } from './printGeometry';
+export { getPrintDimensions, normalizePrintOrientation, normalizePrintPaper } from './printGeometry';
 export type { PrintOrientation, PrintPaper } from './printGeometry';
 export { PRINT_PAPER_SIZES } from './printGeometry';
 
