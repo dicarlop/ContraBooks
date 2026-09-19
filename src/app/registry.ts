@@ -35,10 +35,6 @@ function validateAppManifest(app: ContraBooksApp): void {
 function registerAppInternal(app: ContraBooksApp): void {
   validateAppManifest(app);
 
-  if (!app.manifest.id) {
-    throw new Error('ContraBooks apps must declare a manifest id.');
-  }
-
   if (apps.has(app.manifest.id)) {
     throw new Error(`ContraBooks app "${app.manifest.id}" is already registered.`);
   }
