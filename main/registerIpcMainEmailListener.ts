@@ -4,7 +4,6 @@ import type { EmailDocumentType } from '../src/utils/email';
 import { IPC_ACTIONS } from '../utils/messages';
 import { sendSmtpMessage } from './email';
 import { getEmailSettings, getSmtpConfig, setEmailSettings } from './emailSettings';
-import { renderHtmlAsPdf } from './saveHtmlAsPdf';
 
 type DocumentEmailMessage = Parameters<typeof sendSmtpMessage>[1] & {
   documentType: EmailDocumentType;
@@ -27,12 +26,6 @@ export default function registerIpcMainEmailListener() {
         throw error;
       }
     }
-  );
-
-  ipcMain.handle(
-    IPC_ACTIONS.CREATE_PDF_FROM_HTML,
-    async (_, html: string, width: number, height: number) =>
-      renderHtmlAsPdf(html, app, width, height)
   );
 
   ipcMain.handle(IPC_ACTIONS.GET_EMAIL_SETTINGS, () => getEmailSettings());
