@@ -1,16 +1,10 @@
-import type { PrintOrientation, PrintPaper } from './printGeometry';
+import type { PrintOptions } from './printOptions';
 import {
   normalizePrintOrientation,
   normalizePrintPaper,
 } from './printGeometry';
 
-export type PrintDocumentStyleOptions = {
-  repeatHeader?: boolean;
-  fitWidth?: boolean;
-  pageNumbers?: boolean;
-  paper?: PrintPaper;
-  orientation?: PrintOrientation;
-};
+export type PrintDocumentStyleOptions = PrintOptions;
 
 export function getPrintDocumentCSS(
   options: PrintDocumentStyleOptions = {}
