@@ -2,7 +2,7 @@ import { ModelNameEnum } from 'models/types';
 import { PrintTemplate } from 'models/baseModels/PrintTemplate';
 import type { Doc } from 'fyo/model/doc';
 import { getDocFromNameIfExistsElseNew } from 'src/utils/ui';
-import { getPrintTemplatePropValues } from 'src/utils/printTemplates';
+import { getPrintTemplatePropValues } from './printValues';
 import { getTemplatePreset, templatePresetNames, TemplatePresetName } from 'src/utils/templatePresets';
 import type { PrintValues } from 'src/utils/types';
 
