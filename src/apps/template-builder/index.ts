@@ -26,7 +26,7 @@ export const templateBuilderApp: ContraBooksApp = {
     {
       path: '/template-builder/:name',
       name: 'Template Builder Editor',
-      component: TemplateDesignerWindow,
+      component: () => import('./pages/TemplateDesignerWindow.vue'),
       props: true,
     },
     {
