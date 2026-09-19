@@ -460,10 +460,32 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
   return values;
 }
 
+export type PrintPaper = 'Letter' | 'A4' | 'Legal';
+export type PrintOrientation = 'Portrait' | 'Landscape';
+
+export const PRINT_PAPER_SIZES: Record<
+  PrintPaper,
+  readonly [number, number]
+> = {
+  Letter: [21.59, 27.94],
+  A4: [21, 29.7],
+  Legal: [21.59, 35.56],
+};
+
+export function getPrintDimensions(
+  paper: PrintPaper,
+  orientation: PrintOrientation
+): [number, number] {
+  const [width, height] = PRINT_PAPER_SIZES[paper];
+  return orientation === 'Landscape' ? [height, width] : [width, height];
+}
+
 export type PrintOptions = {
   repeatHeader?: boolean;
   fitWidth?: boolean;
   pageNumbers?: boolean;
+  paper?: PrintPaper;
+  orientation?: PrintOrientation;
 };
 
 export async function getPathAndMakePDF(
@@ -516,6 +538,7 @@ export function constructPrintDocument(innerHTML: string, options: PrintOptions 
 
       @page {
         margin: 0;
+        ${options.paper && options.orientation ? `size: ${options.paper} ${options.orientation.toLowerCase()};` : ''}
       }
 
       * {
