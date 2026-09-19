@@ -1,6 +1,4 @@
 import type { ContraBooksApp } from '../../app/types';
-import TemplateDesignerWindow from './pages/TemplateDesignerWindow.vue';
-import TemplateGallery from './pages/TemplateGallery.vue';
 
 export const templateBuilderApp: ContraBooksApp = {
   manifest: {
@@ -17,12 +15,12 @@ export const templateBuilderApp: ContraBooksApp = {
     {
       path: '/template-builder/manage',
       name: 'Template Gallery',
-      component: TemplateGallery,
+      component: () => import('./pages/TemplateGallery.vue'),
     },
     {
       path: '/template-builder',
       name: 'Template Builder',
-      component: TemplateDesignerWindow,
+      component: () => import('./pages/TemplateDesignerWindow.vue'),
       props: { name: 'Professional Invoice' },
     },
     {
