@@ -10,7 +10,31 @@ for (const app of bundledApps) {
   registerAppInternal(app);
 }
 
+function validateAppManifest(app: ContraBooksApp): void {
+  const { manifest } = app;
+
+  if (!manifest.id) {
+    throw new Error('ContraBooks apps must declare a manifest id.');
+  }
+
+  if (!manifest.name) {
+    throw new Error(`ContraBooks app "${manifest.id}" must declare a manifest name.`);
+  }
+
+  if (!manifest.version) {
+    throw new Error(`ContraBooks app "${manifest.id}" must declare a manifest version.`);
+  }
+
+  if (manifest.localOnly === false) {
+    throw new Error(
+      `ContraBooks app "${manifest.id}" cannot disable the local-only host requirement.`
+    );
+  }
+}
+
 function registerAppInternal(app: ContraBooksApp): void {
+  validateAppManifest(app);
+
   if (!app.manifest.id) {
     throw new Error('ContraBooks apps must declare a manifest id.');
   }
@@ -40,6 +64,10 @@ export function getEnabledApps(): ContraBooksApp[] {
 
 export function getAppRoutes(): RouteRecordRaw[] {
   return getEnabledApps().flatMap((app) => app.routes ?? []);
+}
+
+export function isAppInitialized(id: string): boolean {
+  return initializedApps.has(id);
 }
 
 export async function initializeApps(): Promise<void> {
