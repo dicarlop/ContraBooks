@@ -10,11 +10,7 @@ import { getDocFromNameIfExistsElseNew } from './ui';
 import { Money } from 'pesa';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { Payment } from 'models/baseModels/Payment/Payment';
-import {
-  getPrintDimensions,
-  normalizePrintOrientation,
-  normalizePrintPaper,
-} from './printGeometry';
+import { getPrintDimensions, normalizePrintOrientation, normalizePrintPaper } from './printGeometry';
 export { getPrintDimensions, normalizePrintOrientation, normalizePrintPaper } from './printGeometry';
 export type { PrintOrientation, PrintPaper } from './printGeometry';
 export { PRINT_PAPER_SIZES } from './printGeometry';
