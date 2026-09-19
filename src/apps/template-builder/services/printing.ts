@@ -1,5 +1,5 @@
 import { getPathAndMakePDF } from 'src/utils/printTemplates';
-import type { PrintOptions } from 'src/utils/printTemplates';
+import type { PrintOptions } from 'src/utils/printOptions';
 
 export async function printTemplate(
   name: string,
