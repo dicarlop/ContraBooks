@@ -23,3 +23,5 @@ export {
   renderAndPrint,
 } from './printing';
 export type { PrintOptions } from 'src/utils/printOptions';
+
+export { updatePrintTemplates } from './templateMigration';
