@@ -14,14 +14,14 @@ import { Verb } from 'fyo/telemetry/types';
 import ErrorBoundary from 'src/components/ErrorBoundary.vue';
 import { exportTemplatePDF, printTemplate } from '../services/printing';
 import { constructPrintDocument } from 'src/utils/printTemplates';
-import type { PrintOptions } from 'src/utils/printTemplates';
+import type { PrintOptions, PrintOrientation, PrintPaper } from 'src/utils/printTemplates';
 import { PrintValues } from 'src/utils/types';
 import { defineComponent, PropType } from 'vue';
 import ScaledContainer from './ScaledContainer.vue';
 export const baseSafeTemplate=`<main class="h-full w-full bg-white"><p class="p-4 text-red-500"><span class="font-bold">ERROR</span>: Template failed to load due to errors.</p></main>`;
 export default defineComponent({
   components:{ScaledContainer,ErrorBoundary},
-  props:{template:{type:String,required:true},printSchemaName:{type:String,required:true},scale:{type:Number,default:.65},width:{type:Number,default:21},height:{type:Number,default:29.7},values:{type:Object as PropType<PrintValues>,required:true},repeatHeader:{type:Boolean,default:true},fitWidth:{type:Boolean,default:true},pageNumbers:{type:Boolean,default:true}},
+  props:{template:{type:String,required:true},printSchemaName:{type:String,required:true},scale:{type:Number,default:.65},width:{type:Number,default:21},height:{type:Number,default:29.7},values:{type:Object as PropType<PrintValues>,required:true},repeatHeader:{type:Boolean,default:true},fitWidth:{type:Boolean,default:true},pageNumbers:{type:Boolean,default:true},paper:{type:String as PropType<PrintPaper>,default:'Letter'},orientation:{type:String as PropType<PrintOrientation>,default:'Portrait'}},
   emits:['select-element','move-element'],
   data(){return{error:null} as {error:null|{name:string;message:string;detail?:string}};},
   computed:{templateComponent(){let template=this.template;if(this.error)template=baseSafeTemplate;return{template,props:['doc','print'],computed:{fyo(){return{};},platform(){return'';}}};}},
@@ -34,7 +34,7 @@ export default defineComponent({
     handleErrorCaptured(error:unknown){if(!(error instanceof Error))throw error;let name=error.name;let detail='';if(name==='TypeError'&&error.message.includes('Cannot read')){name=this.t`Invalid Key Error`;detail=this.t`Please check Key Hints for valid key names`;}this.error={name,message:error.message,detail};},
     onError({message,loc}:CompilerError){this.error={name:this.t`Template Compilation Error`,detail:loc?this.getCodeFrame(loc):'',message};},
     getCodeFrame(loc:SourceLocation){return generateCodeFrame(this.template,loc.start.offset,loc.end.offset);},
-    getPrintOptions():PrintOptions{return{repeatHeader:this.repeatHeader,fitWidth:this.fitWidth,pageNumbers:this.pageNumbers};},
+    getPrintOptions():PrintOptions{return{repeatHeader:this.repeatHeader,fitWidth:this.fitWidth,pageNumbers:this.pageNumbers,paper:this.paper,orientation:this.orientation};},
     getInnerHTML():string|null{const innerHTML=(this.$refs.scaledContainer as {$el?:HTMLElement}|undefined)?.$el?.children?.[0]?.innerHTML;return typeof innerHTML==='string'?innerHTML:null;},
     getPDFHtml():string|null{const innerHTML=this.getInnerHTML();return innerHTML?constructPrintDocument(innerHTML,this.getPrintOptions()):null;},
     async getPDF():Promise<Uint8Array|null>{const html=this.getPDFHtml();return html?await ipc.createPDFFromHTML(html,this.width,this.height):null;},
