@@ -90,17 +90,31 @@ export function isAppInitialized(id: string): boolean {
   return initializedApps.has(id);
 }
 
+export async function initializeApp(id: string): Promise<void> {
+  const app = getApp(id);
+
+  if (!app) {
+    throw new Error(`ContraBooks app "${id}" is not registered.`);
+  }
+
+  if (app.manifest.enabledByDefault === false) {
+    throw new Error(`ContraBooks app "${id}" is disabled.`);
+  }
+
+  if (initializedApps.has(id)) return;
+
+  const context: ContraBooksAppContext = {
+    appId: app.manifest.id,
+    version: app.manifest.version,
+    isLocal: true,
+  };
+
+  if (app.setup) await app.setup(context);
+  initializedApps.add(id);
+}
+
 export async function initializeApps(): Promise<void> {
   for (const app of getEnabledApps()) {
-    if (initializedApps.has(app.manifest.id)) continue;
-
-    const context: ContraBooksAppContext = {
-      appId: app.manifest.id,
-      version: app.manifest.version,
-      isLocal: true,
-    };
-
-    if (app.setup) await app.setup(context);
-    initializedApps.add(app.manifest.id);
+    await initializeApp(app.manifest.id);
   }
 }
