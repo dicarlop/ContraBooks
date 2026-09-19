@@ -28,7 +28,7 @@ import * as injectionKeys from './utils/injectionKeys';
 import { showDialog, showToast } from './utils/interactive';
 import { setLanguageMap } from './utils/language';
 import { updateConfigFiles } from './utils/misc';
-import { updatePrintTemplates } from './utils/printTemplates';
+import { updatePrintTemplates } from './apps/template-builder/services';
 import { Search } from './utils/search';
 import { Shortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
