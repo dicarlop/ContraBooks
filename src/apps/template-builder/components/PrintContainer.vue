@@ -15,6 +15,7 @@ import ErrorBoundary from 'src/components/ErrorBoundary.vue';
 import { exportTemplatePDF, printTemplate } from '../services/printing';
 import { constructPrintDocument } from 'src/utils/printTemplates';
 import type { PrintOptions, PrintOrientation, PrintPaper } from 'src/utils/printTemplates';
+import { getPrintDimensions } from 'src/utils/printTemplates';
 import { PrintValues } from 'src/utils/types';
 import { defineComponent, PropType } from 'vue';
 import ScaledContainer from './ScaledContainer.vue';
@@ -37,7 +38,7 @@ export default defineComponent({
     getPrintOptions():PrintOptions{return{repeatHeader:this.repeatHeader,fitWidth:this.fitWidth,pageNumbers:this.pageNumbers,paper:this.paper,orientation:this.orientation};},
     getInnerHTML():string|null{const innerHTML=(this.$refs.scaledContainer as {$el?:HTMLElement}|undefined)?.$el?.children?.[0]?.innerHTML;return typeof innerHTML==='string'?innerHTML:null;},
     getPDFHtml():string|null{const innerHTML=this.getInnerHTML();return innerHTML?constructPrintDocument(innerHTML,this.getPrintOptions()):null;},
-    async getPDF():Promise<Uint8Array|null>{const html=this.getPDFHtml();return html?await ipc.createPDFFromHTML(html,this.width,this.height):null;},
+    async getPDF():Promise<Uint8Array|null>{const html=this.getPDFHtml();if(!html)return null;const [width,height]=getPrintDimensions(this.paper,this.orientation);return await ipc.createPDFFromHTML(html,width,height);},
     async savePDF(name?:string,shouldPrint?:boolean){const innerHTML=this.getInnerHTML();if(!innerHTML)return;if(shouldPrint===false)await exportTemplatePDF(name??this.t`Entry`,innerHTML,this.width,this.height,this.getPrintOptions());else await printTemplate(name??this.t`Entry`,innerHTML,this.width,this.height,this.getPrintOptions());this.fyo.telemetry.log(Verb.Printed,this.printSchemaName);},
   },
 });
