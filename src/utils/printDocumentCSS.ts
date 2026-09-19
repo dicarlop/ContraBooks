@@ -12,7 +12,9 @@ export type PrintDocumentStyleOptions = {
   orientation?: PrintOrientation;
 };
 
-export function getPrintDocumentCSS(options: PrintDocumentStyleOptions = {}): string {
+export function getPrintDocumentCSS(
+  options: PrintDocumentStyleOptions = {}
+): string {
   const paper = normalizePrintPaper(options.paper);
   const orientation = normalizePrintOrientation(options.orientation);
 
@@ -69,10 +71,3 @@ export function getPrintDocumentCSS(options: PrintDocumentStyleOptions = {}): st
     }
   `;
 }
-
-export type PrintDocumentStyleOptions = Pick<
-  PrintOptions,
-  'repeatHeader' | 'fitWidth' | 'pageNumbers' | 'paper' | 'orientation'
->;
-
-
