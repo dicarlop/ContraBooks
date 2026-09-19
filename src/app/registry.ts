@@ -63,7 +63,31 @@ export function getEnabledApps(): ContraBooksApp[] {
 }
 
 export function getAppRoutes(): RouteRecordRaw[] {
-  return getEnabledApps().flatMap((app) => app.routes ?? []);
+  const routes: RouteRecordRaw[] = [];
+  const paths = new Set<string>();
+  const names = new Set<string>();
+
+  for (const app of getEnabledApps()) {
+    for (const route of app.routes ?? []) {
+      if (paths.has(route.path)) {
+        throw new Error(
+          `ContraBooks app route path "${route.path}" is already registered.`
+        );
+      }
+
+      if (typeof route.name === 'string' && names.has(route.name)) {
+        throw new Error(
+          `ContraBooks app route name "${route.name}" is already registered.`
+        );
+      }
+
+      paths.add(route.path);
+      if (typeof route.name === 'string') names.add(route.name);
+      routes.push(route);
+    }
+  }
+
+  return routes;
 }
 
 export function isAppInitialized(id: string): boolean {
