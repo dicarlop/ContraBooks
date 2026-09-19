@@ -12,10 +12,10 @@
 import { compile, CompilerError, generateCodeFrame, SourceLocation } from '@vue/compiler-dom';
 import { Verb } from 'fyo/telemetry/types';
 import ErrorBoundary from 'src/components/ErrorBoundary.vue';
-import { exportTemplatePDF, printTemplate } from '../services/printing';
-import { constructPrintDocument } from 'src/utils/printTemplates';
-import type { PrintOptions, PrintOrientation, PrintPaper } from 'src/utils/printTemplates';
-import { getPrintDimensions } from 'src/utils/printTemplates';
+import { constructPrintDocument, exportTemplatePDF, printTemplate } from '../services/printing';
+import type { PrintOptions } from 'src/utils/printOptions';
+import type { PrintOrientation, PrintPaper } from 'src/utils/printGeometry';
+import { getPrintDimensions } from 'src/utils/printGeometry';
 import { PrintValues } from 'src/utils/types';
 import { defineComponent, PropType } from 'vue';
 import ScaledContainer from './ScaledContainer.vue';
