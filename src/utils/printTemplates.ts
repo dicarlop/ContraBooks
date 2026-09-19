@@ -498,7 +498,7 @@ export async function getPathAndMakePDF(
   }
 }
 
-function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
+export function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
   const html = document.createElement('html');
   const head = document.createElement('head');
   const body = document.createElement('body');
