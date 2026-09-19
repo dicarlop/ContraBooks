@@ -522,6 +522,24 @@ function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
         box-sizing: border-box;
       }
 
+      html, body {
+        width: 100%;
+        min-height: 100%;
+        overflow: visible !important;
+      }
+
+      body > [data-cb-print-root] {
+        width: 100%;
+        min-height: 100%;
+        margin: 0 !important;
+        overflow: visible !important;
+      }
+
+      [data-cb-id] {
+        cursor: default !important;
+        outline: none !important;
+      }
+
       table { page-break-inside: auto; }
       thead { page-break-inside: avoid; }
       tr { page-break-inside: avoid; page-break-after: auto; }
@@ -546,7 +564,10 @@ function constructPrintDocument(innerHTML: string, options: PrintOptions = {}) {
 
   head.append(style, printCSS);
 
-  body.innerHTML = innerHTML;
+  const printRoot = document.createElement('div');
+  printRoot.setAttribute('data-cb-print-root', 'true');
+  printRoot.innerHTML = innerHTML;
+  body.appendChild(printRoot);
   html.append(head, body);
   return html.outerHTML;
 }
