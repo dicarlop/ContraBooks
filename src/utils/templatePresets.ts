@@ -17,26 +17,36 @@ const shared = `
   <div style="font-family: Inter, Arial, sans-serif; color: #14202B; padding: 34px; background: white; min-height: 100%; box-sizing: border-box;">
     <div style="display:flex; justify-content:space-between; gap:30px; border-bottom:1px solid #DCE7EF; padding-bottom:22px;">
       <div>
-        <div style="font-size:24px; font-weight:800; color:#07345C;">{{ print.companyName }}</div>
-        <div style="font-size:12px; color:#64748B; margin-top:5px;">{{ print.address }}</div>
-        <div style="font-size:12px; color:#64748B;">{{ print.phone }} · {{ print.email }}</div>
+        <div data-cb-section="logo" style="margin-bottom:8px;"><img src="{{ print.logo }}" alt="{{ print.companyName }}" style="max-width:180px; max-height:60px; object-fit:contain;" /></div>
+        <div data-cb-section="companyName" style="font-size:24px; font-weight:800; color:#07345C;">{{ print.companyName }}</div>
+        <div data-cb-section="address" style="font-size:12px; color:#64748B; margin-top:5px;">{{ print.address }}</div>
+        <div data-cb-section="phone" style="font-size:12px; color:#64748B;">{{ print.phone }}</div><div data-cb-section="email" style="font-size:12px; color:#64748B;">{{ print.email }}</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:28px; font-weight:800; color:#07345C;">INVOICE</div>
-        <div style="font-size:12px; color:#64748B; margin-top:6px;">#{{ doc.name }}</div>
-        <div style="font-size:12px; color:#64748B;">{{ doc.date }}</div>
+        <div data-cb-section="title" style="font-size:28px; font-weight:800; color:#07345C;">INVOICE</div>
+        <div data-cb-section="status" style="display:inline-block; margin-top:6px; padding:3px 8px; border-radius:10px; background:#E8F8F2; color:#087C58; font-size:9px; font-weight:800;">OPEN</div>
+        <div data-cb-section="number" style="font-size:12px; color:#64748B; margin-top:6px;">#{{ doc.name }}</div>
+        <div data-cb-section="date" style="font-size:12px; color:#64748B;">{{ doc.date }}</div>
       </div>
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:24px 0;">
-      <div><div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#7B9AB4;">Bill To</div><div style="font-size:15px; font-weight:700; color:#07345C; margin-top:6px;">{{ doc.links.party.name }}</div><div style="font-size:12px; color:#64748B; margin-top:3px;">{{ doc.links.party.address }}</div></div>
+      <div data-cb-section="billTo"><div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#7B9AB4;">Bill To</div><div style="font-size:15px; font-weight:700; color:#07345C; margin-top:6px;">{{ doc.links.party.name }}</div><div style="font-size:12px; color:#64748B; margin-top:3px;">{{ doc.links.party.address }}</div></div>
+      <div data-cb-section="shipTo" style="text-align:right;"><div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#7B9AB4;">Ship To</div><div style="font-size:12px; color:#64748B; margin-top:5px;">{{ doc.shippingAddress }}</div></div>
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:24px; margin:-8px 0 18px; font-size:11px; color:#64748B;">
+      <div data-cb-section="poNo"><strong style="color:#375E7F;">P.O. No.</strong> {{ doc.poNo }}</div>
+      <div data-cb-section="paymentTerms"><strong style="color:#375E7F;">Terms</strong> {{ doc.terms }}</div>
+      <div data-cb-section="dueDate"><strong style="color:#375E7F;">Due Date</strong> {{ doc.dueDate }}</div>
+    </div>
+    <div style="display:flex; justify-content:flex-end;">
       <div style="text-align:right;"><div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#7B9AB4;">Amount Due</div><div style="font-size:22px; font-weight:800; color:#07345C; margin-top:6px;">{{ doc.grandTotal }}</div></div>
     </div>
-    <table style="width:100%; border-collapse:collapse; font-size:12px;">
-      <thead><tr style="background:#F5F9FC; color:#375E7F;"><th style="padding:10px; text-align:left;">Item</th><th style="padding:10px; text-align:right;">Qty</th><th style="padding:10px; text-align:right;">Rate</th><th style="padding:10px; text-align:right;">Amount</th></tr></thead>
-      <tbody><tr v-for="item in doc.items" style="border-bottom:1px solid #EAF0F5;"><td style="padding:11px;">{{ item.item }}</td><td style="padding:11px; text-align:right;">{{ item.quantity }}</td><td style="padding:11px; text-align:right;">{{ item.rate }}</td><td style="padding:11px; text-align:right; font-weight:600;">{{ item.amount }}</td></tr></tbody>
+    <table data-cb-items-table style="width:100%; border-collapse:collapse; font-size:12px;">
+      <thead><tr style="background:#F5F9FC; color:#375E7F;"><th data-cb-column="item" style="padding:10px; text-align:left;">Item</th><th data-cb-column="quantity" style="padding:10px; text-align:right;">Qty</th><th data-cb-column="rate" style="padding:10px; text-align:right;">Rate</th><th data-cb-column="amount" style="padding:10px; text-align:right;">Amount</th></tr></thead>
+      <tbody><tr v-for="item in doc.items" style="border-bottom:1px solid #EAF0F5;"><td data-cb-column="item" style="padding:11px;">{{ item.item }}</td><td data-cb-column="quantity" style="padding:11px; text-align:right;">{{ item.quantity }}</td><td data-cb-column="rate" style="padding:11px; text-align:right;">{{ item.rate }}</td><td data-cb-column="amount" style="padding:11px; text-align:right; font-weight:600;">{{ item.amount }}</td></tr></tbody>
     </table>
-    <div style="display:flex; justify-content:flex-end; margin-top:22px;"><div style="width:240px; font-size:12px;"><div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Subtotal</span><strong>{{ doc.subTotal }}</strong></div><div style="display:flex; justify-content:space-between; padding:10px 0; border-top:2px solid #00AFC1; color:#07345C; font-size:15px;"><span>Total</span><strong>{{ doc.grandTotal }}</strong></div></div></div>
-    <div style="margin-top:36px; padding-top:14px; border-top:1px solid #EAF0F5; font-size:10px; color:#7B9AB4;">Thank you for your business. {{ print.termsAndConditions }}</div>
+    <div style="display:flex; justify-content:flex-end; margin-top:22px;"><div style="width:240px; font-size:12px;"><div data-cb-section="subtotal" style="display:flex; justify-content:space-between; padding:6px 0;"><span>Subtotal</span><strong>{{ doc.subTotal }}</strong></div><div data-cb-section="discount" style="display:flex; justify-content:space-between; padding:6px 0;"><span>Discount</span><strong>{{ doc.totalDiscount }}</strong></div><div data-cb-section="tax" style="display:flex; justify-content:space-between; padding:6px 0;"><span>Tax</span><strong>{{ doc.totalTax }}</strong></div><div data-cb-section="payments" style="display:flex; justify-content:space-between; padding:6px 0;"><span>Payments / Credits</span><strong>{{ doc.paymentsAndCredits }}</strong></div><div data-cb-section="total" style="display:flex; justify-content:space-between; padding:10px 0; border-top:2px solid #00AFC1; color:#07345C; font-size:15px;"><span>Total</span><strong>{{ doc.grandTotal }}</strong></div><div data-cb-section="balance" style="display:flex; justify-content:space-between; padding:10px 0; border-top:2px solid #00AFC1; color:#07345C; font-size:15px;"><span>Balance Due</span><strong>{{ doc.balanceDue || doc.grandTotal }}</strong></div></div></div>
+    <div data-cb-section="footer" style="margin-top:36px; padding-top:14px; border-top:1px solid #EAF0F5; font-size:10px; color:#7B9AB4;"><span data-cb-section="footerText">Thank you for your business.</span> <span data-cb-section="terms">{{ print.termsAndConditions }}</span> <span data-cb-section="pageNumbers" class="cb-page-numbers"></span></div>
   </div>`;
 
 export const templatePresets: Record<TemplatePresetName, string> = {

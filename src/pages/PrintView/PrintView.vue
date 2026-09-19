@@ -80,9 +80,10 @@ import { showToast } from 'src/utils/interactive';
 import type { DocumentEmailContext } from 'src/utils/email';
 import { showSidebar } from 'src/utils/refs';
 import { PrintValues } from 'src/utils/types';
-import { getFormRoute, openSettings, routeTo } from 'src/utils/ui';
+import { openSettings, routeTo } from 'src/utils/ui';
 import { defineComponent } from 'vue';
-import PrintContainer from '../TemplateBuilder/PrintContainer.vue';
+import PrintContainer from 'src/apps/template-builder/components/PrintContainer.vue';
+import { setDefaultTemplateName, getDefaultTemplateName } from 'src/apps/template-builder/services';
 
 export default defineComponent({
   name: 'PrintView',
@@ -214,6 +215,19 @@ export default defineComponent({
           },
         },
         {
+          label: this.t`Set as Default`,
+          group: this.t`Create`,
+          action: async () => {
+            const templateDocName = this.templateDoc?.name;
+            if (!templateDocName) {
+              return;
+            }
+
+            await setDefaultTemplateName(this.fyo, this.schemaName, templateDocName);
+            showToast({ message: this.t`Default print template updated`, type: 'success' });
+          },
+        },
+        {
           label: this.t`New Template`,
           group: this.t`Create`,
           action: async () => {
@@ -221,8 +235,7 @@ export default defineComponent({
               type: this.schemaName,
             });
 
-            const route = getFormRoute(doc.schemaName, doc.name!);
-            await routeTo(route);
+            await routeTo(`/template-builder/${doc.name!}`);
           },
         },
       ];
@@ -233,11 +246,7 @@ export default defineComponent({
           label: templateDocName,
           group: this.t`View`,
           action: async () => {
-            const route = getFormRoute(
-              ModelNameEnum.PrintTemplate,
-              templateDocName
-            );
-            await routeTo(route);
+            await routeTo(`/template-builder/${templateDocName}`);
           },
         });
 
@@ -250,8 +259,7 @@ export default defineComponent({
               template: this.templateDoc?.template,
             });
 
-            const route = getFormRoute(doc.schemaName, doc.name!);
-            await routeTo(route);
+            await routeTo(`/template-builder/${doc.name!}`);
           },
         });
       }
@@ -379,35 +387,11 @@ export default defineComponent({
       }
     },
     async setTemplateFromDefault() {
-      const defaultName =
-        this.schemaName[0].toLowerCase() +
-        this.schemaName.slice(1) +
-        ModelNameEnum.PrintTemplate;
-
-      let templateName;
-
-      if (
-        this.schemaName == ModelNameEnum.SalesInvoice &&
-        (this.doc as Doc).isPOS
-      ) {
-        templateName = this.fyo.singles.Defaults?.posPrintTemplate;
-
-        const posProfileName = this.fyo.singles.POSSettings
-          ?.posProfile as string;
-
-        if (posProfileName) {
-          const posProfile = await this.fyo.doc.getDoc(
-            ModelNameEnum.POSProfile,
-            posProfileName
-          );
-
-          if (posProfile.posPrintTemplate) {
-            templateName = posProfile.posPrintTemplate;
-          }
-        }
-      } else {
-        templateName = this.fyo.singles.Defaults?.get(defaultName);
-      }
+      const templateName = await getDefaultTemplateName(
+        this.fyo,
+        this.schemaName,
+        this.doc ?? undefined
+      );
 
       if (typeof templateName !== 'string') {
         return;

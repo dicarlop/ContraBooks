@@ -14,6 +14,7 @@ import { systemLanguageRef } from 'src/utils/refs';
 import { defineComponent, provide, ref, Ref } from 'vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
+import { initializeApps } from './app/registry';
 import { fyo } from './initFyo';
 import DatabaseSelector from './pages/DatabaseSelector.vue';
 import Desk from './pages/Desk.vue';
@@ -27,7 +28,7 @@ import * as injectionKeys from './utils/injectionKeys';
 import { showDialog, showToast } from './utils/interactive';
 import { setLanguageMap } from './utils/language';
 import { updateConfigFiles } from './utils/misc';
-import { updatePrintTemplates } from './utils/printTemplates';
+import { updatePrintTemplates } from './apps/template-builder/services';
 import { Search } from './utils/search';
 import { Shortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
@@ -64,6 +65,7 @@ export default defineComponent({
   watch: { language(value: string) { this.languageDirection = getLanguageDirection(value); } },
   async mounted() {
     window.addEventListener(THEME_CHANGE_EVENT, this.handleThemeChange as EventListener);
+    await initializeApps();
     await this.setInitialScreen();
     const storedTheme = localStorage.getItem('contrabooks-theme');
     const darkMode = storedTheme === 'dark' || (storedTheme === null && !!fyo.singles.SystemSettings?.darkMode);

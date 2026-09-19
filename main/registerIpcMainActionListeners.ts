@@ -14,7 +14,7 @@ import { getLanguageMap } from './getLanguageMap';
 import { getTemplates } from './getPrintTemplates';
 import { getConfigFilesWithModified, getErrorHandledReponse, isNetworkError, setAndGetCleanedConfigFiles } from './helpers';
 import { printHtmlDocument } from './printHtmlDocument';
-import { saveHtmlAsPdf } from './saveHtmlAsPdf';
+import { renderHtmlAsPdf, saveHtmlAsPdf } from './saveHtmlAsPdf';
 import { sendAPIRequest } from './api';
 import { initScheduler } from './initSheduler';
 import type { RequestInit as NodeFetchRequestInit } from 'node-fetch';
@@ -26,6 +26,7 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.GET_DIALOG_RESPONSE, async (_, options:MessageBoxOptions)=>{if(main.isDevelopment||main.isLinux)Object.assign(options,{icon:main.icon});return await dialog.showMessageBox(main.mainWindow!,options);});
   ipcMain.handle(IPC_ACTIONS.SHOW_ERROR, (_, {title,content}:{title:string;content:string})=>dialog.showErrorBox(title,content));
   ipcMain.handle(IPC_ACTIONS.SAVE_HTML_AS_PDF, async (_,html:string,savePath:string,width:number,height:number)=>await saveHtmlAsPdf(html,savePath,app,width,height));
+  ipcMain.handle(IPC_ACTIONS.CREATE_PDF_FROM_HTML, async (_,html:string,width:number,height:number)=>new Uint8Array(await renderHtmlAsPdf(html,app,width,height)));
   ipcMain.handle(IPC_ACTIONS.PRINT_HTML_DOCUMENT, async (_,html:string,width:number,height:number)=>await printHtmlDocument(html,app,width,height));
   ipcMain.handle(IPC_ACTIONS.SAVE_DATA, async (_,data:string,savePath:string)=>await fs.writeFile(savePath,data,{encoding:'utf-8'}));
   ipcMain.handle(IPC_ACTIONS.SEND_ERROR, async (_,bodyJson:string)=>await sendError(bodyJson,main));
