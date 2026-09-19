@@ -23,7 +23,7 @@
         <div class="paper-stage" ref="paperStage">
           <div class="paper-shell" :style="{transform:`scale(${zoom})`}">
             <PrintContainer v-if="displayDoc && values" ref="printContainer" :print-schema-name="displayDoc.schemaName" :template="doc.template!" :values="values" :scale="1" :height="doc.height" :width="doc.width" :repeat-header="print.repeatHeader" :fit-width="print.fitWidth" :page-numbers="settings.pageNumbers" @select-element="selectElement" @move-element="moveElement" />
-            <div class="margin-guide" :style="{ inset: print.margins || '0' }" aria-hidden="true"><span>Printable area</span></div>
+            <div class="margin-guide" :style="marginGuideStyle" aria-hidden="true"><span>Printable area</span></div>
           </div>
         </div>
       </main>
