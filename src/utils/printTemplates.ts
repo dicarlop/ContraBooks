@@ -5,18 +5,11 @@ import { ModelNameEnum } from 'models/types';
 import { FieldTypeEnum, Schema, TargetField } from 'schemas/types';
 import { getValueMapFromList } from 'utils/index';
 import { TemplateFile } from 'utils/types';
-import { showToast } from './interactive';
 import { PrintValues } from './types';
-import {
-  getDocFromNameIfExistsElseNew,
-  getSavePath,
-  showExportInFolder,
-} from './ui';
+import { getDocFromNameIfExistsElseNew } from './ui';
 import { Money } from 'pesa';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { Payment } from 'models/baseModels/Payment/Payment';
-import { getPrintDocumentCSS } from './printDocumentCSS';
-import type { PrintOptions } from './printOptions';
 import {
   getPrintDimensions,
   normalizePrintOrientation,
@@ -470,93 +463,12 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
   return values;
 }
 
-export type { PrintOptions } from './printOptions';
-
-export async function getPathAndMakePDF(
-  name: string,
-  innerHTML: string,
-  width: number,
-  height: number,
-  shouldPrint?: boolean,
-  options: PrintOptions = {}
-) {
-  const [printWidth, printHeight] =
-    options.paper || options.orientation
-      ? getPrintDimensions(
-          normalizePrintPaper(options.paper),
-          normalizePrintOrientation(options.orientation)
-        )
-      : [width, height];
-
-  if (!shouldPrint) {
-    const { filePath: savePath } = await getSavePath(name, 'pdf');
-    if (!savePath) {
-      return;
-    }
-
-    const html = constructPrintDocument(innerHTML, options);
-    const success = await ipc.makePDF(html, savePath, printWidth, printHeight);
-    if (success) {
-      showExportInFolder(t`Save as PDF Successful`, savePath);
-    } else {
-      showToast({ message: t`Export Failed`, type: 'error' });
-    }
-  } else {
-    const html = constructPrintDocument(innerHTML, options);
-    const success = await ipc.printDocument(html, printWidth, printHeight);
-    if (success) {
-      showToast({ message: t`Print Successful`, type: 'success' });
-    } else {
-      showToast({ message: t`Print Failed`, type: 'error' });
-    }
-  }
-}
-
-export function constructPrintDocument(
-  innerHTML: string,
-  options: PrintOptions = {}
-) {
-  const html = document.createElement('html');
-  const paper = normalizePrintPaper(options.paper);
-  const orientation = normalizePrintOrientation(options.orientation);
-  const head = document.createElement('head');
-  const body = document.createElement('body');
-  const style = getAllCSSAsStyleElem();
-
-  const printCSS = document.createElement('style');
-  printCSS.innerHTML = getPrintDocumentCSS(options);
-
-  head.innerHTML = [
-    '<meta charset="UTF-8">',
-    '<title>Print Window</title>',
-  ].join('\n');
-
-  head.append(style, printCSS);
-
-  const printRoot = document.createElement('div');
-  printRoot.setAttribute('data-cb-print-root', 'true');
-  printRoot.innerHTML = innerHTML;
-  body.appendChild(printRoot);
-  html.append(head, body);
-  return html.outerHTML;
-}
-
-function getAllCSSAsStyleElem() {
-  const cssTexts: string[] = [];
-  for (const sheet of document.styleSheets) {
-    for (const rule of sheet.cssRules) {
-      cssTexts.push(rule.cssText);
-    }
-
-    if (sheet.ownerRule) {
-      cssTexts.push(sheet.ownerRule.cssText);
-    }
-  }
-
-  const styleElem = document.createElement('style');
-  styleElem.innerHTML = cssTexts.join('\n');
-  return styleElem;
-}
+export {
+  constructPrintDocument,
+  getPathAndMakePDF,
+  renderAndPrint,
+} from 'src/apps/template-builder/services/printing';
+export type { PrintOptions } from 'src/utils/printOptions';
 
 export async function updatePrintTemplates(fyo: Fyo) {
   const templateFiles = await ipc.getTemplates(
