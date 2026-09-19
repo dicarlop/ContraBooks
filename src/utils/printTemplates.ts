@@ -1,9 +1,6 @@
 import { Fyo, t } from 'fyo';
 import { ModelNameEnum } from 'models/types';
 import { FieldTypeEnum, Schema, TargetField } from 'schemas/types';
-import { getValueMapFromList } from 'utils/index';
-import { TemplateFile } from 'utils/types';
-import { getDocFromNameIfExistsElseNew } from './ui';
 export { getPrintDimensions, normalizePrintOrientation, normalizePrintPaper } from './printGeometry';
 export type { PrintOrientation, PrintPaper } from './printGeometry';
 export { PRINT_PAPER_SIZES } from './printGeometry';
