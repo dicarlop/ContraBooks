@@ -32,7 +32,7 @@ export const templateBuilderApp: ContraBooksApp = {
     {
       path: '/template-designer/:name',
       name: 'Visual Template Designer',
-      component: TemplateDesignerWindow,
+      component: () => import('./pages/TemplateDesignerWindow.vue'),
       props: true,
     },
   ],
