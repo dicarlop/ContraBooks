@@ -16,6 +16,7 @@ import { Money } from 'pesa';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { Payment } from 'models/baseModels/Payment/Payment';
 import { getPrintDocumentCSS } from './printDocumentCSS';
+import type { PrintOptions } from './printOptions';
 import {
   getPrintDimensions,
   normalizePrintOrientation,
@@ -469,14 +470,7 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
   return values;
 }
 
-export type PrintOptions = {
-  repeatHeader?: boolean;
-  fitWidth?: boolean;
-  pageNumbers?: boolean;
-  paper?: PrintPaper;
-  orientation?: PrintOrientation;
-};
-
+export type { PrintOptions } from './printOptions';
 
 export async function getPathAndMakePDF(
   name: string,
