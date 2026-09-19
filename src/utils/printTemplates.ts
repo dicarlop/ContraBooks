@@ -15,6 +15,13 @@ import {
 import { Money } from 'pesa';
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { Payment } from 'models/baseModels/Payment/Payment';
+import {
+  getPrintDimensions,
+  normalizePrintOrientation,
+  normalizePrintPaper,
+} from './printGeometry';
+export type { PrintOrientation, PrintPaper } from './printGeometry';
+export { PRINT_PAPER_SIZES } from './printGeometry';
 
 export type PrintTemplateHint = {
   [key: string]: string | PrintTemplateHint | PrintTemplateHint[];
@@ -458,41 +465,6 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
     values.links = links;
   }
   return values;
-}
-
-export type PrintPaper = 'Letter' | 'A4' | 'Legal';
-export type PrintOrientation = 'Portrait' | 'Landscape';
-
-export const PRINT_PAPER_SIZES: Record<
-  PrintPaper,
-  readonly [number, number]
-> = {
-  Letter: [21.59, 27.94],
-  A4: [21, 29.7],
-  Legal: [21.59, 35.56],
-};
-
-export function normalizePrintPaper(value: unknown): PrintPaper {
-  return value === 'A4' || value === 'Legal' || value === 'Letter'
-    ? value
-    : 'Letter';
-}
-
-export function normalizePrintOrientation(value: unknown): PrintOrientation {
-  return value === 'Landscape' ? 'Landscape' : 'Portrait';
-}
-
-export function getPrintDimensions(
-  paper: PrintPaper,
-  orientation: PrintOrientation
-): [number, number] {
-  const normalizedPaper = normalizePrintPaper(paper);
-  const normalizedOrientation = normalizePrintOrientation(orientation);
-  const [width, height] = PRINT_PAPER_SIZES[normalizedPaper];
-
-  return normalizedOrientation === 'Landscape'
-    ? [height, width]
-    : [width, height];
 }
 
 export type PrintOptions = {
